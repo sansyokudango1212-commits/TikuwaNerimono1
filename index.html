@@ -1,84 +1,110 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-    <head>
-  <link href=href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
-
-  <style>
-    body {
-      font-family: 'Noto Sans JP', sans-serif;
-    }
-  </style>
-</head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HP</title>
-  <style>
-    .container {
-  width: 40%;
-  max-width: 1200px; 
-  margin: 0 auto; 
-}
-
-    a {
-  color: #ffffff;
-  text-decoration: none;
-}
-
-a:hover {
-  color: #91ff76;
-}
-    .half {
-      border: none;
-      height: 2px;
-      background: rgba(255, 255, 255, 0.2); 
-      width: 80%;
-      margin: 24px auto;
-    }
+  <meta  name="description" content="document">
+</head>
+<body>
+   <style>
+  .container {
+  max-width: 800px;
+  margin: 0 auto;
+  }
     body {
-    background-image: url('https://9to5mac.com/wp-content/uploads/sites/6/2025/06/macOS_26_Dark.jpg?resize=655,368');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    color: #000000; 
+      background-color: rgb(41, 41, 63);
     }
+  a {
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+  }
 
-body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-
- 
-    background: inherit;
-    background-attachment: fixed;
-
-
-    filter: blur(8px) brightness(0.5);
-    transform: scale(1.05);
-    background-color: #000000; 
-    background-image: url('https://www.10wallpaper.com/wallpaper/1366x768/2306/Graphic_MacOS_Sonoma_Curve_Ripple_5K_Background_1366x768.jpg'); /* 背景画像のURL */
-    background-size: cover;    
-    background-position: center; 
-    background-repeat: no-repeat; 
-    background-attachment: fixed; 
+  #hr1 {
+    border: 0;
+    height: 1px;
+    background-image: -webkit-linear-gradient(left, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.75), rgba(0,0,0,0));
+    background-image:    -moz-linear-gradient(left, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.75), rgba(0,0,0,0));
+    background-image:     -ms-linear-gradient(left, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.75), rgba(0,0,0,0));
+    background-image:      -o-linear-gradient(left, rgba(0,0,0,0), rgba(255, 255, 255, 0.75), rgba(0,0,0,0));
     }
-    </style>
-    </head>
-    <body>
-     <div class="container">
-    <font color="#ffffff" style="text-align:center;">
-    <h1><p><font face="arial">ちくわ練り物の生息部屋</font></p>
-    <hr class="half">
-    <h2><p style="text-align:center;"><font face="arial">趣味
-    <h4><p style="text-align:left;"><font face="arial"></font>買い物<br>
-        ウィンドウショッピング(ネット)<br>
-        Sovecxと話すこと </font></p>   
-    <h2><p style="text-align:center; "><font face="arial">布陣
-        <h4><p style="text-align:left;"><font face="arial"></font>メイン機iphone15<br>iphone4s<br>謎泥<br>文鎮化済みiPhone6s</font></p>
-        <h2><p style="text-align:center;"><font face="arial">リンク集<br>
-            <a href="https://x.com/TikuwaNerimono1" target="_blank">X</a><br>
-            <a href="https://karotter.com/profile/TikuwaNerimono1/share" target="_blank">karitter</a><br>
-        <hr class="half">
-        </div>
-    </body>
+    /* //線の設定 普通のhrとは違うやつ ネットのやつ参考にしたけど多分グラデーションと線の設定してるだけ */
+
+    #ちくわ練り物の部屋 {
+      color: rgb(255, 255, 255);
+      text-align: center;
+      font-size: 30px;
+      margin-top: 15px;
+      font-weight: 100;
+    }
+    #ちくわ練り物とは {
+      color: white;
+      text-align: left;
+      font-size: 20px;
+      margin-top: 20px;
+    }
+    #本文1 {
+      color: white;
+      text-align: left;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    #ちくわ練り物の布陣 {
+      color: white;
+      text-align: center;
+      font-size: 20px;
+      margin-top: 10px;
+    }
+    #G{ /* GはゴキブリじゃなくてガジェオタのGだよ */
+      color: white;
+      text-align: left;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    #アイコン {
+      display: block;
+      display: flex;
+      width : 40px;
+      height: auto;
+      border-radius: 50%;
+      margin: 0 auto;
+      margin-top: 0px;
+    }
+   </style>
+   <div class="container">
+   <h1 id="ちくわ練り物の部屋" style="margin-bottom: 0;"><a href="https://x.com/TikuwaNerimono1">ちくわ練り物</a></h1>
+   <img id="アイコン" src="https://pbs.twimg.com/profile_images/1969278296891539456/OnzHXc5g_400x400.jpg" alt="ちくわ練り物のアイコン" width="200" height="200"><!--アイコン-->
+   <hr id="hr2">
+   <h3 id="ちくわ練り物とは">ちくわ練り物とは</h3>
+   <p id="本文1">ちくわ練り物はけっこうおしゃべりなのにくそ陰キャである<br>去年まで小学生だった語彙力が全くないガジェオタただの一般通過中学生<br>
+  ガジェオタであるということはスマホをもいっぱい持っている(?)ことである<br>
+  そこで皆さんに布陣をお見せしましょう</p>
+  <hr id="hr1">
+  <h1 id="ちくわ練り物の布陣">iPhone軍</h1>
+  <p id="G"><a href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/iPhone15.JPG?raw=true">iPhone 15</a></p>
+  <p id="G"><a href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/iPhone6S.HEIC?raw=true">iPhone 6s</a></p>
+  <p id="G"><a href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/iPhone4S.HEIC?raw=true">iPhone 4s</a></p>
+  <hr id="hr1">
+  <h1 id="ちくわ練り物の布陣">泥/Win軍</h1>
+  <p id="G">GALLERIA</p>
+  <p id="G">パーツすべてが分離した跡形のないDynabook</p>
+  <p id="G">謎泥(PC-TE-410JAW)</p>
+  <hr id="hr1">
+  <h1 id="ちくわ練り物の布陣">ほしいもの!!</h1>
+  <p id="G">MacBook Air M2</p>
+  <p id="G">iPad mini 6</p>
+  <p id="G">iPhone 17e</p>
+  <p id="G">OnePlus 12</p>
+  <hr id="hr1">
+  <h1 id="ちくわ練り物の布陣">趣味</h1>
+  <p id="G">ソベクタと話すこと</p>
+  <p id="G">Apple store行くこと</p>
+  <p id="G">Twitter(旧X)をみること</p>
+  <p id="G">ゲーム</p>
+  <hr>
+  <h2 id="ちくわ練り物の布陣">リンク集</h2>
+  <h4><a href="https://karotter.com/profile/TikuwaNerimono1/share">karotter</a></h4>
+  <h4><a href="https://x.com/TikuwaNerimono1">Twitter</a></h4>
+  </div>
+</body>
 </html>
