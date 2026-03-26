@@ -13,15 +13,17 @@
   margin: 0 auto;
   }
     body {
-      background-color: rgb(41, 41, 63);
-    font-family: "Arial", "Helvetica", sans-serif;
+      background-image: url('https://lh3.googleusercontent.com/pw/AP1GczNia1vTwd-sYaAJ3sLkLkRM2YRP8sDuw5UYyRlpkvt28xeN8UetM0yPnw2UmANuGtL7clGMNbhK4uoKam6QD6RJi4-Gb6WYdkRjebxUcs62VDX1LKa5m1iVv-r_XaVfOaqwtDFw_wzTQFgrFKInSP72=w1456-h910-s-no-gm?authuser=0');
+      background-size: cover;
+      background-attachment: fixed;
+      font-family: "Noto Sans JP", sans-serif;
     }
   a {
     color: rgb(255, 255, 255);
     text-decoration: none;
   }
 
-  #hr1 {
+  .hr1 {
     border: 0;
     height: 1px;
     background-image: -webkit-linear-gradient(left, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.75), rgba(0,0,0,0));
@@ -36,7 +38,7 @@
       text-align: center;
       font-size: 30px;
       margin-top: 15px;
-      font-weight: 50;
+      font-weight: 100;
     }
     #ちくわ練り物とは {
       color: white;
@@ -50,19 +52,21 @@
       font-size: 16px;
       margin-top: 10px;
     }
-    #ちくわ練り物の布陣 {
+    .TN {
+      list-style: none;
       color: white;
       text-align: center;
       font-size: 20px;
       margin-top: 10px;
+      font-weight: bold;
     }
-    #G{ /* GはゴキブリじゃなくてガジェオタのGだよ */
+    .G{ /* GはゴキブリじゃなくてガジェオタのGだよ */
       color: white;
       text-align: left;
       font-size: 16px;
       margin-top: 10px;
     }
-    #アイコン {
+    .ico {
       display: block;
       display: flex;
       width : 40px;
@@ -74,36 +78,43 @@
    </style>
    <div class="container">
    <h1 id="ちくわ練り物の部屋" style="margin-bottom: 0;"><a href="https://x.com/TikuwaNerimono1">ちくわ練り物</a></h1>
-   <img id="アイコン" src="https://pbs.twimg.com/profile_images/1969278296891539456/OnzHXc5g_400x400.jpg" alt="ちくわ練り物のアイコン" width="200" height="200"><!--アイコン-->
-   <hr id="hr2">
+   <img class="ico" src="https://pbs.twimg.com/profile_images/1969278296891539456/OnzHXc5g_400x400.jpg" alt="ちくわ練り物のアイコン" width="200" height="200"><!--アイコン-->
+   <hr>
    <h3 id="ちくわ練り物とは">ちくわ練り物とは</h3>
-   <p id="本文1">ちくわ練り物はけっこうおしゃべりなのにくそ陰キャである<br>去年まで小学生だった語彙力が全くないガジェオタただの一般通過中学生<br>
-  ガジェオタであるということはスマホをもいっぱい持っている(?)ことである<br>
-  そこで皆さんに布陣をお見せしましょう</p>
-  <hr id="hr1">
-  <h1 id="ちくわ練り物の布陣">iPhone軍</h1>
-  <p id="G"><a href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/iPhone15.JPG?raw=true">iPhone 15</a></p>
-  <p id="G"><a href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/iPhone6S.HEIC?raw=true">iPhone 6s</a></p>
-  <p id="G"><a href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/iPhone4S.HEIC?raw=true">iPhone 4s</a></p>
-  <hr id="hr1">
-  <h1 id="ちくわ練り物の布陣">泥/Win軍</h1>
-  <p id="G">GALLERIA</p>
-  <p id="G">パーツすべてが分離した跡形のないDynabook</p>
-  <p id="G">謎泥(PC-TE-410JAW)</p>
-  <hr id="hr1">
-  <h1 id="ちくわ練り物の布陣">ほしいもの!!</h1>
-  <p id="G">MacBook Air M2</p>
-  <p id="G">iPad mini 6</p>
-  <p id="G">iPhone 17e</p>
-  <p id="G">OnePlus 12</p>
-  <hr id="hr1">
-  <h1 id="ちくわ練り物の布陣">趣味</h1>
-  <p id="G">ソベクタと話すこと</p>
-  <p id="G">Apple store行くこと</p>
-  <p id="G">Twitter(旧X)をみること</p>
-  <p id="G">ゲーム</p>
-  <hr>
-  <h2 id="ちくわ練り物の布陣">リンク集</h2>
+   <p id="本文1">ちくわ練り物はけっこうおしゃべりなのにくそ陰キャである<br>去年までクソガキだった語彙力が全くないガジェオタただの一般通過中学生<br>さらにいうと結構金がかかる趣味であるため常に金欠である<br>その趣味というのがスマホオタク<br>唐突だが皆さんに布陣も見せたい</p>
+
+  <hr class="hr1">
+  <details open>
+  <summary class="TN">iPhone軍</summary>
+  <p class="G"><a href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/15.JPG?raw=true">iPhone 15</a></p>
+  <p class="G"><a href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/6s.JPG?raw=true">iPhone 6s</a></p>
+  <p class="G"><a href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/4s.JPG?raw=true">iPhone 4s</a></p>
+  </details>
+  <hr class="hr1">
+  <details open>
+  <summary class="TN">泥/Win軍</summary>
+  <p class="G"><a href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/GALLERIA.JPG?raw=true">GALLERIA</a></p>
+  <p class="G"><a href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/%E6%AD%BB%E8%80%85.JPG?raw=true">パーツすべてが分離した跡形のないDynabook</a></p>
+  <p class="G"><a href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/PC-TE-410-JAW.JPG?raw=true">謎泥(PC-TE-410JAW)</a></p>
+  </details>
+  <hr class="hr1">
+  <details open>
+  <summary class="TN">ほしいもの</summary>
+  <p class="G">MacBook Air M2</p>
+  <p class="G">iPad mini 6</p>
+  <p class="G">iPhone 17e</p>
+  <p class="G">OnePlus 12</p>
+    </details>
+  <hr class="hr1">
+  <details open>
+  <summary class="TN">趣味</summary>
+  <p class="G"><a href="https://x.com/Sovecx">ソベクタ</a>と話すこと</p>
+  <p class="G">Apple store行くこと</p>
+  <p class="G"><a href="https://x.com/TikuwaNerimono1">Twitter(旧X)</a>をみること</p>
+  <p class="G">ゲーム</p>
+  </details>
+  <hr class="hr1">
+  <h2 class="TN">リンク集</h2>
   <h4><a href="https://karotter.com/profile/TikuwaNerimono1/share">karotter</a></h4>
   <h4><a href="https://x.com/TikuwaNerimono1">Twitter</a></h4>
   </div>
