@@ -20,7 +20,7 @@
   margin: 0 auto;
   }
     body {
-      background-image: url('https://lh3.googleusercontent.com/pw/AP1GczNia1vTwd-sYaAJ3sLkLkRM2YRP8sDuw5UYyRlpkvt28xeN8UetM0yPnw2UmANuGtL7clGMNbhK4uoKam6QD6RJi4-Gb6WYdkRjebxUcs62VDX1LKa5m1iVv-r_XaVfOaqwtDFw_wzTQFgrFKInSP72=w1456-h910-s-no-gm?authuser=0');
+      background-image: url('https://lh3.googleusercontent.com/pw/AP1GczMbMIgv9wZLJbeDdwPC-7aRgmyjVAgfdXs2PXeS50IIYH7yGL6xBXC2WiYBb5lLvfPnp6c2r0Wkn1bOFJdWf4zQqmeWFpEIdSrX6IPt74qDuVXm0uK3vqXIFBSGh4rUIHRdAuPuj9XKaHde-Igh9yBz=w1474-h921-s-no-gm?authuser=0');
       background-size: cover;
       background-attachment: fixed;
       font-family: "Noto Sans JP", sans-serif;
@@ -40,6 +40,18 @@
     }
     /* //線の設定 普通のhrとは違うやつ ネットのやつ参考にしたけど多分グラデーションと線の設定してるだけ */
 
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: rgba(0, 0, 0, 0.377);
+      z-index: -1;
+      pointer-events: none;
+      position: fixed;
+      /* どうしても実装したかったけど自分で実装できなかったからGPT君に助けてもらった */
+}
     #ちくわ練り物の部屋 {
       color: rgb(255, 255, 255);
       text-align: center;
@@ -58,8 +70,17 @@
       text-align: left;
       font-size: 16px;
       margin-top: 10px;
+      text-align: center;
     }
     .TN {
+      list-style: none;
+      color: white;
+      text-align: left;
+      font-size: 20px;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+      .TNF {
       list-style: none;
       color: white;
       text-align: center;
@@ -73,6 +94,14 @@
       text-align: left;
       font-size: 16px;
       margin-top: 10px;
+      text-align: center;
+    }
+    .h6{
+      list-style: none;
+      color: white;
+      text-align: center;
+      font-size: 7px;
+      margin-top: 10px;
     }
     .L{ 
       color: rgb(0, 162, 255);
@@ -80,6 +109,14 @@
       font-size: 20px;
       margin-top: 0px;
       font-weight: 100;
+    }
+    
+    .glass {
+      background: rgba(255,255,255,0.00);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border: 1px solid rgba(255,255,255,0.00);
+      border-radius: 20px;
     }
     .ico {
       display: block;
@@ -123,11 +160,12 @@
   <hr class="hr1">
   <div>
   <details open>
-  <summary class="TN">布陣</summary>
+  <summary class="TNF">布陣</summary>
+  <h6 class="h6">文字をクリックすると画像を表示/非表示にできます</h6>
   <details open>
   <summary class="G">iPhone 15</summary>
   <a href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/15.JPG?raw=true"></a>
-    <img class="IMG" src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/15.JPG?raw=true" alt="iPhone 15" width="200" height="200">
+  <a href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/15.JPG?raw=true"><img class="IMG" src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/15.JPG?raw=true" alt="iPhone 15" width="200" height="200"></a>
   </details>
   <details open>
   <summary class="G">iPhone 6s</summary>
@@ -181,7 +219,7 @@
   </a>
   <p class="L"><span style="color: rgb(255, 72, 0);"><a href="https://www.instagram.com/tikuwa_nerimono0/" style="color: inherit;">tikuwa</a>
   <span class="L" style="color: rgb(255, 0, 0);"><a href="https://www.instagram.com/tikuwa_nerimono0/" style="color: inherit;">nerimono0</a></span></span></p>
-  <h6 class="Z">Ver2.0 build20260328518</h6>  
+  <h6 class="Z">Ver2.1 build202603300145</h6>  
 </div>
 </body>
 </html>
