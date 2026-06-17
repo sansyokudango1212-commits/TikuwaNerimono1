@@ -3,237 +3,813 @@
 <head>
   <link rel="icon" type="image/png" sizes="16x16" href="16.png">
   <link rel="icon" type="image/png" sizes="32x32" href="32.png">
-  <link rel="icon" type="image/png" sizes="48x48" href="48.png">
-  <link rel="icon" type="image/png" sizes="64x64" href="64.png">
   <link rel="apple-touch-icon" sizes="180x180" href="180.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="192.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HP</title>
-  <meta  name="description" content="document">
+  <title>ちくわ練り物の部屋</title>
+  <meta name="description" content="ちくわ練り物">
   <meta name="google-site-verification" content="Z5LCrw2wiWOC0bTQynoScEQ9LTvHoEucbmQwoReCLXE" />
-</head>
-<body>
-   <style>
-  .container {
-  max-width: 800px;
-  margin: 0 auto;
-  }
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@100;300;400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
+      min-height: 100vh;
       background-image: url('https://lh3.googleusercontent.com/pw/AP1GczMbMIgv9wZLJbeDdwPC-7aRgmyjVAgfdXs2PXeS50IIYH7yGL6xBXC2WiYBb5lLvfPnp6c2r0Wkn1bOFJdWf4zQqmeWFpEIdSrX6IPt74qDuVXm0uK3vqXIFBSGh4rUIHRdAuPuj9XKaHde-Igh9yBz=w1474-h921-s-no-gm?authuser=0');
       background-size: cover;
       background-attachment: fixed;
-      font-family: "Noto Sans JP", sans-serif;
+      background-position: center;
+      font-family: "IBM Plex Sans JP", "Noto Sans JP", sans-serif;
+      color: #f0f0f0;
+      overflow-x: hidden;
     }
-  a {
-    color: rgb(255, 255, 255);
-    text-decoration: none;
-  }
-
-  .hr1 {
-    border: 0;
-    height: 1px;
-    background-image: -webkit-linear-gradient(left, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.75), rgba(0,0,0,0));
-    background-image:    -moz-linear-gradient(left, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.75), rgba(0,0,0,0));
-    background-image:     -ms-linear-gradient(left, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.75), rgba(0,0,0,0));
-    background-image:      -o-linear-gradient(left, rgba(0,0,0,0), rgba(255, 255, 255, 0.75), rgba(0,0,0,0));
-    }
-    /* //線の設定 普通のhrとは違うやつ ネットのやつ参考にしたけど多分グラデーションと線の設定してるだけ */
 
     body::before {
       content: '';
-      position: absolute;
-      inset: 0;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      background: rgba(0, 0, 0, 0.377);
-      z-index: -1;
-      pointer-events: none;
       position: fixed;
-      /* どうしても実装したかったけど自分で実装できなかったからGPT君に助けてもらった */
-}
-    #ちくわ練り物の部屋 {
-      color: rgb(255, 255, 255);
-      text-align: center;
-      font-size: 30px;
-      margin-top: 15px;
-      font-weight: 100;
+      inset: 0;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      background: rgba(0,0,0,0.52);
+      z-index: 0;
+      pointer-events: none;
     }
-    #ちくわ練り物とは {
-      color: white;
-      text-align: left;
-      font-size: 20px;
-      margin-top: 20px;
+
+    /* ── HyperOS blob canvas ── */
+    #blob-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      opacity: 0.6;
     }
-    #本文1 {
-      color: white;
-      text-align: left;
-      font-size: 16px;
-      margin-top: 10px;
-      text-align: center;
+
+    /* ── 上下エッジブラーマスク ── */
+    .edge-blur {
+      position: fixed;
+      left: 0; right: 0;
+      height: 120px;
+      z-index: 10;
+      pointer-events: none;
     }
-    .TN {
-      list-style: none;
-      color: white;
-      text-align: left;
-      font-size: 20px;
-      margin-top: 10px;
-      font-weight: bold;
+    .edge-blur.top {
+      top: 0;
+      background: linear-gradient(to bottom,
+        rgba(0,0,0,0.55) 0%,
+        rgba(0,0,0,0) 100%);
+      -webkit-backdrop-filter: blur(0px);
+      backdrop-filter: blur(0px);
+      mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
     }
-      .TNF {
-      list-style: none;
-      color: white;
-      text-align: center;
-      font-size: 20px;
-      margin-top: 10px;
-      font-weight: bold;
+    .edge-blur.bottom {
+      bottom: 0;
+      background: linear-gradient(to top,
+        rgba(0,0,0,0.55) 0%,
+        rgba(0,0,0,0) 100%);
+      mask-image: linear-gradient(to top, black 0%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to top, black 0%, transparent 100%);
     }
-    .G{ /* GはゴキブリじゃなくてガジェオタのGだよ */
-      list-style: none;
-      color: white;
-      text-align: left;
-      font-size: 16px;
-      margin-top: 10px;
-      text-align: center;
+
+    /* 上下のガラスエッジ（別要素でblurをかける） */
+    .edge-glass {
+      position: fixed;
+      left: 0; right: 0;
+      pointer-events: none;
+      z-index: 9;
     }
-    .h6{
-      list-style: none;
-      color: white;
-      text-align: center;
-      font-size: 7px;
-      margin-top: 10px;
+    .edge-glass.top {
+      top: 0;
+      height: 90px;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
     }
-    .L{ 
-      color: rgb(0, 162, 255);
-      text-align: left;
-      font-size: 20px;
-      margin-top: 0px;
-      font-weight: 100;
+    .edge-glass.bottom {
+      bottom: 0;
+      height: 90px;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      mask-image: linear-gradient(to top, black 30%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to top, black 30%, transparent 100%);
     }
-    
-    .glass {
-      background: rgba(255,255,255,0.00);
+
+    /* スクロールプログレス */
+    .progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 2px;
+      width: 100%;
+      background: #3a8fff;
+      transform: scaleX(0);
+      transform-origin: left;
+      animation: prog auto linear;
+      animation-timeline: scroll();
+      z-index: 9999;
+    }
+    @keyframes prog { to { transform: scaleX(1); } }
+
+    /* ── LAYOUT ── */
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 64px 16px 100px;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .avatar {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid rgba(255,255,255,0.15);
+      flex-shrink: 0;
+    }
+    .hero-text h1 {
+      font-size: 20px; font-weight: 300;
+      letter-spacing: 0.01em; color: #fff;
+    }
+    .hero-text h1 a { color: inherit; text-decoration: none; }
+    .hero-sub {
+      font-size: 12px; color: rgba(255,255,255,0.4);
+      font-weight: 300; margin-top: 3px;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    /* ── PANEL ── */
+    .panel {
+      background: rgba(28,28,30,0.72);
       backdrop-filter: blur(40px);
       -webkit-backdrop-filter: blur(40px);
-      border: 1px solid rgba(255,255,255,0.00);
-      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 18px;
+      margin-bottom: 12px;
+      overflow: hidden;
     }
-    .ico {
-      display: block;
-      display: flex;
-      width : 40px;
-      height: auto;
+    .panel-header {
+      padding: 12px 18px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .panel-dot {
+      width: 10px; height: 10px;
       border-radius: 50%;
-      margin: 0 auto;
-      margin-top: 0px;
+      background: rgba(255,255,255,0.18);
+      flex-shrink: 0;
     }
-    .IMG {
-      width : 50px;
-      height: auto;
-      border-radius: 10%;
-      margin: 0 auto;
-      margin-top: 0px;
+    .panel-title {
+      font-size: 12px; color: rgba(255,255,255,0.35);
+      font-weight: 300;
+      font-family: "IBM Plex Mono", monospace;
+      letter-spacing: 0.06em; text-transform: uppercase;
     }
-    .IMG_Y {
-      width : 100px;
-      height: auto;
-      border-radius: 10%;
-      margin: 0 auto;
-      margin-top: 0px;
-    }
-      .Z {
-        color: rgb(0, 0, 0);
-        text-align: center;
-        font-size: 10px;
-        margin-top: 20px;
-        font-weight: 300;
-      }
-      .bar {
-        position: fixed;
-        top: 0; left: 0;
-        height: 4px;
-        width: 100%;
-        background: rgb(0, 110, 6);
-        transform: scaleX(0);
-        transform-origin: left;
-        animation: p auto linear;
-        animation-timeline: scroll();
-      }
-      @keyframes p { to { transform: scaleX(1); } }
 
-   </style>
-   <div class="bar"></div>
-   <div id="mouse-stalker"></div>
-   <div class="container">
-   <h1 id="ちくわ練り物の部屋" style="margin-bottom: 0;"><a href="<img src="https://socialxup.com/avatar/29/1851879065470537729.png"/>">ちくわ練り物</a></h1>
-   <img class="ico" src="https://pbs.twimg.com/profile_images/2040806804201074688/t9GRsaBB_400x400.jpg"><!--アイコン-->
-   <hr>
-   <h3 id="ちくわ練り物とは">ちくわ練り物とは</h3>
-   <p id="本文1">ちくわ練り物はけっこうおしゃべりなのにくそ陰キャである<br>語彙力が全くないガジェオタただの一般通過中学生<br>結構金がかかる趣味であるため常に金欠である<br>その趣味というのがスマホオタク<br>唐突だが皆さんに布陣も見せたい</p>
+    /* ── ROW ── */
+    .row {
+      display: flex; align-items: center;
+      padding: 13px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      gap: 12px;
+      transition: background 0.18s ease;
+    }
+    .row:last-child { border-bottom: none; }
+    .row:hover { background: rgba(255,255,255,0.04); }
+    .row-label {
+      font-size: 14px; font-weight: 300;
+      color: rgba(255,255,255,0.7);
+      min-width: 80px; flex-shrink: 0;
+    }
+    .row-value {
+      font-size: 14px; font-weight: 300;
+      color: #fff; flex: 1;
+    }
+    .row-value a { color: #3a8fff; text-decoration: none; }
+    .row-value a:hover { text-decoration: underline; }
 
-  <hr class="hr1">
-  <div>
-  <details open>
-  <summary class="TNF">布陣</summary>
-  <h6 class="h6">文字をクリックすると画像を表示/非表示にできます</h6>
-  <details open>
-  <summary class="G">iPhone 15</summary>
-  <a href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/15.JPG?raw=true"></a>
-  <a href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/15.JPG?raw=true"><img class="IMG" src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/15.JPG?raw=true" alt="iPhone 15" width="200" height="200"></a>
-  </details>
-  <details open>
-  <summary class="G">iPhone 6s</summary>
-  <img class="IMG" src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/6s.JPG?raw=true" alt="iPhone 6s" width="200" height="200">
-  </details>
-  <details open>
-  <summary class="G">iPhone 4s</summary>
-  <img class="IMG" src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/4s.JPG?raw=true" alt="iPhone 4s" width="200" height="200">
-  </details>
-  <details open>
-  <summary class="G">GALLERIA</summary>
-  <img class="IMG_Y" src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/GALLERIA.JPG?raw=true" alt="GALLERIA" width="200" height="200">
-  </details>
-  <details open>
-  <summary class="G">パーツがすべて分離したDynabook</summary>
-  <img class="IMG_Y" src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/%E6%AD%BB%E8%80%85.JPG?raw=true" alt="Dynabook" width="200" height="200">
-  </details>
-  <details open>
-  <summary class="G">謎泥(PC-TE-410JAW)</summary>
-  <img class="IMG" src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/PC-TE-410-JAW.JPG?raw=true" alt="PC-TE-410JAW" width="200" height="200">
-  </details>
+    /* badge */
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px; padding: 4px 10px;
+      font-size: 13px; font-weight: 300; color: #fff;
+    }
+    .badge-blue {
+      background: rgba(58,143,255,0.15);
+      border-color: rgba(58,143,255,0.35);
+      color: #3a8fff;
+    }
+
+    /* tags */
+    .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 8px; padding: 5px 11px;
+      font-size: 13px; font-weight: 300;
+      color: rgba(255,255,255,0.7);
+      transition: background 0.18s, border-color 0.18s, color 0.18s;
+    }
+    .tag:hover {
+      background: rgba(58,143,255,0.12);
+      border-color: rgba(58,143,255,0.30);
+      color: #fff;
+    }
+    .tag a { color: inherit; text-decoration: none; }
+
+    /* ── DEVICE GRID ── */
+    .device-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: rgba(255,255,255,0.05);
+    }
+    .device-cell {
+      background: rgba(28,28,30,0.72);
+      padding: 14px 12px; text-align: center;
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    .device-cell:hover { background: rgba(58,143,255,0.08); }
+    .device-img {
+      width: 48px; height: 48px;
+      object-fit: contain; border-radius: 8px;
+      display: block; margin: 0 auto 8px;
+      cursor: pointer;
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .device-cell:hover .device-img { transform: scale(1.08); }
+    .device-name {
+      font-size: 11px; color: rgba(255,255,255,0.45);
+      font-weight: 300;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    /* ── WISH ROW ── */
+    .wish-img {
+      width: 44px; height: 44px;
+      object-fit: contain; border-radius: 8px;
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.04);
+      cursor: pointer;
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .wish-img:hover { transform: scale(1.1); }
+
+    /* ── LINK ROWS ── */
+    .link-row {
+      display: flex; align-items: center;
+      padding: 13px 18px; gap: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      text-decoration: none; color: #fff;
+      transition: background 0.18s;
+    }
+    .link-row:last-child { border-bottom: none; }
+    .link-row:hover { background: rgba(255,255,255,0.04); }
+    .link-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      object-fit: contain;
+      background: rgba(255,255,255,0.08);
+      padding: 6px; flex-shrink: 0;
+    }
+    .link-info { flex: 1; }
+    .link-name { font-size: 14px; font-weight: 300; color: #fff; }
+    .link-handle {
+      font-size: 11px; color: rgba(255,255,255,0.35);
+      font-family: "IBM Plex Mono", monospace; margin-top: 1px;
+    }
+    .link-chevron { color: rgba(255,255,255,0.25); font-size: 16px; line-height: 1; }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center; font-size: 10px;
+      color: rgba(255,255,255,0.18);
+      font-family: "IBM Plex Mono", monospace;
+      padding-top: 12px; letter-spacing: 0.04em;
+    }
+
+    /* ── SCROLL REVEAL with blur ── */
+    .reveal {
+      opacity: 0;
+      transform: translateX(32px);
+      filter: blur(4px);
+      transition:
+        opacity 0.48s cubic-bezier(0.25,0.46,0.45,0.94),
+        transform 0.48s cubic-bezier(0.25,0.46,0.45,0.94),
+        filter 0.48s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateX(0);
+      filter: blur(0px);
+    }
+
+    /* ── LIGHTBOX ── */
+    #lightbox {
+      position: fixed; inset: 0;
+      z-index: 9000;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none; opacity: 0;
+    }
+    #lightbox.open { pointer-events: all; }
+    #lb-scrim {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0);
+      backdrop-filter: blur(0px);
+      -webkit-backdrop-filter: blur(0px);
+      transition: background 0.42s, backdrop-filter 0.42s;
+    }
+    #lightbox.open #lb-scrim {
+      background: rgba(0,0,0,0.72);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+    #lb-img {
+      position: relative; z-index: 1;
+      max-width: 88vw; max-height: 82vh;
+      border-radius: 16px; object-fit: contain;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+      transform: scale(0.15) rotate(8deg);
+      filter: blur(20px);
+      opacity: 0;
+      transition:
+        transform 0.52s cubic-bezier(0.34,1.2,0.64,1),
+        filter    0.45s cubic-bezier(0.4,0,0.2,1),
+        opacity   0.28s ease;
+    }
+    #lightbox.open #lb-img {
+      transform: scale(1) rotate(0deg);
+      filter: blur(0px); opacity: 1;
+    }
+    #lb-close {
+      position: absolute; top: 20px; right: 20px; z-index: 2;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: #fff; font-size: 18px;
+      line-height: 36px; text-align: center;
+      cursor: pointer; opacity: 0;
+      transform: scale(0.6);
+      transition: opacity 0.3s ease 0.2s, transform 0.3s cubic-bezier(0.34,1.4,0.64,1) 0.2s, background 0.18s;
+      user-select: none;
+    }
+    #lightbox.open #lb-close { opacity: 1; transform: scale(1); }
+    #lb-close:hover { background: rgba(255,255,255,0.22); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { transition: none; opacity: 1; transform: none; filter: none; }
+    }
+
+    /* ── LOADER ── */
+    #loader {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: url('https://lh3.googleusercontent.com/pw/AP1GczMbMIgv9wZLJbeDdwPC-7aRgmyjVAgfdXs2PXeS50IIYH7yGL6xBXC2WiYBb5lLvfPnp6c2r0Wkn1bOFJdWf4zQqmeWFpEIdSrX6IPt74qDuVXm0uK3vqXIFBSGh4rUIHRdAuPuj9XKaHde-Igh9yBz=w1474-h921-s-no-gm?authuser=0') center/cover no-repeat;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: opacity 0.6s ease 0.1s, visibility 0.6s ease 0.1s;
+    }
+    #loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    /* コンテンツの初期ぼかし */
+    body.loading .container,
+    body.loading canvas,
+    body.loading .edge-glass,
+    body.loading .edge-blur {
+      filter: blur(24px);
+      opacity: 0;
+    }
+    body.loading .progress-bar { display: none; }
+
+    .container, #blob-canvas, .edge-glass, .edge-blur {
+      transition: filter 0.9s cubic-bezier(0.4,0,0.2,1) 0.2s,
+                  opacity 0.9s cubic-bezier(0.4,0,0.2,1) 0.2s;
+    }
+
+    /* 青い丸 */
+    .loader-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #3a8fff;
+      box-shadow: 0 0 24px 6px rgba(58,143,255,0.5);
+      animation: dot-pulse 1.1s ease-in-out infinite;
+    }
+    @keyframes dot-pulse {
+      0%, 100% { transform: scale(1);   opacity: 1; }
+      50%       { transform: scale(1.5); opacity: 0.6; }
+    }
+
+    /* はじけるリング群 */
+    .loader-burst {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .loader-burst .ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid rgba(58,143,255,0.85);
+      opacity: 0;
+    }
+    .loader-burst.go .ring:nth-child(1) {
+      animation: burst-ring 0.7s cubic-bezier(0.2,0.6,0.4,1) 0s forwards;
+    }
+    .loader-burst.go .ring:nth-child(2) {
+      animation: burst-ring 0.7s cubic-bezier(0.2,0.6,0.4,1) 0.08s forwards;
+    }
+    .loader-burst.go .ring:nth-child(3) {
+      animation: burst-ring 0.7s cubic-bezier(0.2,0.6,0.4,1) 0.16s forwards;
+    }
+    @keyframes burst-ring {
+      0%   { transform: scale(1);    opacity: 0.9; }
+      100% { transform: scale(9);    opacity: 0; }
+    }
+
+    /* 散るパーティクル */
+    .loader-burst.go .particle {
+      position: absolute;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #3a8fff;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+    }
+    .loader-burst.go .particle:nth-child(4)  { animation: p1 0.65s cubic-bezier(0.2,0.8,0.4,1) 0.02s forwards; }
+    .loader-burst.go .particle:nth-child(5)  { animation: p2 0.65s cubic-bezier(0.2,0.8,0.4,1) 0.04s forwards; }
+    .loader-burst.go .particle:nth-child(6)  { animation: p3 0.65s cubic-bezier(0.2,0.8,0.4,1) 0.06s forwards; }
+    .loader-burst.go .particle:nth-child(7)  { animation: p4 0.65s cubic-bezier(0.2,0.8,0.4,1) 0.02s forwards; }
+    .loader-burst.go .particle:nth-child(8)  { animation: p5 0.65s cubic-bezier(0.2,0.8,0.4,1) 0.05s forwards; }
+    .loader-burst.go .particle:nth-child(9)  { animation: p6 0.65s cubic-bezier(0.2,0.8,0.4,1) 0.03s forwards; }
+    .loader-burst.go .particle:nth-child(10) { animation: p7 0.65s cubic-bezier(0.2,0.8,0.4,1) 0.07s forwards; }
+    .loader-burst.go .particle:nth-child(11) { animation: p8 0.65s cubic-bezier(0.2,0.8,0.4,1) 0.01s forwards; }
+
+    @keyframes p1 { 0%{opacity:1;transform:translate(-50%,-50%)} 100%{opacity:0;transform:translate(calc(-50% + 52px), calc(-50% - 28px))} }
+    @keyframes p2 { 0%{opacity:1;transform:translate(-50%,-50%)} 100%{opacity:0;transform:translate(calc(-50% - 48px), calc(-50% - 36px))} }
+    @keyframes p3 { 0%{opacity:1;transform:translate(-50%,-50%)} 100%{opacity:0;transform:translate(calc(-50% + 18px), calc(-50% + 58px))} }
+    @keyframes p4 { 0%{opacity:1;transform:translate(-50%,-50%)} 100%{opacity:0;transform:translate(calc(-50% - 56px), calc(-50% + 22px))} }
+    @keyframes p5 { 0%{opacity:1;transform:translate(-50%,-50%)} 100%{opacity:0;transform:translate(calc(-50% + 44px), calc(-50% + 42px))} }
+    @keyframes p6 { 0%{opacity:1;transform:translate(-50%,-50%)} 100%{opacity:0;transform:translate(calc(-50% - 30px), calc(-50% - 54px))} }
+    @keyframes p7 { 0%{opacity:1;transform:translate(-50%,-50%)} 100%{opacity:0;transform:translate(calc(-50% + 60px), calc(-50% - 10px))} }
+    @keyframes p8 { 0%{opacity:1;transform:translate(-50%,-50%)} 100%{opacity:0;transform:translate(calc(-50% - 14px), calc(-50% + 62px))} }
+
+    /* 丸の消え方 */
+    .loader-dot.burst {
+      animation: dot-burst 0.3s cubic-bezier(0.4,0,0.6,1) forwards;
+    }
+    @keyframes dot-burst {
+      0%   { transform: scale(1);   opacity: 1; }
+      60%  { transform: scale(1.8); opacity: 0.6; }
+      100% { transform: scale(0);   opacity: 0; }
+    }
+  </style>
+</head>
+<body class="loading">
+
+<!-- ── LOADER ── -->
+<div id="loader">
+  <div class="loader-burst" id="loader-burst">
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
   </div>
-  <hr class="hr1">
-  <details open>
-  <summary class="TN">ほしいもの</summary>
-  <p class="G">Mac mini</p>
-  <p class="G">iPad mini 7</p>
-  <p class="G">iPhone 17pro</p>
-  <p class="G">OnePlus 13</p>
-  </details>
-  <hr class="hr1">
-  <h2 class="TN">趣味</h2>
-  <p class="G"><a href="https://x.com/Sovecx">@Sovecx</a>と話すこと</p>
-  <p class="G">プログラミング</p>
-  <p class="G">Twitter徘徊</p>
-  <p class="G">Appleの広告見る</p>
-  <hr class="hr1">
-  <h2 class="TN">リンク集</h2>
-  <a href="https://x.com/_Tikuwa1">
-  <img src="https://about.x.com/content/dam/about-twitter/x/brand-toolkit/logo-black.png.twimg.1920.png" alt="Twitter Logo" width="20" height="auto">
-  </a>
-  <p class="L"><span style="color: black;"><a href="https://x.com/TikuwaNerimono1" style="color: inherit;">Tikuwa</a>
-  <span style="color: rgb(0, 162, 255);"><a href="https://x.com/TikuwaNerimono1" style="color: inherit;">Nerimono1</a></span></span></p>
-  <a href="https://karotter.com/profile/TikuwaNerimono1/share">
-    <img src="https://karotter.com/karotter-log.png" alt="karotter Logo" width="25" height="auto" style="border-radius: 20%;">
-  </a>
-  <p class="L"><span style="color: rgb(0, 162, 255);"><a href="https://karotter.com/profile/TikuwaNerimono1/share" style="color: inherit;">Tikuwa</a>
-  <span class="L" style="color: rgb(255, 255, 255);"><a href="https://x.com/TikuwaNerimono1" style="color: inherit;">Nerimono1</a></span></span></p>
-  <a href="https://karotter.com/profile/TikuwaNerimono1/share">
-  <img src="https://play-lh.googleusercontent.com/Mmi0m-ictXCZNWymXCMRAYKNzN3b9QHm8JWgiBeKK34i21seq2b62ffiGN5ueL-HsBv2=w480-h960-rw" alt="karotter Logo" width="25" height="auto" style="border-radius: 20%;">
-  </a>
-  <p class="L"><span style="color: rgb(255, 72, 0);"><a href="https://www.instagram.com/tikuwa_nerimono0/" style="color: inherit;">tikuwa</a>
-  <span class="L" style="color: rgb(255, 0, 0);"><a href="https://www.instagram.com/tikuwa_nerimono0/" style="color: inherit;">nerimono0</a></span></span></p>
-  <h6 class="Z">Ver2.1.2 build202604142325</h6>  
+  <div class="loader-dot" id="loader-dot"></div>
 </div>
+
+<!-- 上下エッジブラー -->
+<div class="edge-glass top"></div>
+<div class="edge-glass bottom"></div>
+<div class="edge-blur top"></div>
+<div class="edge-blur bottom"></div>
+
+<!-- HyperOS blob -->
+<canvas id="blob-canvas"></canvas>
+<div class="progress-bar"></div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+  <div id="lb-scrim"></div>
+  <img id="lb-img" src="" alt="">
+  <div id="lb-close">✕</div>
+</div>
+
+<div class="container">
+
+  <!-- HERO (1枚目) -->
+  <div class="hero reveal">
+    <img class="avatar"
+      src="https://pbs.twimg.com/profile_images/2062297964425650176/3nn1RyIm_400x400.jpg"
+      alt="アイコン">
+    <div class="hero-text">
+      <h1><a href="https://x.com/_Tikuwa1" target="_blank" rel="noopener">ちくわ練り物の部屋</a></h1>
+      <p class="hero-sub">@_Tikuwa1</p>
+    </div>
+  </div>
+
+  <!-- BIO (2枚目) -->
+  <div class="panel reveal">
+    <div class="panel-header">
+      <div class="panel-dot"></div>
+      <span class="panel-title">About</span>
+    </div>
+    <div class="row">
+      <span class="row-label">属性</span>
+      <span class="row-value">くそ陰キャ / ガジェオタ / 一般通過中学生</span>
+    </div>
+    <div class="row">
+      <span class="row-label">財布</span>
+      <span class="row-value">常に金欠（趣味が金かかりすぎ）</span>
+    </div>
+    <div class="row">
+      <span class="row-label">趣味</span>
+      <div class="row-value">
+        <div class="tag-list">
+          <span class="tag"><a href="https://x.com/Sovecx" target="_blank">@Sovecxと話すこと</a></span>
+          <span class="tag">プログラミング</span>
+          <span class="tag">Twitter徘徊</span>
+          <span class="tag">Appleの広告見る</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEVICES (3枚目) -->
+  <div class="panel reveal">
+    <div class="panel-header">
+      <div class="panel-dot"></div>
+      <span class="panel-title">布陣</span>
+    </div>
+    <div class="device-grid">
+      <div class="device-cell">
+        <img class="device-img"
+          src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/15.JPG?raw=true"
+          alt="iPhone 15" onerror="this.style.opacity='0.2'">
+        <p class="device-name">iPhone 15</p>
+      </div>
+      <div class="device-cell">
+        <img class="device-img"
+          src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/6s.JPG?raw=true"
+          alt="iPhone 6s" onerror="this.style.opacity='0.2'">
+        <p class="device-name">iPhone 6s</p>
+      </div>
+      <div class="device-cell">
+        <img class="device-img"
+          src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/4s.JPG?raw=true"
+          alt="iPhone 4s" onerror="this.style.opacity='0.2'">
+        <p class="device-name">iPhone 4s</p>
+      </div>
+      <div class="device-cell">
+        <img class="device-img"
+          src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/GALLERIA.JPG?raw=true"
+          alt="GALLERIA" onerror="this.style.opacity='0.2'">
+        <p class="device-name">GALLERIA</p>
+      </div>
+      <div class="device-cell">
+        <img class="device-img"
+          src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/75d6c900-5812-4560-b87d-ed9e549facfe.jpg?raw=true"
+          alt="Xiaomi 11T Pro" onerror="this.style.opacity='0.2'">
+        <p class="device-name">Xiaomi 11T Pro</p>
+      </div>
+      <div class="device-cell">
+        <img class="device-img"
+          src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/1781701317223.jpg?raw=true"
+          alt="iPod touch 6th" onerror="this.style.opacity='0.2'">
+        <p class="device-name">iPod touch 6th</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- WISHLIST (4枚目) -->
+  <div class="panel reveal">
+    <div class="panel-header">
+      <div class="panel-dot"></div>
+      <span class="panel-title">ほしいもの</span>
+    </div>
+    <div class="row">
+      <img class="wish-img lb-trigger"
+        src="https://wwwstatic.vivo.com.cn/vivoportal/files/image/detail/20221117/46567246dfbb931eed633910dd88806e.png"
+        alt="Vivo x90pro+">
+      <div class="row-value"><span class="badge">Vivo x90pro+</span></div>
+    </div>
+    <div class="row">
+      <img class="wish-img lb-trigger"
+        src="https://cdsassets.apple.com/live/SZLF0YNV/images/sp/111882_iphone-se-2nd-gen.png"
+        alt="iPhone SE2">
+      <div class="row-value"><span class="badge">iPhone SE2</span></div>
+    </div>
+  </div>
+
+  <!-- LINKS (5枚目) -->
+  <div class="panel reveal">
+    <div class="panel-header">
+      <div class="panel-dot"></div>
+      <span class="panel-title">リンク集</span>
+    </div>
+    <a class="link-row" href="https://x.com/_Tikuwa1" target="_blank" rel="noopener">
+      <img class="link-icon"
+        src="https://about.x.com/content/dam/about-twitter/x/brand-toolkit/logo-black.png.twimg.1920.png"
+        alt="X" style="filter:invert(1);">
+      <div class="link-info">
+        <div class="link-name">X (Twitter)</div>
+        <div class="link-handle">@_Tikuwa1</div>
+      </div>
+      <span class="link-chevron">›</span>
+    </a>
+    <a class="link-row" href="https://karotter.com/profile/TikuwaNerimono1/share" target="_blank" rel="noopener">
+      <img class="link-icon" src="https://karotter.com/karotter-log.png" alt="karotter">
+      <div class="link-info">
+        <div class="link-name">karotter</div>
+        <div class="link-handle">@_Tikuwa1</div>
+      </div>
+      <span class="link-chevron">›</span>
+    </a>
+    <a class="link-row" href="https://www.instagram.com/tikuwa_nerimono0/" target="_blank" rel="noopener">
+      <img class="link-icon"
+        src="https://play-lh.googleusercontent.com/Mmi0m-ictXCZNWymXCMRAYKNzN3b9QHm8JWgiBeKK34i21seq2b62ffiGN5ueL-HsBv2=w480-h960-rw"
+        alt="Instagram">
+      <div class="link-info">
+        <div class="link-name">Instagram</div>
+        <div class="link-handle">@tikuwa_nerimono0</div>
+      </div>
+      <span class="link-chevron">›</span>
+    </a>
+  </div>
+
+  <!-- フッター (スライドさせないため reveal クラスは付与しない) -->
+  <p class="footer">Ver2.1.2 build202604142325</p>
+</div>
+
+<script>
+// ── HyperOS blob（タイムスタンプベース） ──
+(function () {
+  const canvas = document.getElementById('blob-canvas');
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // 各blobの設定（色・初期位置・動きのパラメータ）
+  const blobs = [
+    { cx: 0.20, cy: 0.20, r: 0.40, rgb: [20,  90, 255], ax: 0.22, ay: 0.18, fx: 0.00022, fy: 0.00017, ph: 0.0 },
+    { cx: 0.78, cy: 0.18, r: 0.33, rgb: [90,  20, 210], ax: 0.20, ay: 0.22, fx: 0.00018, fy: 0.00020, ph: 1.3 },
+    { cx: 0.50, cy: 0.62, r: 0.44, rgb: [0,  150, 255], ax: 0.25, ay: 0.20, fx: 0.00015, fy: 0.00013, ph: 2.6 },
+    { cx: 0.12, cy: 0.72, r: 0.29, rgb: [110, 20, 190], ax: 0.18, ay: 0.24, fx: 0.00025, fy: 0.00012, ph: 0.8 },
+    { cx: 0.88, cy: 0.58, r: 0.31, rgb: [10,  50, 200], ax: 0.21, ay: 0.19, fx: 0.00019, fy: 0.00021, ph: 4.1 },
+  ];
+
+  function draw(ts) {
+    const t = ts * 0.001; // 秒単位
+    const W = canvas.width;
+    const H = canvas.height;
+
+    ctx.clearRect(0, 0, W, H);
+
+    blobs.forEach(b => {
+      const px = (b.cx + Math.sin(t * b.fx * 1000 + b.ph) * b.ax) * W;
+      const py = (b.cy + Math.cos(t * b.fy * 1000 + b.ph) * b.ay) * H;
+      const rad = b.r * Math.min(W, H);
+
+      const g = ctx.createRadialGradient(px, py, 0, px, py, rad);
+      const [r, gr, bl] = b.rgb;
+      g.addColorStop(0,   `rgba(${r},${gr},${bl},0.60)`);
+      g.addColorStop(0.45,`rgba(${r},${gr},${bl},0.22)`);
+      g.addColorStop(1,   `rgba(${r},${gr},${bl},0)`);
+
+      ctx.beginPath();
+      ctx.arc(px, py, rad, 0, Math.PI * 2);
+      ctx.fillStyle = g;
+      ctx.fill();
+    });
+
+    requestAnimationFrame(draw);
+  }
+
+  requestAnimationFrame(draw);
+})();
+
+// ── スクロールリビール（blur付き） ──
+// ローダー完了後に startReveal() を呼ぶまで待機
+const revealEls = document.querySelectorAll('.reveal');
+revealEls.forEach(el => { el.style.transitionDelay = '0s'; });
+
+function startReveal() {
+  // ビューポート内の要素を順番に時間差（150msずつ）でフェードイン
+  revealEls.forEach((el, i) => {
+    const rect = el.getBoundingClientRect();
+    const inView = rect.top < window.innerHeight && rect.bottom > 0;
+    if (inView) {
+      setTimeout(() => el.classList.add('visible'), i * 150);
+    }
+  });
+
+  // スクロールで下の要素を出す IntersectionObserver
+  const revealIO = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        revealIO.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  revealEls.forEach(el => {
+    if (!el.classList.contains('visible')) revealIO.observe(el);
+  });
+}
+
+// ── ライトボックス ──
+const lb      = document.getElementById('lightbox');
+const lbImg   = document.getElementById('lb-img');
+const lbClose = document.getElementById('lb-close');
+const lbScrim = document.getElementById('lb-scrim');
+
+function openLB(src, alt) {
+  lbImg.src = src;
+  lbImg.alt = alt;
+  lb.style.opacity = '1';
+  requestAnimationFrame(() => requestAnimationFrame(() => lb.classList.add('open')));
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLB() {
+  lb.classList.remove('open');
+  document.body.style.overflow = '';
+  setTimeout(() => { lb.style.opacity = '0'; lbImg.src = ''; }, 500);
+}
+
+document.querySelectorAll('.device-img, .lb-trigger').forEach(img => {
+  img.addEventListener('click', () => openLB(img.src, img.alt));
+});
+lbClose.addEventListener('click', closeLB);
+lbScrim.addEventListener('click', closeLB);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); });
+
+// ── ローダー ──
+(function () {
+  const loader    = document.getElementById('loader');
+  const dot       = document.getElementById('loader-dot');
+  const burst     = document.getElementById('loader-burst');
+
+  function triggerBurst() {
+    // 丸をはじける
+    dot.classList.add('burst');
+    // リング＆パーティクルを発射
+    burst.classList.add('go');
+
+    // 同時にコンテンツのぼかしを解除
+    document.body.classList.remove('loading');
+
+    // ぼかし解除トランジション（0.9s）が終わってからカード入場
+    setTimeout(startReveal, 950);
+
+    // ローダー背景をフェードアウト
+    setTimeout(() => {
+      loader.classList.add('hidden');
+    }, 300);
+  }
+
+  // window.load を待つ（画像等すべて読み込み後）
+  if (document.readyState === 'complete') {
+    // すでに完了していれば少し待ってから
+    setTimeout(triggerBurst, 400);
+  } else {
+    window.addEventListener('load', () => {
+      setTimeout(triggerBurst, 300);
+    });
+  }
+})();
+</script>
 </body>
 </html>
