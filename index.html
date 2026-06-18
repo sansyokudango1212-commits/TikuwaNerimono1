@@ -1,17 +1,110 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <link rel="icon" type="image/png" sizes="16x16" href="16.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="32.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="180.png">
   <meta charset="UTF-8">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+      } catch (e) {}
+      document.documentElement.classList.add('theme-static');
+    })();
+  </script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%233a8fff'/%3E%3C/svg%3E" type="image/svg+xml">
+  <link rel="icon" type="image/png" sizes="32x32" href="32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://pbs.twimg.com/profile_images/2062297964425650176/3nn1RyIm_400x400.jpg">
+  <link rel="preconnect" href="https://pbs.twimg.com" crossorigin>
+  <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
+  <link rel="dns-prefetch" href="https://lh3.googleusercontent.com">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ちくわ練り物の部屋</title>
   <meta name="description" content="ちくわ練り物">
   <meta name="google-site-verification" content="Z5LCrw2wiWOC0bTQynoScEQ9LTvHoEucbmQwoReCLXE" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@100;300;400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@100;300;400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@100;300;400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet"></noscript>
   <style>
+    :root {
+      --bg-scrim: rgba(0,0,0,0.52);
+      --text-base: #f0f0f0;
+      --text-strong: #fff;
+      --text-muted: rgba(255,255,255,0.4);
+      --text-subtle: rgba(255,255,255,0.35);
+      --text-faint: rgba(255,255,255,0.18);
+      --panel-bg: rgba(28,28,30,0.72);
+      --panel-border: rgba(255,255,255,0.10);
+      --panel-divider: rgba(255,255,255,0.07);
+      --row-divider: rgba(255,255,255,0.05);
+      --row-hover: rgba(255,255,255,0.04);
+      --row-label: rgba(255,255,255,0.7);
+      --accent: #3a8fff;
+      --edge-gradient: rgba(0,0,0,0.55);
+      --blob-opacity: 0.6;
+      --blob-blend: screen;
+      --avatar-border: rgba(255,255,255,0.15);
+      --badge-bg: rgba(255,255,255,0.08);
+      --badge-border: rgba(255,255,255,0.12);
+      --tag-bg: rgba(255,255,255,0.06);
+      --tag-border: rgba(255,255,255,0.10);
+      --tag-text: rgba(255,255,255,0.7);
+      --device-grid-bg: rgba(255,255,255,0.05);
+      --device-name: rgba(255,255,255,0.45);
+      --link-icon-bg: rgba(255,255,255,0.08);
+      --link-handle: rgba(255,255,255,0.35);
+      --link-chevron: rgba(255,255,255,0.25);
+      --panel-dot: rgba(255,255,255,0.18);
+      --panel-title: rgba(255,255,255,0.35);
+      --footer-text: rgba(255,255,255,0.45);
+      --overlay-blur: 14px;
+      --panel-blur: 40px;
+      --edge-glass-blur: 18px;
+      --x-icon-invert: 1;
+      --theme-toggle-bg: rgba(255,255,255,0.1);
+      --theme-toggle-border: rgba(255,255,255,0.15);
+    }
+
+    [data-theme="light"] {
+      --bg-scrim: rgba(255,255,255,0.52);
+      --text-base: #2a2a2c;
+      --text-strong: #111;
+      --text-muted: rgba(0,0,0,0.45);
+      --text-subtle: rgba(0,0,0,0.38);
+      --text-faint: rgba(0,0,0,0.22);
+      --panel-bg: rgba(255,255,255,0.72);
+      --panel-border: rgba(0,0,0,0.08);
+      --panel-divider: rgba(0,0,0,0.06);
+      --row-divider: rgba(0,0,0,0.05);
+      --row-hover: rgba(0,0,0,0.03);
+      --row-label: rgba(0,0,0,0.55);
+      --edge-gradient: rgba(255,255,255,0.55);
+      --blob-opacity: 0.35;
+      --blob-blend: multiply;
+      --avatar-border: rgba(0,0,0,0.10);
+      --badge-bg: rgba(0,0,0,0.05);
+      --badge-border: rgba(0,0,0,0.10);
+      --tag-bg: rgba(0,0,0,0.04);
+      --tag-border: rgba(0,0,0,0.08);
+      --tag-text: rgba(0,0,0,0.62);
+      --device-grid-bg: rgba(0,0,0,0.04);
+      --device-name: rgba(0,0,0,0.42);
+      --link-icon-bg: rgba(0,0,0,0.05);
+      --link-handle: rgba(0,0,0,0.38);
+      --link-chevron: rgba(0,0,0,0.22);
+      --panel-dot: rgba(0,0,0,0.14);
+      --panel-title: rgba(0,0,0,0.32);
+      --footer-text: rgba(0,0,0,0.55);
+      --x-icon-invert: 0;
+      --theme-toggle-bg: rgba(0,0,0,0.06);
+      --theme-toggle-border: rgba(0,0,0,0.1);
+    }
+
+    html { color-scheme: dark; }
+    html[data-theme="light"] { color-scheme: light; }
+    html.theme-static body::before {
+      transition: none !important;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -21,7 +114,7 @@
       background-attachment: fixed;
       background-position: center;
       font-family: "IBM Plex Sans JP", "Noto Sans JP", sans-serif;
-      color: #f0f0f0;
+      color: var(--text-base);
       overflow-x: hidden;
     }
 
@@ -29,11 +122,12 @@
       content: '';
       position: fixed;
       inset: 0;
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      background: rgba(0,0,0,0.52);
+      backdrop-filter: blur(var(--overlay-blur));
+      -webkit-backdrop-filter: blur(var(--overlay-blur));
+      background: var(--bg-scrim);
       z-index: 0;
       pointer-events: none;
+      transition: background 0.4s ease;
     }
 
     /* ── HyperOS blob canvas ── */
@@ -42,8 +136,9 @@
       inset: 0;
       z-index: 1;
       pointer-events: none;
-      mix-blend-mode: screen;
-      opacity: 0.6;
+      mix-blend-mode: var(--blob-blend);
+      opacity: var(--blob-opacity);
+      transition: opacity 0.4s ease;
     }
 
     /* ── 上下エッジブラーマスク ── */
@@ -57,8 +152,8 @@
     .edge-blur.top {
       top: 0;
       background: linear-gradient(to bottom,
-        rgba(0,0,0,0.55) 0%,
-        rgba(0,0,0,0) 100%);
+        var(--edge-gradient) 0%,
+        transparent 100%);
       -webkit-backdrop-filter: blur(0px);
       backdrop-filter: blur(0px);
       mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
@@ -67,8 +162,8 @@
     .edge-blur.bottom {
       bottom: 0;
       background: linear-gradient(to top,
-        rgba(0,0,0,0.55) 0%,
-        rgba(0,0,0,0) 100%);
+        var(--edge-gradient) 0%,
+        transparent 100%);
       mask-image: linear-gradient(to top, black 0%, transparent 100%);
       -webkit-mask-image: linear-gradient(to top, black 0%, transparent 100%);
     }
@@ -83,16 +178,16 @@
     .edge-glass.top {
       top: 0;
       height: 90px;
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+      backdrop-filter: blur(var(--edge-glass-blur));
+      -webkit-backdrop-filter: blur(var(--edge-glass-blur));
       mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
       -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
     }
     .edge-glass.bottom {
       bottom: 0;
       height: 90px;
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+      backdrop-filter: blur(var(--edge-glass-blur));
+      -webkit-backdrop-filter: blur(var(--edge-glass-blur));
       mask-image: linear-gradient(to top, black 30%, transparent 100%);
       -webkit-mask-image: linear-gradient(to top, black 30%, transparent 100%);
     }
@@ -103,7 +198,7 @@
       top: 0; left: 0;
       height: 2px;
       width: 100%;
-      background: #3a8fff;
+      background: var(--accent);
       transform: scaleX(0);
       transform-origin: left;
       animation: prog auto linear;
@@ -132,43 +227,47 @@
       width: 52px; height: 52px;
       border-radius: 50%;
       object-fit: cover;
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid var(--avatar-border);
       flex-shrink: 0;
+      background: var(--badge-bg);
+      transition: opacity 0.3s ease;
     }
     .hero-text h1 {
       font-size: 20px; font-weight: 300;
-      letter-spacing: 0.01em; color: #fff;
+      letter-spacing: 0.01em; color: var(--text-strong);
     }
     .hero-text h1 a { color: inherit; text-decoration: none; }
     .hero-sub {
-      font-size: 12px; color: rgba(255,255,255,0.4);
+      font-size: 12px; color: var(--text-muted);
       font-weight: 300; margin-top: 3px;
       font-family: "IBM Plex Mono", monospace;
     }
 
     /* ── PANEL ── */
     .panel {
-      background: rgba(28,28,30,0.72);
-      backdrop-filter: blur(40px);
-      -webkit-backdrop-filter: blur(40px);
-      border: 1px solid rgba(255,255,255,0.10);
+      background: var(--panel-bg);
+      backdrop-filter: blur(var(--panel-blur));
+      -webkit-backdrop-filter: blur(var(--panel-blur));
+      border: 1px solid var(--panel-border);
       border-radius: 18px;
       margin-bottom: 12px;
       overflow: hidden;
+      content-visibility: auto;
+      contain-intrinsic-size: auto 200px;
     }
     .panel-header {
       padding: 12px 18px 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
+      border-bottom: 1px solid var(--panel-divider);
       display: flex; align-items: center; gap: 8px;
     }
     .panel-dot {
       width: 10px; height: 10px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.18);
+      background: var(--panel-dot);
       flex-shrink: 0;
     }
     .panel-title {
-      font-size: 12px; color: rgba(255,255,255,0.35);
+      font-size: 12px; color: var(--panel-title);
       font-weight: 300;
       font-family: "IBM Plex Mono", monospace;
       letter-spacing: 0.06em; text-transform: uppercase;
@@ -178,52 +277,52 @@
     .row {
       display: flex; align-items: center;
       padding: 13px 18px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid var(--row-divider);
       gap: 12px;
       transition: background 0.18s ease;
     }
     .row:last-child { border-bottom: none; }
-    .row:hover { background: rgba(255,255,255,0.04); }
+    .row:hover { background: var(--row-hover); }
     .row-label {
       font-size: 14px; font-weight: 300;
-      color: rgba(255,255,255,0.7);
+      color: var(--row-label);
       min-width: 80px; flex-shrink: 0;
     }
     .row-value {
       font-size: 14px; font-weight: 300;
-      color: #fff; flex: 1;
+      color: var(--text-strong); flex: 1;
     }
-    .row-value a { color: #3a8fff; text-decoration: none; }
+    .row-value a { color: var(--accent); text-decoration: none; }
     .row-value a:hover { text-decoration: underline; }
 
     /* badge */
     .badge {
       display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
       border-radius: 8px; padding: 4px 10px;
-      font-size: 13px; font-weight: 300; color: #fff;
+      font-size: 13px; font-weight: 300; color: var(--text-strong);
     }
     .badge-blue {
       background: rgba(58,143,255,0.15);
       border-color: rgba(58,143,255,0.35);
-      color: #3a8fff;
+      color: var(--accent);
     }
 
     /* tags */
     .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
     .tag {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.10);
+      background: var(--tag-bg);
+      border: 1px solid var(--tag-border);
       border-radius: 8px; padding: 5px 11px;
       font-size: 13px; font-weight: 300;
-      color: rgba(255,255,255,0.7);
+      color: var(--tag-text);
       transition: background 0.18s, border-color 0.18s, color 0.18s;
     }
     .tag:hover {
       background: rgba(58,143,255,0.12);
       border-color: rgba(58,143,255,0.30);
-      color: #fff;
+      color: var(--text-strong);
     }
     .tag a { color: inherit; text-decoration: none; }
 
@@ -232,10 +331,10 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 1px;
-      background: rgba(255,255,255,0.05);
+      background: var(--device-grid-bg);
     }
     .device-cell {
-      background: rgba(28,28,30,0.72);
+      background: var(--panel-bg);
       padding: 14px 12px; text-align: center;
       cursor: pointer;
       transition: background 0.18s;
@@ -246,11 +345,12 @@
       object-fit: contain; border-radius: 8px;
       display: block; margin: 0 auto 8px;
       cursor: pointer;
-      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+      background: var(--badge-bg);
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
     }
     .device-cell:hover .device-img { transform: scale(1.08); }
     .device-name {
-      font-size: 11px; color: rgba(255,255,255,0.45);
+      font-size: 11px; color: var(--device-name);
       font-weight: 300;
       font-family: "IBM Plex Mono", monospace;
     }
@@ -260,9 +360,9 @@
       width: 44px; height: 44px;
       object-fit: contain; border-radius: 8px;
       flex-shrink: 0;
-      background: rgba(255,255,255,0.04);
+      background: var(--badge-bg);
       cursor: pointer;
-      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
     }
     .wish-img:hover { transform: scale(1.1); }
 
@@ -270,32 +370,139 @@
     .link-row {
       display: flex; align-items: center;
       padding: 13px 18px; gap: 14px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      text-decoration: none; color: #fff;
+      border-bottom: 1px solid var(--row-divider);
+      text-decoration: none; color: var(--text-strong);
       transition: background 0.18s;
     }
     .link-row:last-child { border-bottom: none; }
-    .link-row:hover { background: rgba(255,255,255,0.04); }
+    .link-row:hover { background: var(--row-hover); }
     .link-icon {
       width: 32px; height: 32px; border-radius: 8px;
       object-fit: contain;
-      background: rgba(255,255,255,0.08);
+      background: var(--link-icon-bg);
       padding: 6px; flex-shrink: 0;
+      transition: opacity 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .link-icon--x { filter: invert(var(--x-icon-invert)); }
+    .link-icon svg {
+      width: 100%;
+      height: 100%;
+      fill: var(--text-strong);
     }
     .link-info { flex: 1; }
-    .link-name { font-size: 14px; font-weight: 300; color: #fff; }
+    .link-name { font-size: 14px; font-weight: 300; color: var(--text-strong); }
     .link-handle {
-      font-size: 11px; color: rgba(255,255,255,0.35);
+      font-size: 11px; color: var(--link-handle);
       font-family: "IBM Plex Mono", monospace; margin-top: 1px;
     }
-    .link-chevron { color: rgba(255,255,255,0.25); font-size: 16px; line-height: 1; }
+    .link-chevron { color: var(--link-chevron); font-size: 16px; line-height: 1; }
 
     /* ── FOOTER ── */
     .footer {
       text-align: center; font-size: 10px;
-      color: rgba(255,255,255,0.18);
+      color: var(--footer-text);
       font-family: "IBM Plex Mono", monospace;
-      padding-top: 12px; letter-spacing: 0.04em;
+      padding-top: 16px; letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    
+    /* テーマ切り替えボタンの視認性改善 */
+    #theme-toggle {
+      appearance: none;
+      border: 1px solid var(--theme-toggle-border);
+      background: var(--theme-toggle-bg);
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      padding: 0;
+      margin: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      vertical-align: middle;
+      cursor: pointer;
+      opacity: 0.85;
+      color: var(--text-strong);
+      transition: opacity 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    #theme-toggle:hover,
+    #theme-toggle:focus-visible {
+      opacity: 1;
+      outline: none;
+      background: rgba(58, 143, 255, 0.2);
+      border-color: var(--accent);
+    }
+    .theme-icon {
+      width: 17px;
+      height: 17px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .theme-icon--moon {
+      fill: currentColor;
+      stroke: none;
+    }
+    html:not([data-theme="light"]) .theme-icon--moon { display: none; }
+    html[data-theme="light"] .theme-icon--sun { display: none; }
+
+    /* ── THEME TRANSITION OVERLAY ── */
+    #theme-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 99998;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      backdrop-filter: blur(0px);
+      -webkit-backdrop-filter: blur(0px);
+      background: transparent;
+      transition: none;
+    }
+    #theme-overlay.animating {
+      visibility: visible;
+    }
+    #theme-overlay.animating.active {
+      opacity: 1;
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      background: rgba(0,0,0,0.48);
+      transition:
+        background 1.1s cubic-bezier(0.4,0,0.2,1),
+        backdrop-filter 1.1s cubic-bezier(0.4,0,0.2,1),
+        -webkit-backdrop-filter 1.1s cubic-bezier(0.4,0,0.2,1),
+        opacity 0.35s ease;
+    }
+    #theme-overlay.animating.shift-light {
+      background: rgba(255,255,255,0.48);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    #theme-overlay.animating.shift-dark {
+      background: rgba(0,0,0,0.48);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    #theme-overlay.animating.release {
+      backdrop-filter: blur(0px);
+      -webkit-backdrop-filter: blur(0px);
+      background: transparent;
+      opacity: 0;
+      transition:
+        background 1.4s cubic-bezier(0.4,0,0.2,1),
+        backdrop-filter 1.4s cubic-bezier(0.4,0,0.2,1),
+        -webkit-backdrop-filter 1.4s cubic-bezier(0.4,0,0.2,1),
+        opacity 1s ease 0.35s;
     }
 
     /* ── SCROLL REVEAL with blur ── */
@@ -356,8 +563,8 @@
       width: 36px; height: 36px; border-radius: 50%;
       background: rgba(255,255,255,0.12);
       border: 1px solid rgba(255,255,255,0.18);
-      color: #fff; font-size: 18px;
-      line-height: 36px; text-align: center;
+      color: #fff;
+      display: flex; align-items: center; justify-content: center; /* Flexboxで完璧に中央揃え */
       cursor: pointer; opacity: 0;
       transform: scale(0.6);
       transition: opacity 0.3s ease 0.2s, transform 0.3s cubic-bezier(0.34,1.4,0.64,1) 0.2s, background 0.18s;
@@ -365,6 +572,9 @@
     }
     #lightbox.open #lb-close { opacity: 1; transform: scale(1); }
     #lb-close:hover { background: rgba(255,255,255,0.22); }
+    #lb-close svg {
+      width: 18px; height: 18px; /* アイコンのサイズ */
+    }
 
     @media (prefers-reduced-motion: reduce) {
       .reveal { transition: none; opacity: 1; transform: none; filter: none; }
@@ -378,23 +588,37 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: url('https://lh3.googleusercontent.com/pw/AP1GczMbMIgv9wZLJbeDdwPC-7aRgmyjVAgfdXs2PXeS50IIYH7yGL6xBXC2WiYBb5lLvfPnp6c2r0Wkn1bOFJdWf4zQqmeWFpEIdSrX6IPt74qDuVXm0uK3vqXIFBSGh4rUIHRdAuPuj9XKaHde-Igh9yBz=w1474-h921-s-no-gm?authuser=0') center/cover no-repeat;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
       transition: opacity 0.6s ease 0.1s, visibility 0.6s ease 0.1s;
     }
     #loader.hidden {
       opacity: 0;
       visibility: hidden;
+      pointer-events: none;
+    }
+    .loader-backdrop {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      background: var(--bg-scrim);
+    }
+    .loader-burst,
+    .loader-dot {
+      position: relative;
+      z-index: 1;
     }
 
     /* コンテンツの初期ぼかし */
     body.loading .container,
-    body.loading canvas,
     body.loading .edge-glass,
     body.loading .edge-blur {
       filter: blur(24px);
       opacity: 0;
+    }
+    body.loading #blob-canvas {
+      opacity: 0;
+      visibility: hidden;
     }
     body.loading .progress-bar { display: none; }
 
@@ -483,12 +707,37 @@
       60%  { transform: scale(1.8); opacity: 0.6; }
       100% { transform: scale(0);   opacity: 0; }
     }
+
+    /* ── MOBILE / TOUCH 軽量化（見た目維持） ── */
+    @media (max-width: 768px), (hover: none) and (pointer: coarse) {
+      body {
+        background-attachment: scroll;
+      }
+      :root {
+        --overlay-blur: 10px;
+        --panel-blur: 24px;
+        --edge-glass-blur: 12px;
+      }
+      .edge-glass.top,
+      .edge-glass.bottom {
+        height: 70px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #blob-canvas { display: none; }
+      #theme-overlay.animating.active,
+      #theme-overlay.animating.release {
+        transition-duration: 0.01ms;
+      }
+    }
   </style>
 </head>
 <body class="loading">
 
 <!-- ── LOADER ── -->
 <div id="loader">
+  <div class="loader-backdrop" aria-hidden="true"></div>
   <div class="loader-burst" id="loader-burst">
     <div class="ring"></div>
     <div class="ring"></div>
@@ -516,10 +765,16 @@
 <div class="progress-bar"></div>
 
 <!-- LIGHTBOX -->
+<div id="theme-overlay" aria-hidden="true"></div>
 <div id="lightbox">
   <div id="lb-scrim"></div>
   <img id="lb-img" src="" alt="">
-  <div id="lb-close">✕</div>
+  <div id="lb-close" aria-label="閉じる">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </div>
 </div>
 
 <div class="container">
@@ -528,9 +783,13 @@
   <div class="hero reveal">
     <img class="avatar"
       src="https://pbs.twimg.com/profile_images/2062297964425650176/3nn1RyIm_400x400.jpg"
-      alt="アイコン">
+      alt="アイコン"
+      width="52" height="52"
+      decoding="async"
+      fetchpriority="high"
+      referrerpolicy="no-referrer">
     <div class="hero-text">
-      <h1><a href="https://x.com/_Tikuwa1" target="_blank" rel="noopener">ちくわ練り物の部屋</a></h1>
+      <h1><a href="https://x.com/_Tikuwa1" target="_blank" rel="noopener">ちくわ練り物の部屋</a></h1>
       <p class="hero-sub">@_Tikuwa1</p>
     </div>
   </div>
@@ -543,7 +802,7 @@
     </div>
     <div class="row">
       <span class="row-label">属性</span>
-      <span class="row-value">くそ陰キャ / ガジェオタ / 一般通過中学生</span>
+      <span class="row-value">圧倒的ガジェオタ</span>
     </div>
     <div class="row">
       <span class="row-label">財布</span>
@@ -553,10 +812,10 @@
       <span class="row-label">趣味</span>
       <div class="row-value">
         <div class="tag-list">
-          <span class="tag"><a href="https://x.com/Sovecx" target="_blank">@Sovecxと話すこと</a></span>
-          <span class="tag">プログラミング</span>
-          <span class="tag">Twitter徘徊</span>
-          <span class="tag">Appleの広告見る</span>
+          <span class="tag"><a href="https://x.com/Sovecx" target="_blank">@S0arrayと話すこと</a></span>
+          <span class="tag">NTE</span>
+          <span class="tag">メルカス閲覧</span>
+          <span class="tag">写真撮る</span>
         </div>
       </div>
     </div>
@@ -571,38 +830,38 @@
     <div class="device-grid">
       <div class="device-cell">
         <img class="device-img"
-          src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/15.JPG?raw=true"
-          alt="iPhone 15" onerror="this.style.opacity='0.2'">
+          src="https://raw.githubusercontent.com/sansyokudango1212-commits/TikuwaNerimono1/main/15.JPG"
+          alt="iPhone 15" width="48" height="48" loading="lazy" decoding="async">
         <p class="device-name">iPhone 15</p>
       </div>
       <div class="device-cell">
         <img class="device-img"
-          src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/6s.JPG?raw=true"
-          alt="iPhone 6s" onerror="this.style.opacity='0.2'">
+          src="https://raw.githubusercontent.com/sansyokudango1212-commits/TikuwaNerimono1/main/6s.JPG"
+          alt="iPhone 6s" width="48" height="48" loading="lazy" decoding="async">
         <p class="device-name">iPhone 6s</p>
       </div>
       <div class="device-cell">
         <img class="device-img"
-          src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/4s.JPG?raw=true"
-          alt="iPhone 4s" onerror="this.style.opacity='0.2'">
+          src="https://raw.githubusercontent.com/sansyokudango1212-commits/TikuwaNerimono1/main/4s.JPG"
+          alt="iPhone 4s" width="48" height="48" loading="lazy" decoding="async">
         <p class="device-name">iPhone 4s</p>
       </div>
       <div class="device-cell">
         <img class="device-img"
-          src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/GALLERIA.JPG?raw=true"
-          alt="GALLERIA" onerror="this.style.opacity='0.2'">
+          src="https://raw.githubusercontent.com/sansyokudango1212-commits/TikuwaNerimono1/main/GALLERIA.JPG"
+          alt="GALLERIA" width="48" height="48" loading="lazy" decoding="async">
         <p class="device-name">GALLERIA</p>
       </div>
       <div class="device-cell">
         <img class="device-img"
-          src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/75d6c900-5812-4560-b87d-ed9e549facfe.jpg?raw=true"
-          alt="Xiaomi 11T Pro" onerror="this.style.opacity='0.2'">
+          src="https://raw.githubusercontent.com/sansyokudango1212-commits/TikuwaNerimono1/main/75d6c900-5812-4560-b87d-ed9e549facfe.jpg"
+          alt="Xiaomi 11T Pro" width="48" height="48" loading="lazy" decoding="async">
         <p class="device-name">Xiaomi 11T Pro</p>
       </div>
       <div class="device-cell">
         <img class="device-img"
-          src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/1781701317223.jpg?raw=true"
-          alt="iPod touch 6th" onerror="this.style.opacity='0.2'">
+          src="https://raw.githubusercontent.com/sansyokudango1212-commits/TikuwaNerimono1/main/1781701317223.jpg"
+          alt="iPod touch 6th" width="48" height="48" loading="lazy" decoding="async">
         <p class="device-name">iPod touch 6th</p>
       </div>
     </div>
@@ -617,13 +876,13 @@
     <div class="row">
       <img class="wish-img lb-trigger"
         src="https://wwwstatic.vivo.com.cn/vivoportal/files/image/detail/20221117/46567246dfbb931eed633910dd88806e.png"
-        alt="Vivo x90pro+">
+        alt="Vivo x90pro+" width="44" height="44" loading="lazy" decoding="async">
       <div class="row-value"><span class="badge">Vivo x90pro+</span></div>
     </div>
     <div class="row">
       <img class="wish-img lb-trigger"
         src="https://cdsassets.apple.com/live/SZLF0YNV/images/sp/111882_iphone-se-2nd-gen.png"
-        alt="iPhone SE2">
+        alt="iPhone SE2" width="44" height="44" loading="lazy" decoding="async">
       <div class="row-value"><span class="badge">iPhone SE2</span></div>
     </div>
   </div>
@@ -635,9 +894,9 @@
       <span class="panel-title">リンク集</span>
     </div>
     <a class="link-row" href="https://x.com/_Tikuwa1" target="_blank" rel="noopener">
-      <img class="link-icon"
+      <img class="link-icon link-icon--x"
         src="https://about.x.com/content/dam/about-twitter/x/brand-toolkit/logo-black.png.twimg.1920.png"
-        alt="X" style="filter:invert(1);">
+        alt="X" width="32" height="32" loading="lazy" decoding="async">
       <div class="link-info">
         <div class="link-name">X (Twitter)</div>
         <div class="link-handle">@_Tikuwa1</div>
@@ -645,7 +904,7 @@
       <span class="link-chevron">›</span>
     </a>
     <a class="link-row" href="https://karotter.com/profile/TikuwaNerimono1/share" target="_blank" rel="noopener">
-      <img class="link-icon" src="https://karotter.com/karotter-log.png" alt="karotter">
+      <img class="link-icon" src="https://karotter.com/karotter-log.png" alt="karotter" width="32" height="32" loading="lazy" decoding="async">
       <div class="link-info">
         <div class="link-name">karotter</div>
         <div class="link-handle">@_Tikuwa1</div>
@@ -655,7 +914,7 @@
     <a class="link-row" href="https://www.instagram.com/tikuwa_nerimono0/" target="_blank" rel="noopener">
       <img class="link-icon"
         src="https://play-lh.googleusercontent.com/Mmi0m-ictXCZNWymXCMRAYKNzN3b9QHm8JWgiBeKK34i21seq2b62ffiGN5ueL-HsBv2=w480-h960-rw"
-        alt="Instagram">
+        alt="Instagram" width="32" height="32" loading="lazy" decoding="async">
       <div class="link-info">
         <div class="link-name">Instagram</div>
         <div class="link-handle">@tikuwa_nerimono0</div>
@@ -664,25 +923,152 @@
     </a>
   </div>
 
-  <!-- フッター (スライドさせないため reveal クラスは付与しない) -->
-  <p class="footer">Ver2 build2606171305</p>
+  <!-- フッター -->
+  <p class="footer">
+    <span>Ver2.1 build2606182153</span>
+    <button id="theme-toggle" type="button" aria-label="ライトモードに切替">
+      <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="4"></circle>
+        <line x1="12" y1="2" x2="12" y2="4"></line>
+        <line x1="12" y1="20" x2="12" y2="22"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="2" y1="12" x2="4" y2="12"></line>
+        <line x1="20" y1="12" x2="22" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      </svg>
+      <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    </button>
+  </p>
 </div>
 
 <script>
-// ── HyperOS blob（タイムスタンプベース） ──
+// ── 画像読み込み失敗時のリトライ＆成功時のリセット ──
 (function () {
-  const canvas = document.getElementById('blob-canvas');
-  const ctx = canvas.getContext('2d');
+  document.querySelectorAll('img[src]').forEach(function (img) {
+    // 1. ロードに成功した場合は、確実に不透明度をクリアし正常表示にする
+    img.addEventListener('load', function () {
+      this.style.opacity = '';
+    });
+
+    // 2. 読み込みエラー時の制御
+    img.addEventListener('error', function () {
+      // 既にリトライ試行済みのとき（完全に読み込めない場合）
+      if (this.dataset.retried) {
+        // メインアバター画像が制限等で取得できなかった場合でも、指定URLを維持する
+        if (this.classList.contains('avatar')) {
+          this.style.opacity = '';
+          return;
+        }
+
+        // それ以外のガジェットやウィッシュリストの画像用のプレースホルダー
+        this.style.opacity = '0.55';
+        var w = this.getAttribute('width') || '48';
+        var h = this.getAttribute('height') || '48';
+        var altText = this.getAttribute('alt') || 'No Image';
+        this.src = 'https://placehold.co/' + w + 'x' + h + '/1c1c1e/3a8fff?text=' + encodeURIComponent(altText);
+        return;
+      }
+      
+      // 最初のエラー時のみ、キャッシュを避けるクエリパラメータを付与してリトライ
+      this.dataset.retried = '1';
+      var src = this.getAttribute('src') || '';
+      this.src = src + (src.indexOf('?') >= 0 ? '&' : '?') + 'retry=' + Date.now();
+    }, { once: false });
+  });
+})();
+
+// ── テーマ切替（ぼかし遷移） ──
+(function () {
+  var toggle = document.getElementById('theme-toggle');
+  var overlay = document.getElementById('theme-overlay');
+  var busy = false;
+
+  function currentTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  }
+
+  function applyTheme(theme) {
+    if (theme === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+    try { localStorage.setItem('theme', theme); } catch (e) {}
+    toggle.setAttribute('aria-label', theme === 'light' ? 'ダークモードに切替' : 'ライトモードに切替');
+  }
+
+  applyTheme(currentTheme());
+
+  toggle.addEventListener('click', function () {
+    if (busy) return;
+    busy = true;
+    var from = currentTheme();
+    var to = from === 'light' ? 'dark' : 'light';
+
+    overlay.className = 'animating active';
+    overlay.setAttribute('aria-hidden', 'false');
+
+    if (from === 'light') {
+      overlay.classList.add('shift-light');
+    }
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        if (from === 'dark') {
+          overlay.classList.add('shift-light');
+        } else {
+          overlay.classList.remove('shift-light');
+          overlay.classList.add('shift-dark');
+        }
+
+        setTimeout(function () { applyTheme(to); }, 600);
+
+        setTimeout(function () {
+          overlay.classList.add('release');
+        }, 950);
+
+        setTimeout(function () {
+          overlay.className = '';
+          overlay.setAttribute('aria-hidden', 'true');
+          busy = false;
+        }, 2500);
+      });
+    });
+  });
+})();
+
+// ── HyperOS blob（モバイル向け軽量化） ──
+(function () {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var canvas = document.getElementById('blob-canvas');
+  var ctx = canvas.getContext('2d', { alpha: true });
+  var isMobile = window.matchMedia('(max-width: 768px), (hover: none) and (pointer: coarse)').matches;
+  var dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 2);
+  var running = true;
+  var frameMod = isMobile ? 2 : 1;
+  var frameTick = 0;
 
   function resize() {
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = Math.round(window.innerWidth * dpr);
+    canvas.height = Math.round(window.innerHeight * dpr);
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
   resize();
-  window.addEventListener('resize', resize);
+  window.addEventListener('resize', resize, { passive: true });
 
-  // 各blobの設定（色・初期位置・動きのパラメータ）
-  const blobs = [
+  document.addEventListener('visibilitychange', function () {
+    running = !document.hidden;
+    if (running) requestAnimationFrame(draw);
+  });
+
+  var blobs = [
     { cx: 0.20, cy: 0.20, r: 0.40, rgb: [20,  90, 255], ax: 0.22, ay: 0.18, fx: 0.00022, fy: 0.00017, ph: 0.0 },
     { cx: 0.78, cy: 0.18, r: 0.33, rgb: [90,  20, 210], ax: 0.20, ay: 0.22, fx: 0.00018, fy: 0.00020, ph: 1.3 },
     { cx: 0.50, cy: 0.62, r: 0.44, rgb: [0,  150, 255], ax: 0.25, ay: 0.20, fx: 0.00015, fy: 0.00013, ph: 2.6 },
@@ -691,23 +1077,28 @@
   ];
 
   function draw(ts) {
-    const t = ts * 0.001; // 秒単位
-    const W = canvas.width;
-    const H = canvas.height;
+    if (!running) return;
+    frameTick++;
+    if (frameTick % frameMod !== 0) {
+      requestAnimationFrame(draw);
+      return;
+    }
+
+    var t = ts * 0.001;
+    var W = window.innerWidth;
+    var H = window.innerHeight;
 
     ctx.clearRect(0, 0, W, H);
 
-    blobs.forEach(b => {
-      const px = (b.cx + Math.sin(t * b.fx * 1000 + b.ph) * b.ax) * W;
-      const py = (b.cy + Math.cos(t * b.fy * 1000 + b.ph) * b.ay) * H;
-      const rad = b.r * Math.min(W, H);
-
-      const g = ctx.createRadialGradient(px, py, 0, px, py, rad);
-      const [r, gr, bl] = b.rgb;
-      g.addColorStop(0,   `rgba(${r},${gr},${bl},0.60)`);
-      g.addColorStop(0.45,`rgba(${r},${gr},${bl},0.22)`);
-      g.addColorStop(1,   `rgba(${r},${gr},${bl},0)`);
-
+    blobs.forEach(function (b) {
+      var px = (b.cx + Math.sin(t * b.fx * 1000 + b.ph) * b.ax) * W;
+      var py = (b.cy + Math.cos(t * b.fy * 1000 + b.ph) * b.ay) * H;
+      var rad = b.r * Math.min(W, H);
+      var g = ctx.createRadialGradient(px, py, 0, px, py, rad);
+      var r = b.rgb[0], gr = b.rgb[1], bl = b.rgb[2];
+      g.addColorStop(0,   'rgba(' + r + ',' + gr + ',' + bl + ',0.60)');
+      g.addColorStop(0.45,'rgba(' + r + ',' + gr + ',' + bl + ',0.22)');
+      g.addColorStop(1,   'rgba(' + r + ',' + gr + ',' + bl + ',0)');
       ctx.beginPath();
       ctx.arc(px, py, rad, 0, Math.PI * 2);
       ctx.fillStyle = g;
@@ -721,12 +1112,10 @@
 })();
 
 // ── スクロールリビール（blur付き） ──
-// ローダー完了後に startReveal() を呼ぶまで待機
 const revealEls = document.querySelectorAll('.reveal');
 revealEls.forEach(el => { el.style.transitionDelay = '0s'; });
 
 function startReveal() {
-  // ビューポート内の要素を順番に時間差（150msずつ）でフェードイン
   revealEls.forEach((el, i) => {
     const rect = el.getBoundingClientRect();
     const inView = rect.top < window.innerHeight && rect.bottom > 0;
@@ -735,7 +1124,6 @@ function startReveal() {
     }
   });
 
-  // スクロールで下の要素を出す IntersectionObserver
   const revealIO = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (e.isIntersecting) {
@@ -776,39 +1164,43 @@ lbClose.addEventListener('click', closeLB);
 lbScrim.addEventListener('click', closeLB);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); });
 
-// ── ローダー ──
+// ── ローダー（確実に完了 + 常時ぼかし背景） ──
 (function () {
-  const loader    = document.getElementById('loader');
-  const dot       = document.getElementById('loader-dot');
-  const burst     = document.getElementById('loader-burst');
+  var loader = document.getElementById('loader');
+  var dot    = document.getElementById('loader-dot');
+  var burst  = document.getElementById('loader-burst');
+  var done   = false;
 
-  function triggerBurst() {
-    // 丸をはじける
+  function finishLoader() {
+    if (done) return;
+    done = true;
+
     dot.classList.add('burst');
-    // リング＆パーティクルを発射
     burst.classList.add('go');
-
-    // 同時にコンテンツのぼかしを解除
     document.body.classList.remove('loading');
-
-    // ぼかし解除トランジション（0.9s）が終わってからカード入場
+    document.documentElement.classList.remove('theme-static');
     setTimeout(startReveal, 950);
 
-    // ローダー背景をフェードアウト
-    setTimeout(() => {
+    setTimeout(function () {
       loader.classList.add('hidden');
     }, 300);
+
+    setTimeout(function () {
+      loader.style.display = 'none';
+    }, 1000);
   }
 
-  // window.load を待つ（画像等すべて読み込み後）
-  if (document.readyState === 'complete') {
-    // すでに完了していれば少し待ってから
-    setTimeout(triggerBurst, 400);
-  } else {
-    window.addEventListener('load', () => {
-      setTimeout(triggerBurst, 300);
-    });
+  function scheduleFinish() {
+    setTimeout(finishLoader, 320);
   }
+
+  if (document.readyState === 'complete') {
+    scheduleFinish();
+  } else {
+    window.addEventListener('load', scheduleFinish, { once: true });
+  }
+
+  setTimeout(finishLoader, 2400);
 })();
 </script>
 </body>
