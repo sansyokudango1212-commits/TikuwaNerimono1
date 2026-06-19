@@ -774,21 +774,25 @@
       50% { transform: translateY(-50%) translateX(4px); opacity: 0.88; }
     }
     @keyframes onboard-panel-in {
-      from { opacity: 0; transform: translateY(calc(-50% + 10px)); filter: blur(6px); }
+      from { opacity: 0; transform: translateY(calc(-50% + 14px)); filter: blur(8px); }
       to { opacity: 1; transform: translateY(-50%); filter: blur(0px); }
     }
     @keyframes onboard-panel-out {
       from { opacity: 1; transform: translateY(-50%); filter: blur(0px); }
-      to { opacity: 0; transform: translateY(calc(-50% + 8px)); filter: blur(8px); }
+      to { opacity: 0; transform: translateY(calc(-50% + 12px)); filter: blur(8px); }
+    }
+    @keyframes onboard-panel-in-mobile {
+      from { opacity: 0; transform: translateY(calc(-50% + 16px)); filter: blur(8px); }
+      to { opacity: 1; transform: translateY(-50%); filter: blur(0px); }
     }
     @keyframes onboard-panel-out-mobile {
-      from { opacity: 1; transform: translateY(0); filter: blur(0px); }
-      to { opacity: 0; transform: translateY(10px); filter: blur(8px); }
+      from { opacity: 1; transform: translateY(-50%); filter: blur(0px); }
+      to { opacity: 0; transform: translateY(calc(-50% + 14px)); filter: blur(8px); }
     }
     #sidebar-onboarding {
       position: fixed;
       inset: 0;
-      z-index: 9997;
+      z-index: 10004;
       pointer-events: none;
     }
     #sidebar-onboarding.active {
@@ -797,6 +801,7 @@
     .sb-onboard-scrim {
       position: absolute;
       inset: 0;
+      z-index: 0;
       background: var(--bg-scrim);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
@@ -823,10 +828,10 @@
     }
     .sb-onboard-panel {
       position: fixed;
+      z-index: 2;
+      box-sizing: border-box;
       left: 108px;
       top: 50%;
-      transform: translateY(-50%);
-      z-index: 10002;
       width: min(300px, calc(100vw - 132px));
       padding: 18px 18px 16px;
       border-radius: 18px;
@@ -839,8 +844,11 @@
         0 16px 48px rgba(0, 0, 0, 0.28);
       opacity: 0;
       pointer-events: none;
+      transform: translateY(-50%);
+      filter: blur(8px);
+      will-change: opacity, transform, filter;
     }
-    #sidebar-onboarding.active .sb-onboard-panel {
+    #sidebar-onboarding.active.animate-in .sb-onboard-panel {
       pointer-events: all;
       animation: onboard-panel-in 0.62s cubic-bezier(0.19, 1, 0.22, 1) 0.18s forwards;
     }
@@ -848,16 +856,17 @@
       pointer-events: none;
       animation: onboard-panel-out 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
+    #sidebar-onboarding.onboard-layout-mobile.active.animate-in .sb-onboard-panel {
+      animation-name: onboard-panel-in-mobile;
+    }
+    #sidebar-onboarding.onboard-layout-mobile.panel-out .sb-onboard-panel {
+      animation-name: onboard-panel-out-mobile;
+    }
     #sidebar-onboarding.blur-out .sb-onboard-panel {
       opacity: 0;
-      visibility: hidden;
       pointer-events: none;
       animation: none !important;
       filter: none;
-    }
-    #sidebar-onboarding.active.blur-out .sb-onboard-panel,
-    #sidebar-onboarding.active.panel-out .sb-onboard-panel {
-      pointer-events: none;
     }
     #sidebar-onboarding.panel-out,
     #sidebar-onboarding.blur-out {
@@ -961,10 +970,11 @@
     body.sidebar-onboarding #sidebar {
       visibility: visible;
       pointer-events: none;
+      z-index: 9999;
       animation: sidebar-onboard-peek 0.72s cubic-bezier(0.19, 1, 0.22, 1) forwards;
     }
     body.sidebar-onboarding #sidebar-edge {
-      z-index: 10003;
+      z-index: 10005;
       pointer-events: all;
     }
     body.sidebar-onboarding #sidebar-arrow {
@@ -980,24 +990,15 @@
       transform: translateX(-100%) !important;
       animation: none !important;
     }
-    @media (max-width: 768px), (hover: none) and (pointer: coarse) {
-      .sb-onboard-panel {
-        left: 50%;
-        top: auto;
-        bottom: 28px;
-        transform: none;
-        width: min(340px, calc(100vw - 32px));
-      }
-      #sidebar-onboarding.active .sb-onboard-panel {
-        animation-name: onboard-panel-in-mobile;
-      }
-      #sidebar-onboarding.panel-out .sb-onboard-panel {
-        animation-name: onboard-panel-out-mobile;
-      }
-      @keyframes onboard-panel-in-mobile {
-        from { opacity: 0; transform: translateY(12px); filter: blur(6px); }
-        to { opacity: 1; transform: translateY(0); filter: blur(0px); }
-      }
+    #sidebar-onboarding.onboard-layout-mobile .sb-onboard-panel {
+      left: 16px;
+      right: 16px;
+      top: 42%;
+      width: auto;
+      max-height: min(72vh, calc(100dvh - 80px));
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      transform: translateY(-50%);
     }
     @media (prefers-reduced-motion: reduce) {
       body.sidebar-onboarding #sidebar {
@@ -1007,10 +1008,11 @@
       body.sidebar-onboarding #sidebar-arrow {
         animation: none;
       }
-      #sidebar-onboarding.active .sb-onboard-panel {
+      #sidebar-onboarding.active.animate-in .sb-onboard-panel {
         animation: none;
         opacity: 1;
         filter: none;
+        transform: translateY(-50%);
       }
     }
 
@@ -1483,7 +1485,7 @@
       </button>
     </div>
   </div>
-  <p class="sidebar-version">Ver3 build2606192258</p>
+  <p class="sidebar-version">Ver3.1 build2606192343</p>
 </nav>
 
 <div id="sidebar-onboarding" hidden aria-hidden="true">
@@ -1566,7 +1568,7 @@
         <div class="tag-list">
           <span class="tag"><a href="https://x.com/Sovecx" target="_blank">@S0arrayと話すこと</a></span>
           <span class="tag">NTE</span>
-          <span class="tag">メルカス閲覧</span>
+          <span class="tag">メルカス徘徊</span>
           <span class="tag">写真撮る</span>
         </div>
       </div>
@@ -1836,6 +1838,15 @@ function startReveal() {
   var isOpen = false;
   var isAnimating = false;
   var isCoarse = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+
+  function isOnboardMobileLayout() {
+    return isCoarse || window.innerWidth <= 768;
+  }
+
+  function syncOnboardLayout() {
+    if (!onboarding) return;
+    onboarding.classList.toggle('onboard-layout-mobile', isOnboardMobileLayout());
+  }
   var touchStartX = 0;
   var touchStartY = 0;
   var touchActive = false;
@@ -1874,7 +1885,7 @@ function startReveal() {
     onboardingExiting = false;
     document.body.classList.remove('sidebar-onboarding', 'onboarding-exit');
     if (onboarding) {
-      onboarding.classList.remove('active', 'panel-out', 'blur-out');
+      onboarding.classList.remove('active', 'animate-in', 'panel-out', 'blur-out', 'onboard-layout-mobile');
       onboarding.setAttribute('aria-hidden', 'true');
       onboarding.hidden = true;
     }
@@ -1898,6 +1909,7 @@ function startReveal() {
     }
 
     onboardingExiting = true;
+    if (onboarding) onboarding.classList.remove('animate-in');
     requestAnimationFrame(function () {
       document.body.classList.add('onboarding-exit');
       if (onboarding) onboarding.classList.add('panel-out');
@@ -1924,11 +1936,18 @@ function startReveal() {
     if (hasSeenOnboarding() || onboardingActive || isOpen || !onboarding) return;
     renderOnboardingCopy();
     onboardingActive = true;
-    onboarding.hidden = false;
-    onboarding.setAttribute('aria-hidden', 'false');
+    onboarding.classList.remove('animate-in', 'panel-out', 'blur-out');
+    syncOnboardLayout();
     document.body.classList.add('sidebar-onboarding');
+    onboarding.hidden = false;
+    onboarding.removeAttribute('hidden');
+    onboarding.setAttribute('aria-hidden', 'false');
+    onboarding.classList.add('active');
+    void onboarding.offsetHeight;
     requestAnimationFrame(function () {
-      onboarding.classList.add('active');
+      requestAnimationFrame(function () {
+        onboarding.classList.add('animate-in');
+      });
     });
   }
 
@@ -2027,6 +2046,11 @@ function startReveal() {
   }
 
   scheduleOnboarding();
+
+  window.addEventListener('resize', function () {
+    if (!onboardingActive) return;
+    syncOnboardLayout();
+  }, { passive: true });
 
   scrim.addEventListener('click', closeSidebar);
 
