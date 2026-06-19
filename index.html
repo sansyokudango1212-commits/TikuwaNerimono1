@@ -7,10 +7,12 @@
       try {
         var t = localStorage.getItem('theme');
         if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        document.documentElement.setAttribute('data-initial-view', 'home');
       } catch (e) {}
       document.documentElement.classList.add('theme-static');
     })();
   </script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%233a8fff'/%3E%3C/svg%3E" type="image/svg+xml">
   <link rel="icon" type="image/png" sizes="32x32" href="32.png">
   <link rel="apple-touch-icon" sizes="180x180" href="https://pbs.twimg.com/profile_images/2062297964425650176/3nn1RyIm_400x400.jpg">
   <link rel="preconnect" href="https://pbs.twimg.com" crossorigin>
@@ -29,10 +31,13 @@
       --text-base: #f0f0f0;
       --text-strong: #fff;
       --text-muted: rgba(255,255,255,0.4);
-      --text-subtle: rgba(255,255,255,0.35);
+
       --text-faint: rgba(255,255,255,0.18);
-      --panel-bg: rgba(28,28,30,0.72);
-      --panel-border: rgba(255,255,255,0.10);
+      --panel-bg: rgba(28,28,30,0.28);
+      --panel-border: rgba(255,255,255,0.14);
+      --panel-saturate: 1.7;
+      --glass-highlight: rgba(255,255,255,0.12);
+      --glass-shadow-in: rgba(255,255,255,0.04);
       --panel-divider: rgba(255,255,255,0.07);
       --row-divider: rgba(255,255,255,0.05);
       --row-hover: rgba(255,255,255,0.04);
@@ -54,13 +59,17 @@
       --link-chevron: rgba(255,255,255,0.25);
       --panel-dot: rgba(255,255,255,0.18);
       --panel-title: rgba(255,255,255,0.35);
-      --footer-text: rgba(255,255,255,0.45);
+
       --overlay-blur: 14px;
-      --panel-blur: 40px;
+      --panel-blur: 22px;
       --edge-glass-blur: 18px;
       --x-icon-invert: 1;
       --theme-toggle-bg: rgba(255,255,255,0.1);
       --theme-toggle-border: rgba(255,255,255,0.15);
+      --ext-scrim-bg: rgba(0, 0, 0, 0.58);
+      --ext-glass-bg: rgba(28, 28, 30, 0.42);
+      --ext-ease-open: cubic-bezier(0.22, 1, 0.36, 1);
+      --ext-ease-close: cubic-bezier(0.64, 0, 0.78, 0);
     }
 
     [data-theme="light"] {
@@ -68,10 +77,13 @@
       --text-base: #2a2a2c;
       --text-strong: #111;
       --text-muted: rgba(0,0,0,0.45);
-      --text-subtle: rgba(0,0,0,0.38);
+
       --text-faint: rgba(0,0,0,0.22);
-      --panel-bg: rgba(255,255,255,0.72);
-      --panel-border: rgba(0,0,0,0.08);
+      --panel-bg: rgba(255,255,255,0.36);
+      --panel-border: rgba(255,255,255,0.55);
+      --panel-saturate: 1.5;
+      --glass-highlight: rgba(255,255,255,0.65);
+      --glass-shadow-in: rgba(255,255,255,0.35);
       --panel-divider: rgba(0,0,0,0.06);
       --row-divider: rgba(0,0,0,0.05);
       --row-hover: rgba(0,0,0,0.03);
@@ -92,10 +104,12 @@
       --link-chevron: rgba(0,0,0,0.22);
       --panel-dot: rgba(0,0,0,0.14);
       --panel-title: rgba(0,0,0,0.32);
-      --footer-text: rgba(0,0,0,0.55);
+
       --x-icon-invert: 0;
       --theme-toggle-bg: rgba(0,0,0,0.06);
       --theme-toggle-border: rgba(0,0,0,0.1);
+      --ext-scrim-bg: rgba(255, 255, 255, 0.62);
+      --ext-glass-bg: rgba(255, 255, 255, 0.52);
     }
 
     html { color-scheme: dark; }
@@ -106,15 +120,25 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* 高速化ポイント1: bodyから重い背景描画処理を分離 */
     body {
       min-height: 100vh;
-      background-image: url('https://lh3.googleusercontent.com/pw/AP1GczMbMIgv9wZLJbeDdwPC-7aRgmyjVAgfdXs2PXeS50IIYH7yGL6xBXC2WiYBb5lLvfPnp6c2r0Wkn1bOFJdWf4zQqmeWFpEIdSrX6IPt74qDuVXm0uK3vqXIFBSGh4rUIHRdAuPuj9XKaHde-Igh9yBz=w1474-h921-s-no-gm?authuser=0');
-      background-size: cover;
-      background-attachment: fixed;
-      background-position: center;
       font-family: "IBM Plex Sans JP", "Noto Sans JP", sans-serif;
       color: var(--text-base);
       overflow-x: hidden;
+      position: relative; /* 背景用レイヤーの基準 */
+    }
+
+    /* 高速化ポイント1: background-attachment: fixed の代わりに固定レイヤーを使用（スクロール時の再描画を防ぐ） */
+    #bg-fixed {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background-image: url('https://lh3.googleusercontent.com/pw/AP1GczMbMIgv9wZLJbeDdwPC-7aRgmyjVAgfdXs2PXeS50IIYH7yGL6xBXC2WiYBb5lLvfPnp6c2r0Wkn1bOFJdWf4zQqmeWFpEIdSrX6IPt74qDuVXm0uK3vqXIFBSGh4rUIHRdAuPuj9XKaHde-Igh9yBz=w1474-h921-s-no-gm?authuser=0');
+      background-size: cover;
+      background-position: center;
+      pointer-events: none;
+      transform: translateZ(0); /* GPUアクセラレーション */
     }
 
     body::before {
@@ -124,9 +148,10 @@
       backdrop-filter: blur(var(--overlay-blur));
       -webkit-backdrop-filter: blur(var(--overlay-blur));
       background: var(--bg-scrim);
-      z-index: 0;
+      z-index: -1; /* #bg-fixed の上に配置 */
       pointer-events: none;
       transition: background 0.4s ease;
+      transform: translateZ(0); /* GPUに乗せる */
     }
 
     /* ── HyperOS blob canvas ── */
@@ -138,6 +163,8 @@
       mix-blend-mode: var(--blob-blend);
       opacity: var(--blob-opacity);
       transition: opacity 0.4s ease;
+      transform: translateZ(0); /* 高速化ポイント2: CanvasをGPUで合成 */
+      will-change: opacity;
     }
 
     /* ── 上下エッジブラーマスク ── */
@@ -147,44 +174,37 @@
       height: 120px;
       z-index: 10;
       pointer-events: none;
+      transform: translateZ(0); /* GPUに乗せる */
     }
     .edge-blur.top {
       top: 0;
-      background: linear-gradient(to bottom,
-        var(--edge-gradient) 0%,
-        transparent 100%);
-      -webkit-backdrop-filter: blur(0px);
-      backdrop-filter: blur(0px);
+      background: linear-gradient(to bottom, var(--edge-gradient) 0%, transparent 100%);
       mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
       -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
     }
     .edge-blur.bottom {
       bottom: 0;
-      background: linear-gradient(to top,
-        var(--edge-gradient) 0%,
-        transparent 100%);
+      background: linear-gradient(to top, var(--edge-gradient) 0%, transparent 100%);
       mask-image: linear-gradient(to top, black 0%, transparent 100%);
       -webkit-mask-image: linear-gradient(to top, black 0%, transparent 100%);
     }
 
-    /* 上下のガラスエッジ（別要素でblurをかける） */
     .edge-glass {
       position: fixed;
       left: 0; right: 0;
       pointer-events: none;
       z-index: 9;
+      transform: translateZ(0); /* GPUに乗せる */
     }
     .edge-glass.top {
-      top: 0;
-      height: 90px;
+      top: 0; height: 90px;
       backdrop-filter: blur(var(--edge-glass-blur));
       -webkit-backdrop-filter: blur(var(--edge-glass-blur));
       mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
       -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
     }
     .edge-glass.bottom {
-      bottom: 0;
-      height: 90px;
+      bottom: 0; height: 90px;
       backdrop-filter: blur(var(--edge-glass-blur));
       -webkit-backdrop-filter: blur(var(--edge-glass-blur));
       mask-image: linear-gradient(to top, black 30%, transparent 100%);
@@ -202,7 +222,8 @@
       transform-origin: left;
       animation: prog auto linear;
       animation-timeline: scroll();
-      z-index: 9999;
+      z-index: 6;
+      will-change: transform;
     }
     @keyframes prog { to { transform: scaleX(1); } }
 
@@ -245,14 +266,22 @@
     /* ── PANEL ── */
     .panel {
       background: var(--panel-bg);
-      backdrop-filter: blur(var(--panel-blur));
-      -webkit-backdrop-filter: blur(var(--panel-blur));
+      backdrop-filter: blur(var(--panel-blur)) saturate(var(--panel-saturate));
+      -webkit-backdrop-filter: blur(var(--panel-blur)) saturate(var(--panel-saturate));
       border: 1px solid var(--panel-border);
       border-radius: 18px;
       margin-bottom: 12px;
       overflow: hidden;
+      box-shadow:
+        0 0 1px 0.5px var(--glass-highlight) inset,
+        0 0 14px 4px var(--glass-shadow-in) inset,
+        0 4px 20px rgba(0, 0, 0, 0.10),
+        0 12px 40px rgba(0, 0, 0, 0.06);
       content-visibility: auto;
       contain-intrinsic-size: auto 200px;
+      contain: paint style;
+      transform: translateZ(0);
+      will-change: transform, opacity;
     }
     .panel-header {
       padding: 12px 18px 10px;
@@ -302,12 +331,6 @@
       border-radius: 8px; padding: 4px 10px;
       font-size: 13px; font-weight: 300; color: var(--text-strong);
     }
-    .badge-blue {
-      background: rgba(58,143,255,0.15);
-      border-color: rgba(58,143,255,0.35);
-      color: var(--accent);
-    }
-
     /* tags */
     .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
     .tag {
@@ -335,7 +358,6 @@
     .device-cell {
       background: var(--panel-bg);
       padding: 14px 12px; text-align: center;
-      cursor: pointer;
       transition: background 0.18s;
     }
     .device-cell:hover { background: rgba(58,143,255,0.08); }
@@ -346,6 +368,7 @@
       cursor: pointer;
       background: var(--badge-bg);
       transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
+      will-change: transform; /* ホバー時のアニメーションを軽くする */
     }
     .device-cell:hover .device-img { transform: scale(1.08); }
     .device-name {
@@ -362,6 +385,7 @@
       background: var(--badge-bg);
       cursor: pointer;
       transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
+      will-change: transform;
     }
     .wish-img:hover { transform: scale(1.1); }
 
@@ -385,11 +409,13 @@
       align-items: center;
       justify-content: center;
     }
-    .link-icon--x { filter: invert(var(--x-icon-invert)); }
     .link-icon svg {
       width: 100%;
       height: 100%;
       fill: var(--text-strong);
+    }
+    .link-icon--x {
+      filter: invert(var(--x-icon-invert));
     }
     .link-info { flex: 1; }
     .link-name { font-size: 14px; font-weight: 300; color: var(--text-strong); }
@@ -399,46 +425,6 @@
     }
     .link-chevron { color: var(--link-chevron); font-size: 16px; line-height: 1; }
 
-    /* ── FOOTER ── */
-    .footer {
-      text-align: center; font-size: 10px;
-      color: var(--footer-text);
-      font-family: "IBM Plex Mono", monospace;
-      padding-top: 16px; letter-spacing: 0.04em;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    
-    /* テーマ切り替えボタンの視認性改善 */
-    #theme-toggle {
-      appearance: none;
-      border: 1px solid var(--theme-toggle-border);
-      background: var(--theme-toggle-bg);
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      padding: 0;
-      margin: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      vertical-align: middle;
-      cursor: pointer;
-      opacity: 0.85;
-      color: var(--text-strong);
-      transition: opacity 0.25s ease, background 0.25s ease, border-color 0.25s ease;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    }
-    #theme-toggle:hover,
-    #theme-toggle:focus-visible {
-      opacity: 1;
-      outline: none;
-      background: rgba(58, 143, 255, 0.2);
-      border-color: var(--accent);
-    }
     .theme-icon {
       width: 17px;
       height: 17px;
@@ -467,6 +453,8 @@
       -webkit-backdrop-filter: blur(0px);
       background: transparent;
       transition: none;
+      transform: translateZ(0);
+      will-change: backdrop-filter, background-color, opacity; /* 事前にGPUの準備をさせる */
     }
     #theme-overlay.animating {
       visibility: visible;
@@ -504,15 +492,561 @@
         opacity 1s ease 0.35s;
     }
 
-    /* ── SCROLL REVEAL with blur ── */
+    /* ── SIDEBAR ── */
+    #main-content {
+      position: relative;
+      z-index: 5;
+    }
+
+    #sidebar-scrim {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      pointer-events: none;
+      opacity: 0;
+      backdrop-filter: blur(0px);
+      -webkit-backdrop-filter: blur(0px);
+      background: transparent;
+      transition:
+        opacity 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+        backdrop-filter 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+        -webkit-backdrop-filter 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+        background 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    body.sidebar-open #sidebar-scrim {
+      pointer-events: all;
+      opacity: 1;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: var(--bg-scrim);
+    }
+    body.sidebar-closing #sidebar-scrim {
+      transition:
+        opacity 0.44s cubic-bezier(0.55, 0, 1, 0.45),
+        backdrop-filter 0.44s cubic-bezier(0.55, 0, 1, 0.45),
+        -webkit-backdrop-filter 0.44s cubic-bezier(0.55, 0, 1, 0.45),
+        background 0.44s cubic-bezier(0.55, 0, 1, 0.45);
+      opacity: 0;
+      backdrop-filter: blur(0px);
+      -webkit-backdrop-filter: blur(0px);
+      background: transparent;
+      pointer-events: none;
+    }
+
+    #sidebar-edge {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 28px;
+      height: 100vh;
+      z-index: 10001;
+    }
+    #sidebar-arrow {
+      appearance: none;
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%) translateX(-110%);
+      width: 28px;
+      height: 52px;
+      border: none;
+      border-radius: 0 14px 14px 0;
+      background: rgba(0, 0, 0, 0.48);
+      color: #fff;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 2px 0 0;
+      box-shadow: 4px 0 16px rgba(0, 0, 0, 0.2);
+      transition:
+        transform 0.36s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        opacity 0.32s ease,
+        background 0.22s ease;
+    }
+    #sidebar-edge:hover #sidebar-arrow,
+    #sidebar-edge:focus-within #sidebar-arrow {
+      transform: translateY(-50%) translateX(0);
+      opacity: 1;
+      pointer-events: all;
+    }
+    #sidebar-arrow:hover,
+    #sidebar-arrow:focus-visible {
+      outline: none;
+      background: rgba(0, 0, 0, 0.62);
+    }
+    .sidebar-arrow-icon {
+      font-size: 22px;
+      line-height: 1;
+      font-weight: 300;
+      color: #fff;
+      margin-left: 2px;
+    }
+    body.sidebar-open #sidebar-edge,
+    body.sidebar-opening #sidebar-edge {
+      pointer-events: none;
+    }
+    body.sidebar-open #sidebar-arrow,
+    body.sidebar-opening #sidebar-arrow {
+      opacity: 0 !important;
+      pointer-events: none !important;
+      transform: translateY(-50%) translateX(-110%) !important;
+    }
+
+    #sidebar {
+      --sidebar-overflow: 100px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: calc(260px + var(--sidebar-overflow));
+      height: 100vh;
+      z-index: 10000;
+      background: var(--panel-bg);
+      backdrop-filter: blur(40px) saturate(var(--panel-saturate));
+      -webkit-backdrop-filter: blur(40px) saturate(var(--panel-saturate));
+      border-right: 1px solid var(--panel-border);
+      padding: 32px 20px 24px calc(20px + var(--sidebar-overflow));
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      transform: translateX(-100%);
+      visibility: hidden;
+      pointer-events: none;
+      box-shadow: 8px 0 32px rgba(0, 0, 0, 0.18);
+    }
+    #sidebar.opening,
+    #sidebar.open,
+    #sidebar.closing {
+      visibility: visible;
+    }
+    #sidebar.opening {
+      pointer-events: all;
+      animation: sidebar-slide-in 0.52s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    #sidebar.open {
+      transform: translateX(calc(-1 * var(--sidebar-overflow)));
+      pointer-events: all;
+    }
+    #sidebar.closing {
+      pointer-events: none;
+      animation: sidebar-slide-out 0.44s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+    }
+    @keyframes sidebar-slide-in {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(calc(-1 * var(--sidebar-overflow))); }
+    }
+    @keyframes sidebar-slide-out {
+      0%   { transform: translateX(calc(-1 * var(--sidebar-overflow))); }
+      100% { transform: translateX(-100%); }
+    }
+    .sidebar-section-title {
+      font-size: 10px;
+      color: var(--panel-title);
+      font-weight: 300;
+      font-family: "IBM Plex Mono", monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .sidebar-theme {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+      border-radius: 12px;
+    }
+    .sidebar-theme-label {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--row-label);
+    }
+    #sidebar-theme-toggle {
+      appearance: none;
+      border: 1px solid var(--theme-toggle-border);
+      background: var(--theme-toggle-bg);
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-strong);
+      transition: opacity 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+      flex-shrink: 0;
+    }
+    #sidebar-theme-toggle:hover,
+    #sidebar-theme-toggle:focus-visible {
+      outline: none;
+      background: rgba(58, 143, 255, 0.2);
+      border-color: var(--accent);
+    }
+    .sidebar-nav {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .sidebar-nav-indicator {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(58, 143, 255, 0.12);
+      border: 1px solid rgba(58, 143, 255, 0.28);
+      transform: translateY(0);
+      transition: transform 0.42s cubic-bezier(0.34, 1.12, 0.64, 1);
+      pointer-events: none;
+      z-index: 0;
+      box-sizing: border-box;
+    }
+    .sidebar-nav-btn {
+      appearance: none;
+      border: 1px solid transparent;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 300;
+      font-family: "IBM Plex Sans JP", sans-serif;
+      color: var(--row-label);
+      cursor: pointer;
+      position: relative;
+      z-index: 1;
+      transition: color 0.22s ease;
+    }
+    .sidebar-nav-btn:hover {
+      color: var(--text-strong);
+    }
+    .sidebar-nav-btn.active {
+      color: var(--accent);
+    }
+    .sidebar-theme-section {
+      margin-top: auto;
+      padding-top: 8px;
+      border-top: 1px solid var(--panel-divider);
+    }
+    .sidebar-version {
+      padding-top: 14px;
+      font-size: 10px;
+      color: var(--text-faint);
+      font-family: "IBM Plex Mono", monospace;
+      letter-spacing: 0.04em;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 768px), (hover: none) and (pointer: coarse) {
+      #sidebar-edge {
+        width: 18px;
+      }
+      #sidebar-arrow {
+        opacity: 0.55;
+        transform: translateY(-50%) translateX(0);
+        pointer-events: all;
+        width: 22px;
+        height: 44px;
+      }
+      body.sidebar-open #sidebar-arrow,
+      body.sidebar-opening #sidebar-arrow {
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+    }
+
+    /* ── SIDEBAR ONBOARDING ── */
+    @keyframes sidebar-onboard-peek {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(calc(-100% + 84px)); }
+    }
+    @keyframes onboard-arrow-hint {
+      0%, 100% { transform: translateY(-50%) translateX(0); opacity: 1; }
+      50% { transform: translateY(-50%) translateX(4px); opacity: 0.88; }
+    }
+    @keyframes onboard-panel-in {
+      from { opacity: 0; transform: translateY(calc(-50% + 10px)); filter: blur(6px); }
+      to { opacity: 1; transform: translateY(-50%); filter: blur(0px); }
+    }
+    @keyframes onboard-panel-out {
+      from { opacity: 1; transform: translateY(-50%); filter: blur(0px); }
+      to { opacity: 0; transform: translateY(calc(-50% + 8px)); filter: blur(8px); }
+    }
+    @keyframes onboard-panel-out-mobile {
+      from { opacity: 1; transform: translateY(0); filter: blur(0px); }
+      to { opacity: 0; transform: translateY(10px); filter: blur(8px); }
+    }
+    #sidebar-onboarding {
+      position: fixed;
+      inset: 0;
+      z-index: 9997;
+      pointer-events: none;
+    }
+    #sidebar-onboarding.active {
+      pointer-events: all;
+    }
+    .sb-onboard-scrim {
+      position: absolute;
+      inset: 0;
+      background: var(--bg-scrim);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      opacity: 0;
+      transition:
+        opacity 0.55s cubic-bezier(0.19, 1, 0.22, 1),
+        backdrop-filter 0.55s cubic-bezier(0.19, 1, 0.22, 1),
+        -webkit-backdrop-filter 0.55s cubic-bezier(0.19, 1, 0.22, 1),
+        background 0.55s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    #sidebar-onboarding.active .sb-onboard-scrim {
+      opacity: 1;
+    }
+    #sidebar-onboarding.blur-out .sb-onboard-scrim {
+      opacity: 0;
+      backdrop-filter: blur(0px);
+      -webkit-backdrop-filter: blur(0px);
+      background: transparent;
+      transition:
+        opacity 1s cubic-bezier(0.19, 1, 0.22, 1),
+        backdrop-filter 1s cubic-bezier(0.19, 1, 0.22, 1),
+        -webkit-backdrop-filter 1s cubic-bezier(0.19, 1, 0.22, 1),
+        background 1s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    .sb-onboard-panel {
+      position: fixed;
+      left: 108px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10002;
+      width: min(300px, calc(100vw - 132px));
+      padding: 18px 18px 16px;
+      border-radius: 18px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(32px) saturate(var(--panel-saturate));
+      -webkit-backdrop-filter: blur(32px) saturate(var(--panel-saturate));
+      border: 1px solid var(--panel-border);
+      box-shadow:
+        0 0 1px 0.5px var(--glass-highlight) inset,
+        0 16px 48px rgba(0, 0, 0, 0.28);
+      opacity: 0;
+      pointer-events: none;
+    }
+    #sidebar-onboarding.active .sb-onboard-panel {
+      pointer-events: all;
+      animation: onboard-panel-in 0.62s cubic-bezier(0.19, 1, 0.22, 1) 0.18s forwards;
+    }
+    #sidebar-onboarding.panel-out .sb-onboard-panel {
+      pointer-events: none;
+      animation: onboard-panel-out 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    #sidebar-onboarding.blur-out .sb-onboard-panel {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      animation: none !important;
+      filter: none;
+    }
+    #sidebar-onboarding.active.blur-out .sb-onboard-panel,
+    #sidebar-onboarding.active.panel-out .sb-onboard-panel {
+      pointer-events: none;
+    }
+    #sidebar-onboarding.panel-out,
+    #sidebar-onboarding.blur-out {
+      pointer-events: none;
+    }
+    body.onboarding-exit #sidebar-arrow {
+      animation: onboard-arrow-exit 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+    @keyframes onboard-arrow-exit {
+      from { opacity: 1; transform: translateY(-50%) translateX(0); }
+      to { opacity: 0; transform: translateY(-50%) translateX(-8px); }
+    }
+    .sb-onboard-kicker {
+      font-size: 10px;
+      font-family: "IBM Plex Mono", monospace;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--panel-title);
+      margin-bottom: 6px;
+    }
+    .sb-onboard-title {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text-strong);
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    .sb-onboard-text {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--row-label);
+      line-height: 1.65;
+      margin-bottom: 14px;
+    }
+    .sb-onboard-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .sb-onboard-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .sb-onboard-step-num {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(58, 143, 255, 0.14);
+      border: 1px solid rgba(58, 143, 255, 0.32);
+      color: var(--accent);
+      font-size: 11px;
+      font-family: "IBM Plex Mono", monospace;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+    .sb-onboard-step-arrow {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 6px;
+      border-radius: 0 11px 11px 0;
+      background: rgba(0, 0, 0, 0.48);
+      color: #fff;
+      font-size: 14px;
+      vertical-align: middle;
+      margin: 0 2px;
+    }
+    .sb-onboard-skip {
+      appearance: none;
+      width: 100%;
+      border: 1px solid rgba(58, 143, 255, 0.35);
+      background: rgba(58, 143, 255, 0.12);
+      color: var(--accent);
+      border-radius: 12px;
+      padding: 11px 14px;
+      font-size: 13px;
+      font-weight: 400;
+      font-family: "IBM Plex Sans JP", sans-serif;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .sb-onboard-skip:hover,
+    .sb-onboard-skip:focus-visible {
+      outline: none;
+      background: rgba(58, 143, 255, 0.2);
+      border-color: var(--accent);
+    }
+    body.sidebar-onboarding #sidebar {
+      visibility: visible;
+      pointer-events: none;
+      animation: sidebar-onboard-peek 0.72s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    }
+    body.sidebar-onboarding #sidebar-edge {
+      z-index: 10003;
+      pointer-events: all;
+    }
+    body.sidebar-onboarding #sidebar-arrow {
+      opacity: 1 !important;
+      pointer-events: all !important;
+      transform: translateY(-50%) translateX(0) !important;
+      animation: onboard-arrow-hint 2.2s ease-in-out 0.8s infinite;
+    }
+    #sidebar.onboard-dismiss {
+      visibility: visible;
+      pointer-events: none;
+      transition: transform 0.45s cubic-bezier(0.55, 0, 1, 0.45);
+      transform: translateX(-100%) !important;
+      animation: none !important;
+    }
+    @media (max-width: 768px), (hover: none) and (pointer: coarse) {
+      .sb-onboard-panel {
+        left: 50%;
+        top: auto;
+        bottom: 28px;
+        transform: none;
+        width: min(340px, calc(100vw - 32px));
+      }
+      #sidebar-onboarding.active .sb-onboard-panel {
+        animation-name: onboard-panel-in-mobile;
+      }
+      #sidebar-onboarding.panel-out .sb-onboard-panel {
+        animation-name: onboard-panel-out-mobile;
+      }
+      @keyframes onboard-panel-in-mobile {
+        from { opacity: 0; transform: translateY(12px); filter: blur(6px); }
+        to { opacity: 1; transform: translateY(0); filter: blur(0px); }
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      body.sidebar-onboarding #sidebar {
+        animation: none;
+        transform: translateX(calc(-100% + 84px));
+      }
+      body.sidebar-onboarding #sidebar-arrow {
+        animation: none;
+      }
+      #sidebar-onboarding.active .sb-onboard-panel {
+        animation: none;
+        opacity: 1;
+        filter: none;
+      }
+    }
+
+    /* ── VIEW SWITCHING ── */
+    .page-view {
+      display: none;
+    }
+    .page-view.active {
+      display: block;
+    }
+    .page-view.is-switching .reveal {
+      opacity: 0 !important;
+      transform: translateX(40px) !important;
+      filter: blur(1.5px) !important;
+      transition: none !important;
+    }
+    html[data-initial-view="home"] #view-home {
+      display: block;
+    }
+    html[data-initial-view="links"] #view-links {
+      display: block;
+    }
+    html[data-initial-view="links"] #view-home {
+      display: none;
+    }
+
+    /* ── SCROLL REVEAL ── */
     .reveal {
       opacity: 0;
-      transform: translateX(32px);
-      filter: blur(4px);
+      transform: translateX(36px);
+      filter: blur(1.5px);
       transition:
-        opacity 0.48s cubic-bezier(0.25,0.46,0.45,0.94),
-        transform 0.48s cubic-bezier(0.25,0.46,0.45,0.94),
-        filter 0.48s cubic-bezier(0.25,0.46,0.45,0.94);
+        opacity 0.52s cubic-bezier(0.25,0.46,0.45,0.94),
+        transform 0.52s cubic-bezier(0.25,0.46,0.45,0.94),
+        filter 0.52s cubic-bezier(0.25,0.46,0.45,0.94);
+      transition-delay: var(--reveal-delay, 0ms);
     }
     .reveal.visible {
       opacity: 1;
@@ -523,60 +1057,202 @@
     /* ── LIGHTBOX ── */
     #lightbox {
       position: fixed; inset: 0;
-      z-index: 9000;
+      z-index: 10050;
       display: flex; align-items: center; justify-content: center;
       pointer-events: none; opacity: 0;
     }
-    #lightbox.open { pointer-events: all; }
+    #lightbox.open,
+    #lightbox.closing { pointer-events: all; }
     #lb-scrim {
       position: absolute; inset: 0;
       background: rgba(0,0,0,0);
       backdrop-filter: blur(0px);
       -webkit-backdrop-filter: blur(0px);
-      transition: background 0.42s, backdrop-filter 0.42s;
+      transition:
+        background 0.72s cubic-bezier(0.19, 1, 0.22, 1),
+        backdrop-filter 0.72s cubic-bezier(0.19, 1, 0.22, 1),
+        -webkit-backdrop-filter 0.72s cubic-bezier(0.19, 1, 0.22, 1);
+      transform: translateZ(0);
+      will-change: backdrop-filter, background-color;
     }
     #lightbox.open #lb-scrim {
-      background: rgba(0,0,0,0.72);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      background: rgba(0,0,0,0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
     #lb-img {
       position: relative; z-index: 1;
       max-width: 88vw; max-height: 82vh;
-      border-radius: 16px; object-fit: contain;
-      box-shadow: 0 32px 80px rgba(0,0,0,0.6);
-      transform: scale(0.15) rotate(8deg);
-      filter: blur(20px);
-      opacity: 0;
-      transition:
-        transform 0.52s cubic-bezier(0.34,1.2,0.64,1),
-        filter    0.45s cubic-bezier(0.4,0,0.2,1),
-        opacity   0.28s ease;
-    }
-    #lightbox.open #lb-img {
-      transform: scale(1) rotate(0deg);
-      filter: blur(0px); opacity: 1;
+      border-radius: 14px; object-fit: contain;
+      box-shadow: 0 28px 90px rgba(0,0,0,0.52);
+      transform-origin: center center;
+      will-change: transform, opacity, filter, border-radius;
     }
     #lb-close {
+      appearance: none;
       position: absolute; top: 20px; right: 20px; z-index: 2;
       width: 36px; height: 36px; border-radius: 50%;
       background: rgba(255,255,255,0.12);
       border: 1px solid rgba(255,255,255,0.18);
       color: #fff;
-      display: flex; align-items: center; justify-content: center; /* Flexboxで完璧に中央揃え */
+      display: flex; align-items: center; justify-content: center;
       cursor: pointer; opacity: 0;
       transform: scale(0.6);
+      padding: 0;
       transition: opacity 0.3s ease 0.2s, transform 0.3s cubic-bezier(0.34,1.4,0.64,1) 0.2s, background 0.18s;
       user-select: none;
+    }
+    #lb-close:focus-visible {
+      outline: none;
+      background: rgba(255,255,255,0.22);
     }
     #lightbox.open #lb-close { opacity: 1; transform: scale(1); }
     #lb-close:hover { background: rgba(255,255,255,0.22); }
     #lb-close svg {
-      width: 18px; height: 18px; /* アイコンのサイズ */
+      width: 18px; height: 18px;
     }
 
     @media (prefers-reduced-motion: reduce) {
       .reveal { transition: none; opacity: 1; transform: none; filter: none; }
+
+      #sidebar.opening,
+      #sidebar.closing {
+        animation: none;
+      }
+      #sidebar.open {
+        transform: translateX(calc(-1 * var(--sidebar-overflow)));
+      }
+      #sidebar-scrim {
+        transition: none;
+      }
+    }
+
+    /* ── EXTERNAL LINK CONFIRM ── */
+    #external-confirm {
+      position: fixed;
+      inset: 0;
+      z-index: 10060;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      pointer-events: none;
+      visibility: hidden;
+    }
+    #external-confirm.open {
+      pointer-events: all;
+      visibility: visible;
+    }
+    .ext-confirm-scrim {
+      position: absolute;
+      inset: 0;
+      background: transparent;
+      opacity: 0;
+      backdrop-filter: blur(0px) saturate(1);
+      -webkit-backdrop-filter: blur(0px) saturate(1);
+      transform: translateZ(0);
+      will-change: opacity, background, backdrop-filter;
+      transition:
+        opacity 0.28s var(--ext-ease-open),
+        background 0.28s var(--ext-ease-open),
+        backdrop-filter 0.28s var(--ext-ease-open),
+        -webkit-backdrop-filter 0.28s var(--ext-ease-open);
+    }
+    #external-confirm.active .ext-confirm-scrim {
+      opacity: 1;
+      background: var(--ext-scrim-bg);
+      backdrop-filter: blur(40px) saturate(1.9) brightness(1.05);
+      -webkit-backdrop-filter: blur(40px) saturate(1.9) brightness(1.05);
+    }
+    #external-confirm.closing .ext-confirm-scrim {
+      transition-timing-function: var(--ext-ease-close);
+    }
+    .ext-confirm-dialog {
+      position: relative;
+      z-index: 1;
+      width: fit-content;
+      max-width: min(92vw, 300px);
+      padding: 18px 18px 16px;
+      border-radius: 28px;
+      background: var(--ext-glass-bg);
+      backdrop-filter: blur(48px) saturate(2.1) brightness(1.08);
+      -webkit-backdrop-filter: blur(48px) saturate(2.1) brightness(1.08);
+      border: 1px solid var(--panel-border);
+      box-shadow:
+        0 0 1px 0.5px var(--glass-highlight) inset,
+        0 0 20px 6px var(--glass-shadow-in) inset,
+        0 16px 48px rgba(0, 0, 0, 0.22);
+      opacity: 0;
+      filter: blur(14px);
+      transform: scale(0.82);
+      transition:
+        opacity 0.28s var(--ext-ease-open),
+        transform 0.28s var(--ext-ease-open),
+        filter 0.28s var(--ext-ease-open);
+    }
+    #external-confirm.active .ext-confirm-dialog {
+      opacity: 1;
+      filter: blur(0px);
+      transform: scale(1);
+    }
+    #external-confirm.closing .ext-confirm-dialog {
+      transition-timing-function: var(--ext-ease-close);
+    }
+    .ext-confirm-message {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--text-strong);
+      line-height: 1.55;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+    .ext-confirm-url {
+      display: block;
+      margin: 8px auto 0;
+      max-width: 252px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: "IBM Plex Mono", monospace;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ext-confirm-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .ext-confirm-btn {
+      appearance: none;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 22px;
+      font-size: 14px;
+      font-weight: 300;
+      font-family: "IBM Plex Sans JP", sans-serif;
+      cursor: pointer;
+      min-width: 88px;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .ext-confirm-btn:hover {
+      transform: translateY(-1px);
+    }
+    .ext-confirm-yes {
+      background: var(--accent);
+      color: #fff;
+    }
+    .ext-confirm-yes:hover {
+      background: #4a9aff;
+    }
+    .ext-confirm-no {
+      background: var(--ext-glass-bg);
+      backdrop-filter: blur(48px) saturate(2.1);
+      -webkit-backdrop-filter: blur(48px) saturate(2.1);
+      border: 1px solid var(--panel-border);
+      color: var(--text-strong);
+    }
+    .ext-confirm-no:hover {
+      background: var(--row-hover);
     }
 
     /* ── LOADER ── */
@@ -601,6 +1277,7 @@
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       background: var(--bg-scrim);
+      transform: translateZ(0); /* GPUアクセラレーション */
     }
     .loader-burst,
     .loader-dot {
@@ -614,6 +1291,7 @@
     body.loading .edge-blur {
       filter: blur(24px);
       opacity: 0;
+      will-change: filter, opacity; /* ローディング解除時のアニメーションを滑らかに */
     }
     body.loading #blob-canvas {
       opacity: 0;
@@ -634,6 +1312,7 @@
       background: #3a8fff;
       box-shadow: 0 0 24px 6px rgba(58,143,255,0.5);
       animation: dot-pulse 1.1s ease-in-out infinite;
+      will-change: transform, opacity;
     }
     @keyframes dot-pulse {
       0%, 100% { transform: scale(1);   opacity: 1; }
@@ -654,6 +1333,7 @@
       border-radius: 50%;
       border: 2px solid rgba(58,143,255,0.85);
       opacity: 0;
+      will-change: transform, opacity;
     }
     .loader-burst.go .ring:nth-child(1) {
       animation: burst-ring 0.7s cubic-bezier(0.2,0.6,0.4,1) 0s forwards;
@@ -678,6 +1358,7 @@
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       opacity: 0;
+      will-change: transform, opacity;
     }
     .loader-burst.go .particle:nth-child(4)  { animation: p1 0.65s cubic-bezier(0.2,0.8,0.4,1) 0.02s forwards; }
     .loader-burst.go .particle:nth-child(5)  { animation: p2 0.65s cubic-bezier(0.2,0.8,0.4,1) 0.04s forwards; }
@@ -707,11 +1388,9 @@
       100% { transform: scale(0);   opacity: 0; }
     }
 
-    /* ── MOBILE / TOUCH 軽量化（見た目維持） ── */
+    /* ── MOBILE / TOUCH 軽量化 ── */
     @media (max-width: 768px), (hover: none) and (pointer: coarse) {
-      body {
-        background-attachment: scroll;
-      }
+      /* background-attachment: scroll; は不要になったため削除 */
       :root {
         --overlay-blur: 10px;
         --panel-blur: 24px;
@@ -733,6 +1412,9 @@
   </style>
 </head>
 <body class="loading">
+
+<!-- 高速化用 背景独立レイヤー -->
+<div id="bg-fixed"></div>
 
 <!-- ── LOADER ── -->
 <div id="loader">
@@ -763,20 +1445,91 @@
 <canvas id="blob-canvas"></canvas>
 <div class="progress-bar"></div>
 
+<!-- SIDEBAR -->
+<div id="sidebar-scrim" aria-hidden="true"></div>
+<div id="sidebar-edge">
+  <button id="sidebar-arrow" type="button" aria-label="メニューを開く">
+    <span class="sidebar-arrow-icon" aria-hidden="true">›</span>
+  </button>
+</div>
+<nav id="sidebar" aria-label="サイトメニュー">
+  <div class="sidebar-section">
+    <p class="sidebar-section-title">Navigation</p>
+    <div class="sidebar-nav" id="sidebar-nav">
+      <span class="sidebar-nav-indicator" id="sidebar-nav-indicator" aria-hidden="true"></span>
+      <button class="sidebar-nav-btn" type="button" data-view="home">ホーム</button>
+      <button class="sidebar-nav-btn" type="button" data-view="links">リンク集</button>
+    </div>
+  </div>
+  <div class="sidebar-section sidebar-theme-section">
+    <p class="sidebar-section-title">Theme</p>
+    <div class="sidebar-theme">
+      <span class="sidebar-theme-label" id="sidebar-theme-label">ダークモード</span>
+      <button id="sidebar-theme-toggle" type="button" aria-label="ライトモードに切替">
+        <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"></circle>
+          <line x1="12" y1="2" x2="12" y2="4"></line>
+          <line x1="12" y1="20" x2="12" y2="22"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="2" y1="12" x2="4" y2="12"></line>
+          <line x1="20" y1="12" x2="22" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <p class="sidebar-version">Ver3 build2606192258</p>
+</nav>
+
+<div id="sidebar-onboarding" hidden aria-hidden="true">
+  <div class="sb-onboard-scrim" id="sb-onboard-scrim"></div>
+  <div class="sb-onboard-panel" role="dialog" aria-labelledby="sb-onboard-title">
+    <p class="sb-onboard-kicker">Guide</p>
+    <p class="sb-onboard-title" id="sb-onboard-title">サイドバーの開き方</p>
+    <p class="sb-onboard-text" id="sb-onboard-text"></p>
+    <div class="sb-onboard-steps" id="sb-onboard-steps"></div>
+    <button type="button" class="sb-onboard-skip" id="sb-onboard-skip">OK</button>
+  </div>
+</div>
+
+<!-- EXTERNAL LINK CONFIRM -->
+<div id="external-confirm" aria-hidden="true" role="dialog" aria-labelledby="ext-confirm-title">
+  <div class="ext-confirm-scrim"></div>
+  <div class="ext-confirm-dialog">
+    <p class="ext-confirm-message" id="ext-confirm-title">
+      外部サイトに移動します。<br>よろしいですか？
+      <span class="ext-confirm-url" id="ext-confirm-url"></span>
+    </p>
+    <div class="ext-confirm-actions">
+      <button type="button" class="ext-confirm-btn ext-confirm-no">いいえ</button>
+      <button type="button" class="ext-confirm-btn ext-confirm-yes">はい</button>
+    </div>
+  </div>
+</div>
+
 <!-- LIGHTBOX -->
 <div id="theme-overlay" aria-hidden="true"></div>
-<div id="lightbox">
+<div id="lightbox" aria-hidden="true">
   <div id="lb-scrim"></div>
   <img id="lb-img" src="" alt="">
-  <div id="lb-close" aria-label="閉じる">
+  <button type="button" id="lb-close" aria-label="閉じる">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <line x1="18" y1="6" x2="6" y2="18"></line>
       <line x1="6" y1="6" x2="18" y2="18"></line>
     </svg>
-  </div>
+  </button>
 </div>
 
+<div id="main-content">
 <div class="container">
+
+  <!-- ホーム -->
+  <div id="view-home" class="page-view active">
 
   <!-- HERO (1枚目) -->
   <div class="hero reveal">
@@ -811,7 +1564,7 @@
       <span class="row-label">趣味</span>
       <div class="row-value">
         <div class="tag-list">
-          <span class="tag"><a href="https://x.com/S0array" target="_blank">@S0arrayと話すこと</a></span>
+          <span class="tag"><a href="https://x.com/Sovecx" target="_blank">@S0arrayと話すこと</a></span>
           <span class="tag">NTE</span>
           <span class="tag">メルカス閲覧</span>
           <span class="tag">写真撮る</span>
@@ -886,16 +1639,34 @@
     </div>
   </div>
 
-  <!-- LINKS (5枚目) -->
+  </div><!-- /view-home -->
+
+  <!-- リンク集 -->
+  <div id="view-links" class="page-view">
+
+  <div class="hero reveal">
+    <img class="avatar"
+      src="https://pbs.twimg.com/profile_images/2062297964425650176/3nn1RyIm_400x400.jpg"
+      alt="アイコン"
+      width="52" height="52"
+      decoding="async"
+      loading="lazy"
+      referrerpolicy="no-referrer">
+    <div class="hero-text">
+      <h1>リンク集</h1>
+      <p class="hero-sub">SNS &amp; Links</p>
+    </div>
+  </div>
+
   <div class="panel reveal">
     <div class="panel-header">
       <div class="panel-dot"></div>
       <span class="panel-title">リンク集</span>
     </div>
     <a class="link-row" href="https://x.com/_Tikuwa1" target="_blank" rel="noopener">
-      <img class="link-icon link-icon--x"
-        src="https://about.x.com/content/dam/about-twitter/x/brand-toolkit/logo-black.png.twimg.1920.png"
-        alt="X" width="32" height="32" loading="lazy" decoding="async">
+      <div class="link-icon link-icon--x">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.008 4.076H5.078z"></path></svg>
+      </div>
       <div class="link-info">
         <div class="link-name">X (Twitter)</div>
         <div class="link-handle">@_Tikuwa1</div>
@@ -920,50 +1691,49 @@
       </div>
       <span class="link-chevron">›</span>
     </a>
+    <a class="link-row" href="https://www.reddit.com/user/Tikuwa_Nerimono1/" target="_blank" rel="noopener">
+      <img class="link-icon"
+        src="https://www.redditstatic.com/shreddit/assets/favicon/128x128.png"
+        alt="Reddit" width="32" height="32" loading="lazy" decoding="async">
+      <div class="link-info">
+        <div class="link-name">Reddit</div>
+        <div class="link-handle">u/Tikuwa_Nerimono1</div>
+      </div>
+      <span class="link-chevron">›</span>
+    </a>
+    <a class="link-row" href="https://steamcommunity.com/profiles/76561199813746238/" target="_blank" rel="noopener">
+      <img class="link-icon"
+        src="https://store.steampowered.com/favicon.ico"
+        alt="Steam" width="32" height="32" loading="lazy" decoding="async">
+      <div class="link-info">
+        <div class="link-name">Steam</div>
+        <div class="link-handle">Tikuwa_Nerimono1</div>
+      </div>
+      <span class="link-chevron">›</span>
+    </a>
   </div>
 
-  <!-- フッター -->
-  <p class="footer">
-    <span>Ver2.1.1 build2606191532</span>
-    <button id="theme-toggle" type="button" aria-label="ライトモードに切替">
-      <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" aria-hidden="true">
-        <circle cx="12" cy="12" r="4"></circle>
-        <line x1="12" y1="2" x2="12" y2="4"></line>
-        <line x1="12" y1="20" x2="12" y2="22"></line>
-        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-        <line x1="2" y1="12" x2="4" y2="12"></line>
-        <line x1="20" y1="12" x2="22" y2="12"></line>
-        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-      </svg>
-      <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-      </svg>
-    </button>
-  </p>
+  </div><!-- /view-links -->
+
 </div>
+</div><!-- /main-content -->
 
 <script>
 // ── 画像読み込み失敗時のリトライ＆成功時のリセット ──
 (function () {
   document.querySelectorAll('img[src]').forEach(function (img) {
-    // 1. ロードに成功した場合は、確実に不透明度をクリアし正常表示にする
     img.addEventListener('load', function () {
       this.style.opacity = '';
     });
 
-    // 2. 読み込みエラー時の制御
     img.addEventListener('error', function () {
-      // 既にリトライ試行済みのとき（完全に読み込めない場合）
-      if (this.dataset.retried) {
-        // メインアバター画像が制限等で取得できなかった場合でも、指定URLを維持する
-        if (this.classList.contains('avatar')) {
-          this.style.opacity = '';
-          return;
-        }
+      // アバター画像（Twitter CDN等）はクエリパラメータを嫌うため、リトライ処理から完全に除外
+      if (this.classList.contains('avatar')) {
+        this.style.opacity = '';
+        return;
+      }
 
-        // それ以外のガジェットやウィッシュリストの画像用のプレースホルダー
+      if (this.dataset.retried) {
         this.style.opacity = '0.55';
         var w = this.getAttribute('width') || '48';
         var h = this.getAttribute('height') || '48';
@@ -971,8 +1741,6 @@
         this.src = 'https://placehold.co/' + w + 'x' + h + '/1c1c1e/3a8fff?text=' + encodeURIComponent(altText);
         return;
       }
-      
-      // 最初のエラー時のみ、キャッシュを避けるクエリパラメータを付与してリトライ
       this.dataset.retried = '1';
       var src = this.getAttribute('src') || '';
       this.src = src + (src.indexOf('?') >= 0 ? '&' : '?') + 'retry=' + Date.now();
@@ -980,9 +1748,418 @@
   });
 })();
 
-// ── テーマ切替（ぼかし遷移） ──
+// ── スクロールリビール（上から順に左へスライド） ──
+var REVEAL_STAGGER_MS = 140;
+var revealIO = null;
+
+function getRevealEls(container) {
+  return Array.from(container.querySelectorAll('.reveal'));
+}
+
+function resetRevealIn(container) {
+  if (!container) return;
+  getRevealEls(container).forEach(function (el) {
+    el.classList.remove('visible');
+    el.style.setProperty('--reveal-delay', '0ms');
+    if (revealIO) revealIO.unobserve(el);
+  });
+}
+
+function runReveal(container) {
+  if (!container) return;
+  var els = getRevealEls(container);
+  container.classList.add('is-switching');
+  els.forEach(function (el) {
+    el.classList.remove('visible');
+    el.style.setProperty('--reveal-delay', '0ms');
+  });
+  void container.offsetHeight;
+  container.classList.remove('is-switching');
+  els.forEach(function (el, i) {
+    el.style.setProperty('--reveal-delay', (i * REVEAL_STAGGER_MS) + 'ms');
+  });
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      els.forEach(function (el) {
+        el.classList.add('visible');
+      });
+    });
+  });
+}
+
+function observeReveal(container) {
+  if (!container) return;
+  if (!revealIO) {
+    revealIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var view = e.target.closest('.page-view');
+        if (!view || !view.classList.contains('active')) return;
+        var pending = getRevealEls(view).filter(function (el) {
+          return !el.classList.contains('visible');
+        });
+        pending.sort(function (a, b) {
+          return a.offsetTop - b.offsetTop;
+        });
+        pending.forEach(function (el, i) {
+          el.style.setProperty('--reveal-delay', (i * REVEAL_STAGGER_MS) + 'ms');
+          el.classList.add('visible');
+          revealIO.unobserve(el);
+        });
+      });
+    }, { threshold: 0.08 });
+  }
+
+  getRevealEls(container).forEach(function (el) {
+    if (!el.classList.contains('visible')) revealIO.observe(el);
+  });
+}
+
+function startReveal() {
+  var activeView = document.querySelector('.page-view.active');
+  if (!activeView) return;
+  runReveal(activeView);
+  observeReveal(activeView);
+}
+
+// ── サイドバー ──
 (function () {
-  var toggle = document.getElementById('theme-toggle');
+  var arrow = document.getElementById('sidebar-arrow');
+  var sidebar = document.getElementById('sidebar');
+  var scrim = document.getElementById('sidebar-scrim');
+  var onboarding = document.getElementById('sidebar-onboarding');
+  var onboardText = document.getElementById('sb-onboard-text');
+  var onboardSteps = document.getElementById('sb-onboard-steps');
+  var onboardSkip = document.getElementById('sb-onboard-skip');
+  var onboardScrim = document.getElementById('sb-onboard-scrim');
+  var ONBOARD_KEY = 'sidebarOnboardingDone';
+  var isOpen = false;
+  var isAnimating = false;
+  var isCoarse = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  var touchStartX = 0;
+  var touchStartY = 0;
+  var touchActive = false;
+  var onboardingActive = false;
+  var onboardingExiting = false;
+  var ONBOARD_PANEL_OUT_MS = 400;
+  var ONBOARD_BLUR_OUT_MS = 1000;
+
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function hasSeenOnboarding() {
+    try { return localStorage.getItem(ONBOARD_KEY) === '1'; } catch (e) { return true; }
+  }
+
+  function markOnboardingSeen() {
+    try { localStorage.setItem(ONBOARD_KEY, '1'); } catch (e) {}
+  }
+
+  function renderOnboardingCopy() {
+    if (!onboardText || !onboardSteps) return;
+    if (isCoarse) {
+      onboardText.textContent = '左端からサイドバーを呼び出せます。';
+      onboardSteps.innerHTML =
+        '<div class="sb-onboard-step"><span class="sb-onboard-step-num">1</span><span>画面<strong>左端</strong>から右へスワイプ</span></div>' +
+        '<div class="sb-onboard-step"><span class="sb-onboard-step-num">2</span><span>サイドバーが開いたら、ホームやリンク集に移動できます</span></div>';
+      return;
+    }
+    onboardText.textContent = '左端にカーソルを置くと矢印が現れます。';
+    onboardSteps.innerHTML =
+      '<div class="sb-onboard-step"><span class="sb-onboard-step-num">1</span><span>画面<strong>左端</strong>にマウスを置く</span></div>' +
+      '<div class="sb-onboard-step"><span class="sb-onboard-step-num">2</span><span><span class="sb-onboard-step-arrow" aria-hidden="true">›</span> をクリックしてサイドバーを開く</span></div>' +
+      '<div class="sb-onboard-step"><span class="sb-onboard-step-num">3</span><span>ホームやリンク集に移動できます</span></div>';
+  }
+
+  function finishOnboardingCleanup(done) {
+    onboardingExiting = false;
+    document.body.classList.remove('sidebar-onboarding', 'onboarding-exit');
+    if (onboarding) {
+      onboarding.classList.remove('active', 'panel-out', 'blur-out');
+      onboarding.setAttribute('aria-hidden', 'true');
+      onboarding.hidden = true;
+    }
+    sidebar.classList.remove('onboard-dismiss');
+    if (done) done();
+  }
+
+  function endOnboarding(openAfter, done) {
+    if (!onboardingActive) {
+      if (done) done();
+      return;
+    }
+    if (onboardingExiting) return;
+
+    markOnboardingSeen();
+
+    if (openAfter) {
+      onboardingActive = false;
+      finishOnboardingCleanup(done);
+      return;
+    }
+
+    onboardingExiting = true;
+    requestAnimationFrame(function () {
+      document.body.classList.add('onboarding-exit');
+      if (onboarding) onboarding.classList.add('panel-out');
+    });
+
+    setTimeout(function () {
+      onboardingActive = false;
+      document.body.classList.remove('sidebar-onboarding');
+      if (onboarding) {
+        onboarding.classList.add('blur-out');
+      }
+
+      if (!isOpen) {
+        sidebar.classList.add('onboard-dismiss');
+      }
+
+      setTimeout(function () {
+        finishOnboardingCleanup(done);
+      }, ONBOARD_BLUR_OUT_MS);
+    }, ONBOARD_PANEL_OUT_MS);
+  }
+
+  function startOnboarding() {
+    if (hasSeenOnboarding() || onboardingActive || isOpen || !onboarding) return;
+    renderOnboardingCopy();
+    onboardingActive = true;
+    onboarding.hidden = false;
+    onboarding.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('sidebar-onboarding');
+    requestAnimationFrame(function () {
+      onboarding.classList.add('active');
+    });
+  }
+
+  function scheduleOnboarding() {
+    if (hasSeenOnboarding()) return;
+    function waitForReady() {
+      if (document.body.classList.contains('loading')) {
+        setTimeout(waitForReady, 200);
+        return;
+      }
+      setTimeout(startOnboarding, 900);
+    }
+    waitForReady();
+  }
+
+  function openSidebar() {
+    if (isOpen || isAnimating || onboardingExiting) return;
+    if (onboardingActive) endOnboarding(true);
+    isAnimating = true;
+    document.body.classList.remove('sidebar-closing');
+    document.body.classList.add('sidebar-open', 'sidebar-opening');
+    sidebar.classList.remove('open', 'closing');
+    scrim.setAttribute('aria-hidden', 'false');
+
+    if (reduceMotion) {
+      sidebar.classList.add('open');
+      document.body.classList.remove('sidebar-opening');
+      isOpen = true;
+      isAnimating = false;
+      return;
+    }
+
+    sidebar.classList.add('opening');
+    sidebar.addEventListener('animationend', function onOpenEnd(e) {
+      if (e.animationName !== 'sidebar-slide-in') return;
+      sidebar.removeEventListener('animationend', onOpenEnd);
+      sidebar.classList.remove('opening');
+      sidebar.classList.add('open');
+      document.body.classList.remove('sidebar-opening');
+      isOpen = true;
+      isAnimating = false;
+    });
+  }
+
+  function closeSidebar() {
+    if (!isOpen || isAnimating) return;
+    isAnimating = true;
+    document.body.classList.add('sidebar-closing');
+    sidebar.classList.remove('open', 'opening');
+
+    if (reduceMotion) {
+      sidebar.classList.remove('closing');
+      document.body.classList.remove('sidebar-open', 'sidebar-closing');
+      scrim.setAttribute('aria-hidden', 'true');
+      isOpen = false;
+      isAnimating = false;
+      return;
+    }
+
+    sidebar.classList.add('closing');
+    sidebar.addEventListener('animationend', function onCloseEnd(e) {
+      if (e.animationName !== 'sidebar-slide-out') return;
+      sidebar.removeEventListener('animationend', onCloseEnd);
+      sidebar.classList.remove('closing');
+      document.body.classList.remove('sidebar-open', 'sidebar-closing');
+      scrim.setAttribute('aria-hidden', 'true');
+      isOpen = false;
+      isAnimating = false;
+    });
+  }
+
+  arrow.addEventListener('click', function (e) {
+    e.stopPropagation();
+    if (isOpen) closeSidebar();
+    else openSidebar();
+  });
+
+  if (onboardSkip) {
+    onboardSkip.addEventListener('click', function (e) {
+      e.stopPropagation();
+      endOnboarding(false);
+    });
+  }
+
+  if (onboardScrim) {
+    onboardScrim.addEventListener('click', function () {
+      endOnboarding(false);
+    });
+  }
+
+  var onboardPanel = onboarding && onboarding.querySelector('.sb-onboard-panel');
+  if (onboardPanel) {
+    onboardPanel.addEventListener('click', function (e) {
+      e.stopPropagation();
+    });
+  }
+
+  scheduleOnboarding();
+
+  scrim.addEventListener('click', closeSidebar);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (onboardingActive) {
+      endOnboarding(false);
+      return;
+    }
+    if (isOpen) closeSidebar();
+  });
+
+  document.addEventListener('touchstart', function (e) {
+    if (e.touches.length !== 1) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchActive = true;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function (e) {
+    if (!touchActive || isOpen || isAnimating || onboardingExiting) return;
+    var x = e.touches[0].clientX;
+    var dx = x - touchStartX;
+    var dy = Math.abs(e.touches[0].clientY - touchStartY);
+    if (!onboardingExiting && touchStartX <= 36 && dx > 48 && dy < 72) {
+      touchActive = false;
+      openSidebar();
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', function (e) {
+    if (!touchActive) return;
+    touchActive = false;
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    var dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
+    if (!isOpen && !onboardingExiting && touchStartX <= 36 && dx > 56 && dy < 80) {
+      openSidebar();
+      return;
+    }
+    if (isOpen && dx < -72 && dy < 80) {
+      closeSidebar();
+    }
+  }, { passive: true });
+
+})();
+
+// ── ビュー切替 ──
+(function () {
+  var nav = document.getElementById('sidebar-nav');
+  var indicator = document.getElementById('sidebar-nav-indicator');
+  var navBtns = document.querySelectorAll('.sidebar-nav-btn');
+  var views = {
+    home: document.getElementById('view-home'),
+    links: document.getElementById('view-links')
+  };
+  var currentView = 'home';
+
+  function updateNavIndicator(viewName, instant) {
+    if (!indicator || !nav) return;
+    var btn = nav.querySelector('.sidebar-nav-btn[data-view="' + viewName + '"]');
+    if (!btn) return;
+    var offset = btn.offsetTop;
+    var height = btn.offsetHeight;
+    if (instant) {
+      indicator.style.transition = 'none';
+    }
+    indicator.style.height = height + 'px';
+    indicator.style.transform = 'translateY(' + offset + 'px)';
+    if (instant) {
+      void indicator.offsetHeight;
+      indicator.style.transition = '';
+    }
+  }
+
+  function setView(name, animate) {
+    if (!views[name] || name === currentView) return;
+    var prev = views[currentView];
+    var next = views[name];
+
+    resetRevealIn(prev);
+    resetRevealIn(next);
+
+    currentView = name;
+    Object.keys(views).forEach(function (key) {
+      views[key].classList.toggle('active', key === name);
+    });
+    navBtns.forEach(function (btn) {
+      btn.classList.toggle('active', btn.getAttribute('data-view') === name);
+    });
+    updateNavIndicator(name, false);
+    window.scrollTo(0, 0);
+
+    if (animate === false) {
+      getRevealEls(next).forEach(function (el) {
+        el.classList.add('visible');
+      });
+      return;
+    }
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        void next.offsetHeight;
+        runReveal(next);
+        observeReveal(next);
+      });
+    });
+  }
+
+  resetRevealIn(views.links);
+  navBtns.forEach(function (btn) {
+    btn.classList.toggle('active', btn.getAttribute('data-view') === 'home');
+  });
+  document.documentElement.removeAttribute('data-initial-view');
+
+  requestAnimationFrame(function () {
+    updateNavIndicator('home', true);
+  });
+  window.addEventListener('resize', function () {
+    updateNavIndicator(currentView, true);
+  }, { passive: true });
+
+  navBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      setView(btn.getAttribute('data-view'));
+    });
+  });
+
+})();
+
+// ── テーマ切替 ──
+(function () {
+  var toggle = document.getElementById('sidebar-theme-toggle');
+  var themeLabel = document.getElementById('sidebar-theme-label');
   var overlay = document.getElementById('theme-overlay');
   var busy = false;
 
@@ -998,6 +2175,9 @@
     }
     try { localStorage.setItem('theme', theme); } catch (e) {}
     toggle.setAttribute('aria-label', theme === 'light' ? 'ダークモードに切替' : 'ライトモードに切替');
+    if (themeLabel) {
+      themeLabel.textContent = theme === 'light' ? 'ライトモード' : 'ダークモード';
+    }
   }
 
   applyTheme(currentTheme());
@@ -1040,7 +2220,7 @@
   });
 })();
 
-// ── HyperOS blob（モバイル向け軽量化） ──
+// ── HyperOS blob ──
 (function () {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
@@ -1110,60 +2290,380 @@
   requestAnimationFrame(draw);
 })();
 
-// ── スクロールリビール（blur付き） ──
-const revealEls = document.querySelectorAll('.reveal');
-revealEls.forEach(el => { el.style.transitionDelay = '0s'; });
-
-function startReveal() {
-  revealEls.forEach((el, i) => {
-    const rect = el.getBoundingClientRect();
-    const inView = rect.top < window.innerHeight && rect.bottom > 0;
-    if (inView) {
-      setTimeout(() => el.classList.add('visible'), i * 150);
-    }
-  });
-
-  const revealIO = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-        revealIO.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.08 });
-  revealEls.forEach(el => {
-    if (!el.classList.contains('visible')) revealIO.observe(el);
-  });
+// ── スクロールロック ──
+var scrollLockCount = 0;
+function lockPageScroll() {
+  scrollLockCount += 1;
+  document.body.style.overflow = 'hidden';
+}
+function unlockPageScroll() {
+  scrollLockCount = Math.max(0, scrollLockCount - 1);
+  if (scrollLockCount === 0) document.body.style.overflow = '';
 }
 
-// ── ライトボックス ──
+// ── 外部リンク確認 ──
+(function () {
+  var modal = document.getElementById('external-confirm');
+  var urlEl = document.getElementById('ext-confirm-url');
+  var btnYes = modal.querySelector('.ext-confirm-yes');
+  var btnNo = modal.querySelector('.ext-confirm-no');
+  var scrim = modal.querySelector('.ext-confirm-scrim');
+  var pendingUrl = '';
+  var pendingTarget = '';
+  var closeTimer = null;
+  var ANIM_MS = 280;
+
+  function isExternal(href) {
+    try {
+      var url = new URL(href, window.location.href);
+      if (url.protocol !== 'http:' && url.protocol !== 'https:') return false;
+      return url.origin !== window.location.origin;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function openConfirm(href, target) {
+    clearTimeout(closeTimer);
+    pendingUrl = href;
+    pendingTarget = target || '_blank';
+    urlEl.textContent = href;
+    modal.classList.remove('closing', 'active');
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    lockPageScroll();
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        modal.classList.add('active');
+        btnYes.focus();
+      });
+    });
+  }
+
+  function closeConfirm() {
+    if (!modal.classList.contains('open')) return;
+    clearTimeout(closeTimer);
+    modal.classList.add('closing');
+    void modal.offsetWidth;
+    modal.classList.remove('active');
+    closeTimer = setTimeout(function () {
+      modal.classList.remove('open', 'closing');
+      modal.setAttribute('aria-hidden', 'true');
+      unlockPageScroll();
+      pendingUrl = '';
+      pendingTarget = '';
+      urlEl.textContent = '';
+    }, ANIM_MS);
+  }
+
+  function proceed() {
+    if (!pendingUrl) return;
+    var url = pendingUrl;
+    var target = pendingTarget;
+    closeConfirm();
+    if (target === '_blank') {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } else {
+      window.location.href = url;
+    }
+  }
+
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest('a[href]');
+    if (!link || link.dataset.skipExternal === 'true') return;
+    var href = link.getAttribute('href');
+    if (!href || href.charAt(0) === '#' || href.indexOf('mailto:') === 0) return;
+    if (!isExternal(href)) return;
+    e.preventDefault();
+    openConfirm(href, link.getAttribute('target'));
+  });
+
+  btnYes.addEventListener('click', proceed);
+  btnNo.addEventListener('click', closeConfirm);
+  scrim.addEventListener('click', closeConfirm);
+  document.addEventListener('keydown', function (e) {
+    if (!modal.classList.contains('open')) return;
+    if (e.key === 'Escape') closeConfirm();
+  });
+})();
+
+// ── ライトボックス（iOS Photos 風・transform FLIP）──
 const lb      = document.getElementById('lightbox');
 const lbImg   = document.getElementById('lb-img');
 const lbClose = document.getElementById('lb-close');
 const lbScrim = document.getElementById('lb-scrim');
+const LB_OPEN_MS = 720;
+const LB_CLOSE_MS = 680;
+const LB_EASE_OPEN = 'cubic-bezier(0.19, 1, 0.22, 1)';
+const LB_EASE_CLOSE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+const LB_RADIUS_FINAL = '14px';
+const LB_OPEN_TRANSFORM = 'translate3d(0, 0, 0) scale(1)';
+let lbAnim = null;
+let lbLastFocus = null;
+let lbThumb = null;
+let lbFinal = null;
 
-function openLB(src, alt) {
+function clearLbAnimProps() {
+  lbImg.style.transform = '';
+  lbImg.style.filter = '';
+  lbImg.style.opacity = '';
+  lbImg.style.borderRadius = '';
+}
+
+function resetLbImgStyle() {
+  clearLbAnimProps();
+  lbImg.style.width = '';
+  lbImg.style.height = '';
+  lbImg.style.maxWidth = '';
+  lbImg.style.maxHeight = '';
+}
+
+function stopLbAnim(commit) {
+  if (!lbAnim) return;
+  if (commit) lbAnim.commitStyles();
+  lbAnim.cancel();
+  lbAnim = null;
+}
+
+function calcLbFinalSize(nw, nh) {
+  const maxW = window.innerWidth * 0.88;
+  const maxH = window.innerHeight * 0.82;
+  const ratio = Math.min(maxW / nw, maxH / nh, 1);
+  const w = nw * ratio;
+  const h = nh * ratio;
+  return { w: w, h: h };
+}
+
+function getThumbRadius(thumb) {
+  const radius = parseFloat(getComputedStyle(thumb).borderRadius);
+  return Number.isFinite(radius) && radius > 0 ? radius + 'px' : '8px';
+}
+
+function getThumbMotion(thumbRect, imgW) {
+  return {
+    dx: (thumbRect.left + thumbRect.width / 2) - (window.innerWidth / 2),
+    dy: (thumbRect.top + thumbRect.height / 2) - (window.innerHeight / 2),
+    scale: thumbRect.width / imgW,
+  };
+}
+
+function buildOpenTransform(motion, progress) {
+  const t = Math.max(0, Math.min(1, progress));
+  const dx = motion.dx * (1 - t);
+  const dy = motion.dy * (1 - t);
+  const scale = motion.scale + (1 - motion.scale) * t;
+  return 'translate3d(' + dx + 'px, ' + dy + 'px, 0) scale(' + scale + ')';
+}
+
+function buildCloseTransform(motion, progress) {
+  const t = Math.max(0, Math.min(1, progress));
+  const dx = motion.dx * t;
+  const dy = motion.dy * t;
+  const scale = 1 - (1 - motion.scale) * t;
+  return 'translate3d(' + dx + 'px, ' + dy + 'px, 0) scale(' + scale + ')';
+}
+
+function buildOpenKeyframes(thumbRect, imgW, fromRadius) {
+  const motion = getThumbMotion(thumbRect, imgW);
+  return [
+    {
+      offset: 0,
+      transform: buildOpenTransform(motion, 0),
+      borderRadius: fromRadius,
+      filter: 'blur(12px)',
+      opacity: 0.82,
+    },
+    {
+      offset: 0.62,
+      transform: buildOpenTransform(motion, 0.62),
+      borderRadius: fromRadius,
+      filter: 'blur(2px)',
+      opacity: 0.97,
+    },
+    {
+      offset: 1,
+      transform: LB_OPEN_TRANSFORM,
+      borderRadius: LB_RADIUS_FINAL,
+      filter: 'blur(0px)',
+      opacity: 1,
+    },
+  ];
+}
+
+function buildCloseKeyframes(thumbRect, imgW, fromRadius) {
+  const motion = getThumbMotion(thumbRect, imgW);
+  const endTransform = buildCloseTransform(motion, 1);
+
+  return [
+    {
+      offset: 0,
+      transform: LB_OPEN_TRANSFORM,
+      borderRadius: LB_RADIUS_FINAL,
+      filter: 'blur(0px)',
+      opacity: 1,
+    },
+    {
+      offset: 0.45,
+      transform: buildCloseTransform(motion, 0.45),
+      borderRadius: fromRadius,
+      filter: 'blur(4px)',
+      opacity: 0.55,
+    },
+    {
+      offset: 1,
+      transform: endTransform,
+      borderRadius: fromRadius,
+      filter: 'blur(10px)',
+      opacity: 0,
+    },
+  ];
+}
+
+function prepareLbLayout(final) {
+  lbImg.style.width = final.w + 'px';
+  lbImg.style.height = final.h + 'px';
+  lbImg.style.maxWidth = final.w + 'px';
+  lbImg.style.maxHeight = final.h + 'px';
+}
+
+function cleanupLb() {
+  stopLbAnim(false);
+  lb.classList.remove('open', 'closing');
+  lb.style.opacity = '0';
+  lb.setAttribute('aria-hidden', 'true');
+  lbImg.src = '';
+  lbImg.alt = '';
+  lbThumb = null;
+  lbFinal = null;
+  resetLbImgStyle();
+  unlockPageScroll();
+  if (lbLastFocus && typeof lbLastFocus.focus === 'function') {
+    lbLastFocus.focus();
+  }
+  lbLastFocus = null;
+}
+
+function openLB(thumb, src, alt) {
+  stopLbAnim(true);
+  resetLbImgStyle();
+
+  if (document.body.classList.contains('sidebar-open')) {
+    var sidebarScrim = document.getElementById('sidebar-scrim');
+    if (sidebarScrim) sidebarScrim.click();
+  }
+
+  lbLastFocus = document.activeElement;
+  lbThumb = thumb;
+  let opened = false;
+
+  function runOpen() {
+    if (opened) return;
+    opened = true;
+
+    const thumbRect = thumb.getBoundingClientRect();
+    const nw = lbImg.naturalWidth || thumbRect.width;
+    const nh = lbImg.naturalHeight || thumbRect.height;
+    const final = calcLbFinalSize(nw, nh);
+    const fromRadius = getThumbRadius(thumb);
+    const fromTransform = buildOpenTransform(getThumbMotion(thumbRect, final.w), 0);
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    lbFinal = final;
+    prepareLbLayout(final);
+
+    lb.style.opacity = '1';
+    lb.classList.add('open');
+    lb.setAttribute('aria-hidden', 'false');
+    lockPageScroll();
+
+    if (reduceMotion) {
+      resetLbImgStyle();
+      lbClose.focus();
+      return;
+    }
+
+    lbImg.style.transform = fromTransform;
+    lbImg.style.borderRadius = fromRadius;
+    lbImg.style.filter = 'blur(12px)';
+    lbImg.style.opacity = '0.82';
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        lbAnim = lbImg.animate(buildOpenKeyframes(thumbRect, final.w, fromRadius), {
+          duration: LB_OPEN_MS,
+          easing: LB_EASE_OPEN,
+          fill: 'forwards',
+        });
+        lbAnim.onfinish = function () {
+          lbAnim = null;
+          clearLbAnimProps();
+          lbClose.focus();
+        };
+      });
+    });
+  }
+
   lbImg.src = src;
   lbImg.alt = alt;
-  lb.style.opacity = '1';
-  requestAnimationFrame(() => requestAnimationFrame(() => lb.classList.add('open')));
-  document.body.style.overflow = 'hidden';
+
+  if (lbImg.complete && lbImg.naturalWidth > 0) {
+    runOpen();
+  } else {
+    lbImg.addEventListener('load', runOpen, { once: true });
+    lbImg.addEventListener('error', runOpen, { once: true });
+  }
 }
 
 function closeLB() {
+  if (!lb.classList.contains('open')) return;
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion || !lbThumb || !lbFinal) {
+    cleanupLb();
+    return;
+  }
+
+  stopLbAnim(true);
+  prepareLbLayout(lbFinal);
+
+  const thumbRect = lbThumb.getBoundingClientRect();
+  const fromRadius = getThumbRadius(lbThumb);
   lb.classList.remove('open');
-  document.body.style.overflow = '';
-  setTimeout(() => { lb.style.opacity = '0'; lbImg.src = ''; }, 500);
+  lb.classList.add('closing');
+
+  lbAnim = lbImg.animate(buildCloseKeyframes(thumbRect, lbFinal.w, fromRadius), {
+    duration: LB_CLOSE_MS,
+    easing: LB_EASE_CLOSE,
+    fill: 'forwards',
+  });
+
+  let closed = false;
+  function finishClose() {
+    if (closed) return;
+    closed = true;
+    cleanupLb();
+  }
+  lbAnim.onfinish = finishClose;
+  setTimeout(finishClose, LB_CLOSE_MS + 50);
 }
 
-document.querySelectorAll('.device-img, .lb-trigger').forEach(img => {
-  img.addEventListener('click', () => openLB(img.src, img.alt));
+document.querySelectorAll('.device-img, .lb-trigger').forEach(function (img) {
+  img.addEventListener('click', function (e) {
+    e.stopPropagation();
+    openLB(img, img.src, img.alt);
+  });
+});
+document.querySelectorAll('.device-cell').forEach(function (cell) {
+  cell.addEventListener('click', function () {
+    var img = cell.querySelector('.device-img');
+    if (img) openLB(img, img.src, img.alt);
+  });
 });
 lbClose.addEventListener('click', closeLB);
 lbScrim.addEventListener('click', closeLB);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); });
 
-// ── ローダー（確実に完了 + 常時ぼかし背景） ──
+// ── ローダー ──
 (function () {
   var loader = document.getElementById('loader');
   var dot    = document.getElementById('loader-dot');
