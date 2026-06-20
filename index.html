@@ -112,9 +112,14 @@
       --ext-glass-bg: rgba(255, 255, 255, 0.52);
     }
 
-    html { color-scheme: dark; }
+    html {
+      color-scheme: dark;
+      height: 100%;
+      overflow-x: hidden;
+      overscroll-behavior: none;
+    }
     html[data-theme="light"] { color-scheme: light; }
-    html.theme-static body::before {
+    html.theme-static #bg-scrim {
       transition: none !important;
     }
 
@@ -122,36 +127,47 @@
 
     /* 高速化ポイント1: bodyから重い背景描画処理を分離 */
     body {
-      min-height: 100vh;
+      min-height: 100%;
+      min-height: 100dvh;
       font-family: "IBM Plex Sans JP", "Noto Sans JP", sans-serif;
       color: var(--text-base);
       overflow-x: hidden;
-      position: relative; /* 背景用レイヤーの基準 */
+      overscroll-behavior: none;
     }
 
-    /* 高速化ポイント1: background-attachment: fixed の代わりに固定レイヤーを使用（スクロール時の再描画を防ぐ） */
-    #bg-fixed {
+    /* 背景を1つの固定スタックにまとめ、スクロール連動を防ぐ */
+    #bg-stack {
       position: fixed;
-      inset: 0;
-      z-index: -2;
-      background-image: url('https://lh3.googleusercontent.com/pw/AP1GczMbMIgv9wZLJbeDdwPC-7aRgmyjVAgfdXs2PXeS50IIYH7yGL6xBXC2WiYBb5lLvfPnp6c2r0Wkn1bOFJdWf4zQqmeWFpEIdSrX6IPt74qDuVXm0uK3vqXIFBSGh4rUIHRdAuPuj9XKaHde-Igh9yBz=w1474-h921-s-no-gm?authuser=0');
-      background-size: cover;
-      background-position: center;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      z-index: -1;
       pointer-events: none;
-      transform: translateZ(0); /* GPUアクセラレーション */
+      overflow: hidden;
+      contain: strict;
+      isolation: isolate;
+      transform: translateZ(0);
     }
-
-    body::before {
-      content: '';
-      position: fixed;
+    #bg-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      transform: translateZ(0);
+      will-change: auto;
+    }
+    #bg-scrim {
+      position: absolute;
       inset: 0;
       backdrop-filter: blur(var(--overlay-blur));
       -webkit-backdrop-filter: blur(var(--overlay-blur));
       background: var(--bg-scrim);
-      z-index: -1; /* #bg-fixed の上に配置 */
-      pointer-events: none;
       transition: background 0.4s ease;
-      transform: translateZ(0); /* GPUに乗せる */
+      transform: translateZ(0);
     }
 
     /* ── HyperOS blob canvas ── */
@@ -1038,6 +1054,36 @@
     html[data-initial-view="links"] #view-home {
       display: none;
     }
+    html[data-initial-view="changelog"] #view-changelog {
+      display: block;
+    }
+    html[data-initial-view="changelog"] #view-home {
+      display: none;
+    }
+
+    /* ── CHANGELOG ── */
+    .changelog-row {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--row-divider);
+    }
+    .changelog-row:last-child { border-bottom: none; }
+    .changelog-ver {
+      font-size: 12px;
+      font-family: "IBM Plex Mono", monospace;
+      color: var(--text-muted);
+      min-width: 52px;
+      flex-shrink: 0;
+      letter-spacing: 0.04em;
+    }
+    .changelog-text {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--row-label);
+      line-height: 1.5;
+    }
 
     /* ── SCROLL REVEAL ── */
     .reveal {
@@ -1281,6 +1327,81 @@
       background: var(--bg-scrim);
       transform: translateZ(0); /* GPUアクセラレーション */
     }
+    .loader-core {
+      position: relative;
+      z-index: 1;
+      width: 72px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .loader-ring-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+    .loader-ring-track {
+      fill: none;
+      stroke: rgba(58, 143, 255, 0.14);
+      stroke-width: 3;
+    }
+    .loader-ring-progress {
+      fill: none;
+      stroke: #3a8fff;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 188.5;
+      stroke-dashoffset: 188.5;
+      filter: drop-shadow(0 0 5px rgba(58, 143, 255, 0.55));
+      transition: stroke-dashoffset 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .loader-core.complete .loader-ring-progress {
+      stroke-dashoffset: 0;
+    }
+    .loader-core.exiting {
+      animation: loader-core-exit 0.68s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      will-change: transform, filter, opacity;
+    }
+    .loader-core.exiting .loader-dot {
+      animation: none;
+    }
+    .loader-core.exiting .loader-burst {
+      opacity: 0;
+      visibility: hidden;
+    }
+    .loader-core.exiting .loader-ring-progress {
+      transition: none;
+    }
+    @keyframes loader-core-exit {
+      0% {
+        transform: scale(1);
+        filter: blur(0px);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(2.4);
+        filter: blur(16px);
+        opacity: 0;
+      }
+    }
+    #loader.exiting .loader-backdrop {
+      animation: loader-backdrop-exit 0.68s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    @keyframes loader-backdrop-exit {
+      0% {
+        opacity: 1;
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+      }
+      100% {
+        opacity: 0;
+        backdrop-filter: blur(0px);
+        -webkit-backdrop-filter: blur(0px);
+      }
+    }
     .loader-burst,
     .loader-dot {
       position: relative;
@@ -1308,24 +1429,30 @@
 
     /* 青い丸 */
     .loader-dot {
-      width: 14px;
-      height: 14px;
+      width: 16px;
+      height: 16px;
       border-radius: 50%;
-      background: #3a8fff;
-      box-shadow: 0 0 24px 6px rgba(58,143,255,0.5);
-      animation: dot-pulse 1.1s ease-in-out infinite;
-      will-change: transform, opacity;
+      background: radial-gradient(circle at 35% 35%, #6aabff 0%, #3a8fff 55%, #2a6fd4 100%);
+      box-shadow:
+        0 0 0 4px rgba(58, 143, 255, 0.12),
+        0 0 28px 8px rgba(58, 143, 255, 0.45);
+      animation: dot-pulse 1.4s ease-in-out infinite, dot-glow 2.4s ease-in-out infinite;
+      will-change: transform, opacity, box-shadow;
     }
     @keyframes dot-pulse {
       0%, 100% { transform: scale(1);   opacity: 1; }
-      50%       { transform: scale(1.5); opacity: 0.6; }
+      50%       { transform: scale(1.35); opacity: 0.72; }
+    }
+    @keyframes dot-glow {
+      0%, 100% { box-shadow: 0 0 0 4px rgba(58,143,255,0.12), 0 0 28px 8px rgba(58,143,255,0.45); }
+      50%       { box-shadow: 0 0 0 7px rgba(58,143,255,0.08), 0 0 40px 14px rgba(58,143,255,0.62); }
     }
 
     /* はじけるリング群 */
     .loader-burst {
       position: absolute;
-      width: 14px;
-      height: 14px;
+      width: 16px;
+      height: 16px;
       border-radius: 50%;
       pointer-events: none;
     }
@@ -1380,16 +1507,6 @@
     @keyframes p7 { 0%{opacity:1;transform:translate(-50%,-50%)} 100%{opacity:0;transform:translate(calc(-50% + 60px), calc(-50% - 10px))} }
     @keyframes p8 { 0%{opacity:1;transform:translate(-50%,-50%)} 100%{opacity:0;transform:translate(calc(-50% - 14px), calc(-50% + 62px))} }
 
-    /* 丸の消え方 */
-    .loader-dot.burst {
-      animation: dot-burst 0.3s cubic-bezier(0.4,0,0.6,1) forwards;
-    }
-    @keyframes dot-burst {
-      0%   { transform: scale(1);   opacity: 1; }
-      60%  { transform: scale(1.8); opacity: 0.6; }
-      100% { transform: scale(0);   opacity: 0; }
-    }
-
     /* ── MOBILE / TOUCH 軽量化 ── */
     @media (max-width: 768px), (hover: none) and (pointer: coarse) {
       /* background-attachment: scroll; は不要になったため削除 */
@@ -1410,31 +1527,59 @@
       #theme-overlay.animating.release {
         transition-duration: 0.01ms;
       }
+      .loader-ring-progress { transition: none; }
+      .loader-dot { animation: none; }
+      .loader-core.exiting {
+        animation: loader-core-exit-reduced 0.25s ease forwards;
+      }
+      @keyframes loader-core-exit-reduced {
+        to { opacity: 0; }
+      }
+      #loader.exiting .loader-backdrop {
+        animation: loader-backdrop-exit-reduced 0.25s ease forwards;
+      }
+      @keyframes loader-backdrop-exit-reduced {
+        to { opacity: 0; }
+      }
     }
   </style>
 </head>
 <body class="loading">
 
-<!-- 高速化用 背景独立レイヤー -->
-<div id="bg-fixed"></div>
+<!-- 背景固定レイヤー（スクロールしない） -->
+<div id="bg-stack" aria-hidden="true">
+  <img id="bg-img"
+    src="https://lh3.googleusercontent.com/pw/AP1GczOOE5wbgaZOFYl0xKoBJXH3HHGa_U-hms1Bk0_tedwHHzc6VCs4fI96rCl-_qWgxqHQAXonlikNlIjyb14d3yBW_LR5x-QYt9C6L4SIpUHvnBDNzEEIpXEcuSHFc6E-tYPx0UuKqQIP-afzImrsB8wC=w1486-h929-s-no-gm?authuser=0"
+    alt=""
+    width="1474" height="921"
+    decoding="async"
+    fetchpriority="high">
+  <div id="bg-scrim"></div>
+</div>
 
 <!-- ── LOADER ── -->
 <div id="loader">
   <div class="loader-backdrop" aria-hidden="true"></div>
-  <div class="loader-burst" id="loader-burst">
-    <div class="ring"></div>
-    <div class="ring"></div>
-    <div class="ring"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
+  <div class="loader-core" id="loader-core">
+    <svg class="loader-ring-svg" viewBox="0 0 72 72" aria-hidden="true">
+      <circle class="loader-ring-track" cx="36" cy="36" r="30"></circle>
+      <circle class="loader-ring-progress" id="loader-ring-progress" cx="36" cy="36" r="30"></circle>
+    </svg>
+    <div class="loader-burst" id="loader-burst">
+      <div class="ring"></div>
+      <div class="ring"></div>
+      <div class="ring"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+    </div>
+    <div class="loader-dot" id="loader-dot"></div>
   </div>
-  <div class="loader-dot" id="loader-dot"></div>
 </div>
 
 <!-- 上下エッジブラー -->
@@ -1461,6 +1606,7 @@
       <span class="sidebar-nav-indicator" id="sidebar-nav-indicator" aria-hidden="true"></span>
       <button class="sidebar-nav-btn" type="button" data-view="home">ホーム</button>
       <button class="sidebar-nav-btn" type="button" data-view="links">リンク集</button>
+      <button class="sidebar-nav-btn" type="button" data-view="changelog">更新履歴</button>
     </div>
   </div>
   <div class="sidebar-section sidebar-theme-section">
@@ -1485,7 +1631,7 @@
       </button>
     </div>
   </div>
-  <p class="sidebar-version">Ver3.1 build2606192343</p>
+  <p class="sidebar-version">Ver3.2 build260620</p>
 </nav>
 
 <div id="sidebar-onboarding" hidden aria-hidden="true">
@@ -1717,6 +1863,50 @@
 
   </div><!-- /view-links -->
 
+  <!-- 更新履歴 -->
+  <div id="view-changelog" class="page-view">
+
+  <div class="hero reveal">
+    <img class="avatar"
+      src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/image.png?raw=true"
+      alt="アイコン"
+      width="52" height="52"
+      decoding="async"
+      loading="lazy"
+      referrerpolicy="no-referrer">
+    <div class="hero-text">
+      <h1>更新履歴</h1>
+      <p class="hero-sub">Changelog</p>
+    </div>
+  </div>
+
+  <div class="panel reveal">
+    <div class="panel-header">
+      <div class="panel-dot"></div>
+      <span class="panel-title">Changelog</span>
+    </div>
+    <!-- ▼ 更新履歴（このブロックをコピーして追加するだけ） ▼ -->
+    <div class="changelog-row">
+      <span class="changelog-ver">Ver3.2</span>
+      <span class="changelog-text">ローダー改善・背景固定</span>
+    </div>
+    <div class="changelog-row">
+      <span class="changelog-ver">Ver3</span>
+      <span class="changelog-text">更新履歴タブ追加</span>
+    </div>
+    <div class="changelog-row">
+      <span class="changelog-ver">Ver2</span>
+      <span class="changelog-text">ガラスUI</span>
+    </div>
+    <div class="changelog-row">
+      <span class="changelog-ver">Ver1</span>
+      <span class="changelog-text">サイト公開</span>
+    </div>
+    <!-- ▲ 更新履歴ここまで ▲ -->
+  </div>
+
+  </div><!-- /view-changelog -->
+
 </div>
 </div><!-- /main-content -->
 
@@ -1871,14 +2061,14 @@ function startReveal() {
       onboardText.textContent = '左端からサイドバーを呼び出せます。';
       onboardSteps.innerHTML =
         '<div class="sb-onboard-step"><span class="sb-onboard-step-num">1</span><span>画面<strong>左端</strong>から右へスワイプ</span></div>' +
-        '<div class="sb-onboard-step"><span class="sb-onboard-step-num">2</span><span>サイドバーが開いたら、ホームやリンク集に移動できます</span></div>';
+        '<div class="sb-onboard-step"><span class="sb-onboard-step-num">2</span><span>サイドバーが開いたら、ホームやリンク集などに移動できます</span></div>';
       return;
     }
     onboardText.textContent = '左端にカーソルを置くと矢印が現れます。';
     onboardSteps.innerHTML =
       '<div class="sb-onboard-step"><span class="sb-onboard-step-num">1</span><span>画面<strong>左端</strong>にマウスを置く</span></div>' +
       '<div class="sb-onboard-step"><span class="sb-onboard-step-num">2</span><span><span class="sb-onboard-step-arrow" aria-hidden="true">›</span> をクリックしてサイドバーを開く</span></div>' +
-      '<div class="sb-onboard-step"><span class="sb-onboard-step-num">3</span><span>ホームやリンク集に移動できます</span></div>';
+      '<div class="sb-onboard-step"><span class="sb-onboard-step-num">3</span><span>ホームやリンク集などに移動できます</span></div>';
   }
 
   function finishOnboardingCleanup(done) {
@@ -2104,7 +2294,8 @@ function startReveal() {
   var navBtns = document.querySelectorAll('.sidebar-nav-btn');
   var views = {
     home: document.getElementById('view-home'),
-    links: document.getElementById('view-links')
+    links: document.getElementById('view-links'),
+    changelog: document.getElementById('view-changelog')
   };
   var currentView = 'home';
 
@@ -2160,6 +2351,7 @@ function startReveal() {
   }
 
   resetRevealIn(views.links);
+  resetRevealIn(views.changelog);
   navBtns.forEach(function (btn) {
     btn.classList.toggle('active', btn.getAttribute('data-view') === 'home');
   });
@@ -2690,31 +2882,86 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); }
 // ── ローダー ──
 (function () {
   var loader = document.getElementById('loader');
-  var dot    = document.getElementById('loader-dot');
-  var burst  = document.getElementById('loader-burst');
+  var core   = document.getElementById('loader-core');
+  var ring   = document.getElementById('loader-ring-progress');
   var done   = false;
+  var progress = 0;
+  var target = 0.08;
+  var RING_LEN = 188.5;
+  var tickId = 0;
 
-  function finishLoader() {
+  function setRing(p) {
+    if (!ring) return;
+    var clamped = Math.max(0, Math.min(1, p));
+    ring.style.strokeDashoffset = String(RING_LEN * (1 - clamped));
+  }
+
+  function tickProgress() {
     if (done) return;
-    done = true;
+    if (progress < target) {
+      progress += (target - progress) * 0.1;
+      if (target - progress < 0.002) progress = target;
+      setRing(progress);
+    }
+    tickId = requestAnimationFrame(tickProgress);
+  }
 
-    dot.classList.add('burst');
-    burst.classList.add('go');
+  function bumpTarget(next) {
+    target = Math.max(target, next);
+  }
+
+  tickProgress();
+
+  document.addEventListener('DOMContentLoaded', function () {
+    bumpTarget(0.35);
+  }, { once: true });
+
+  var imgCount = document.querySelectorAll('img[src]').length;
+  var imgLoaded = 0;
+  document.querySelectorAll('img[src]').forEach(function (img) {
+    function onImg() {
+      imgLoaded += 1;
+      bumpTarget(0.35 + (imgLoaded / Math.max(imgCount, 1)) * 0.48);
+    }
+    if (img.complete) onImg();
+    else {
+      img.addEventListener('load', onImg, { once: true });
+      img.addEventListener('error', onImg, { once: true });
+    }
+  });
+
+  var EXIT_MS = 680;
+
+  function runFinishExit() {
+    done = true;
+    cancelAnimationFrame(tickId);
+    if (core) core.classList.add('complete', 'exiting');
+    loader.classList.add('exiting');
     document.body.classList.remove('loading');
     document.documentElement.classList.remove('theme-static');
-    setTimeout(startReveal, 950);
+    setTimeout(startReveal, EXIT_MS + 100);
 
     setTimeout(function () {
       loader.classList.add('hidden');
-    }, 300);
+    }, EXIT_MS);
 
     setTimeout(function () {
       loader.style.display = 'none';
-    }, 1000);
+    }, EXIT_MS + 320);
+  }
+
+  function finishLoader() {
+    if (done) return;
+    bumpTarget(1);
+    setRing(1);
+    progress = 1;
+
+    setTimeout(runFinishExit, 360);
   }
 
   function scheduleFinish() {
-    setTimeout(finishLoader, 320);
+    bumpTarget(0.92);
+    setTimeout(finishLoader, 280);
   }
 
   if (document.readyState === 'complete') {
