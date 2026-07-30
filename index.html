@@ -824,14 +824,163 @@
       padding-top: 8px;
       border-top: 1px solid var(--panel-divider);
     }
+    .sidebar-language-section {
+      padding-top: 0;
+    }
+    .sidebar-theme,
+    .sidebar-language {
+      width: 100%;
+      max-width: 100%;
+    }
+    .sidebar-language {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px 12px;
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+    .sidebar-language-label {
+      font-size: 12px;
+      color: var(--row-label);
+      font-weight: 300;
+    }
+    .sidebar-language-picker {
+      position: relative;
+      width: 100%;
+    }
+    .sidebar-language-native {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .sidebar-language-trigger {
+      appearance: none;
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(22, 22, 24, 0.82);
+      color: var(--text-base);
+      font-size: 14px;
+      border-radius: 12px;
+      padding: 8px 36px 8px 12px;
+      outline: none;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      font-weight: 300;
+      position: relative;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .sidebar-language-trigger:hover,
+    .sidebar-language-trigger:focus-visible {
+      border-color: var(--accent);
+      background: rgba(28, 28, 30, 0.92);
+      outline: none;
+    }
+    .sidebar-language-chevron {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 20px;
+      color: var(--row-label);
+      transition: transform 0.2s ease;
+      pointer-events: none;
+    }
+    .sidebar-language-picker.open .sidebar-language-chevron {
+      transform: translateY(-50%) rotate(180deg);
+    }
+    .sidebar-language-menu {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: calc(100% + 6px);
+      max-height: 240px;
+      overflow-y: auto;
+      margin: 0;
+      padding: 6px;
+      list-style: none;
+      background: rgba(22, 22, 24, 0.98);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      z-index: 10;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .sidebar-language-menu[hidden] {
+      display: none;
+    }
+    .sidebar-language-option {
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.9);
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .sidebar-language-option:hover,
+    .sidebar-language-option:focus-visible {
+      background: rgba(58, 143, 255, 0.18);
+      color: #fff;
+      outline: none;
+    }
+    .sidebar-language-option.is-selected {
+      background: rgba(58, 143, 255, 0.28);
+      color: #fff;
+    }
+    html[data-theme="light"] .sidebar-language-trigger {
+      background: rgba(255, 255, 255, 0.88);
+      border-color: rgba(0, 0, 0, 0.12);
+    }
+    html[data-theme="light"] .sidebar-language-trigger:hover,
+    html[data-theme="light"] .sidebar-language-trigger:focus-visible {
+      background: #fff;
+    }
+    html[data-theme="light"] .sidebar-language-menu {
+      background: rgba(255, 255, 255, 0.98);
+      border-color: rgba(0, 0, 0, 0.12);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+    html[data-theme="light"] .sidebar-language-option {
+      color: rgba(0, 0, 0, 0.84);
+    }
+    html[data-theme="light"] .sidebar-language-option:hover,
+    html[data-theme="light"] .sidebar-language-option:focus-visible {
+      background: rgba(58, 143, 255, 0.12);
+      color: #111;
+    }
+    html[data-theme="light"] .sidebar-language-option.is-selected {
+      background: rgba(58, 143, 255, 0.2);
+      color: #111;
+    }
     .sidebar-version {
-      padding-top: 14px;
+      padding: 2px 0 4px;
       font-size: 10px;
       color: var(--text-faint);
       font-family: "IBM Plex Mono", monospace;
       letter-spacing: 0.04em;
       text-align: center;
-      line-height: 1.5;
+      line-height: 1.2;
+      margin: 0;
+      white-space: pre-line;
+    }
+
+    .sidebar-version br {
+      content: '';
+      display: block;
+      margin: 2px 0 0;
     }
 
     @media (max-width: 768px), (hover: none) and (pointer: coarse) {
@@ -1584,8 +1733,8 @@
 <!-- SIDEBAR -->
 <div id="sidebar-scrim" aria-hidden="true"></div>
 <div id="sidebar-edge">
-  <button id="sidebar-arrow" type="button" aria-label="メニューを開く">
-    <span class="material-symbols-outlined sidebar-arrow-icon" aria-hidden="true">menu</span>
+  <button id="sidebar-arrow" type="button" aria-label="サイドバーを開く">
+    <span class="material-symbols-outlined sidebar-arrow-icon" aria-hidden="true">chevron_right</span>
   </button>
 </div>
 <nav id="sidebar" aria-label="サイトメニュー">
@@ -1608,7 +1757,32 @@
       </button>
     </div>
   </div>
-  <p class="sidebar-version">Ver3.3 build260730</p>
+  <div class="sidebar-section sidebar-language-section">
+    <p class="sidebar-section-title">Language</p>
+    <div class="sidebar-language">
+      <label class="sidebar-language-label" id="sidebar-language-label" for="sidebar-language-trigger">Translate to</label>
+      <div class="sidebar-language-picker" id="sidebar-language-picker">
+        <select id="sidebar-language-select" class="sidebar-language-native" aria-label="翻訳言語を選択" tabindex="-1">
+          <option value="ja">日本語</option>
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="fr">Français</option>
+          <option value="de">Deutsch</option>
+          <option value="zh">中文</option>
+          <option value="ko">한국어</option>
+          <option value="ru">Русский</option>
+          <option value="pt">Português</option>
+          <option value="it">Italiano</option>
+        </select>
+        <button type="button" class="sidebar-language-trigger" id="sidebar-language-trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="sidebar-language-label sidebar-language-current">
+          <span id="sidebar-language-current">日本語</span>
+          <span class="material-symbols-outlined sidebar-language-chevron" aria-hidden="true">expand_more</span>
+        </button>
+        <ul class="sidebar-language-menu" id="sidebar-language-menu" role="listbox" aria-labelledby="sidebar-language-label" hidden></ul>
+      </div>
+    </div>
+  </div>
+  <p class="sidebar-version" id="sidebar-version">Ver4 build260730<br><span id="sidebar-useragent"></span></p>
 </nav>
 
 <div id="sidebar-onboarding" hidden aria-hidden="true">
@@ -1860,6 +2034,10 @@
       <span class="panel-title">Changelog</span>
     </div>
     <!-- ▼ 更新履歴（このブロックをコピーして追加するだけ） ▼ -->
+    <div class="changelog-row">
+      <span class="changelog-ver">Ver4</span>
+      <span class="changelog-text">日本語以外の他言語対応</span>
+    </div>
     <div class="changelog-row">
       <span class="changelog-ver">Ver3.3</span>
       <span class="changelog-text">背景とサイトの内容を少し変更</span>
@@ -2377,6 +2555,31 @@ function startReveal() {
     });
   });
 
+  function getBrowserLabel() {
+    var ua = navigator.userAgent || '';
+    var browser = 'Browser';
+    var os = 'OS';
+
+    if (ua.indexOf('Edg/') >= 0 || ua.indexOf('Edge/') >= 0) browser = 'Edge';
+    else if (ua.indexOf('OPR/') >= 0 || ua.indexOf('Opera/') >= 0) browser = 'Opera';
+    else if (ua.indexOf('Chrome/') >= 0 && ua.indexOf('Safari/') >= 0) browser = 'Chrome';
+    else if (ua.indexOf('Firefox/') >= 0) browser = 'Firefox';
+    else if (ua.indexOf('Safari/') >= 0 && ua.indexOf('Chrome/') < 0) browser = 'Safari';
+
+    if (ua.indexOf('Windows NT') >= 0) os = 'Windows';
+    else if (ua.indexOf('Macintosh') >= 0) os = 'macOS';
+    else if (ua.indexOf('Android') >= 0) os = 'Android';
+    else if (ua.indexOf('iPhone') >= 0 || ua.indexOf('iPad') >= 0 || ua.indexOf('iPod') >= 0) os = 'iOS';
+    else if (ua.indexOf('Linux') >= 0) os = 'Linux';
+
+    return browser + ' / ' + os;
+  }
+
+  var sidebarUseragent = document.getElementById('sidebar-useragent');
+  if (sidebarUseragent) {
+    sidebarUseragent.textContent = getBrowserLabel();
+  }
+
 })();
 
 // ── テーマ切替 ──
@@ -2409,7 +2612,11 @@ function startReveal() {
     try { localStorage.setItem('theme', theme); } catch (e) {}
     toggle.setAttribute('aria-label', theme === 'light' ? 'ダークモードに切替' : 'ライトモードに切替');
     if (themeLabel) {
-      themeLabel.textContent = theme === 'light' ? 'ライトモード' : 'ダークモード';
+      var label = theme === 'light' ? 'ライトモード' : 'ダークモード';
+      themeLabel.textContent = label;
+      if (typeof window.retranslateTextNode === 'function' && themeLabel.firstChild) {
+        window.retranslateTextNode(themeLabel.firstChild, label);
+      }
     }
   }
 
@@ -3067,8 +3274,232 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); }
     });
   }
 
+  var originalTextMap = new Map();
+  var currentTranslationLang = 'ja';
+  var supportedLanguages = ['ja','en','es','fr','de','zh','ko','ru','pt','it'];
+  var googleLangMap = { zh: 'zh-CN' };
+
+  function toGoogleLang(lang) {
+    return googleLangMap[lang] || lang;
+  }
+
+  function getPreferredLanguage() {
+    try {
+      var saved = localStorage.getItem('lang');
+      if (saved && supportedLanguages.indexOf(saved) >= 0) return saved;
+    } catch (e) {}
+    var langs = navigator.languages || [];
+    if (!langs.length) {
+      langs = [navigator.language || navigator.userLanguage || 'ja'];
+    }
+    var lang = (langs[0] || 'ja').toLowerCase();
+    return lang.split('-')[0] || 'ja';
+  }
+
+  function shouldTranslate(lang) {
+    return lang && lang !== 'ja';
+  }
+
+  function collectTextNodes(root) {
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (node) {
+        if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        var parent = node.parentNode;
+        if (!parent || ['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT', 'CODE', 'PRE', 'SELECT', 'OPTION'].indexOf(parent.nodeName) !== -1) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        if (parent.closest) {
+          if (parent.closest('.material-symbols-outlined')) return NodeFilter.FILTER_REJECT;
+          if (parent.closest('#sidebar-language-picker')) return NodeFilter.FILTER_REJECT;
+          if (parent.closest('.sidebar-version')) return NodeFilter.FILTER_REJECT;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    }, false);
+    var nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    return nodes;
+  }
+
+  function translateText(text, targetLang) {
+    var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=' +
+      encodeURIComponent(toGoogleLang(targetLang)) + '&dt=t&q=' + encodeURIComponent(text);
+    return fetch(url).then(function (res) {
+      if (!res.ok) throw new Error('Translation request failed');
+      return res.json();
+    }).then(function (data) {
+      if (data && data[0] && data[0].length) {
+        return data[0].map(function (part) { return part[0]; }).join('');
+      }
+      return text;
+    });
+  }
+
+  function restoreOriginalText() {
+    originalTextMap.forEach(function (original, node) {
+      if (node && node.nodeValue !== undefined) node.nodeValue = original;
+    });
+  }
+
+  function translatePage(targetLang) {
+    if (!targetLang || targetLang === 'ja') {
+      restoreOriginalText();
+      return Promise.resolve();
+    }
+
+    var nodes = collectTextNodes(document.body);
+    var textToNodes = new Map();
+
+    nodes.forEach(function (node) {
+      var original = originalTextMap.has(node) ? originalTextMap.get(node) : node.nodeValue;
+      var trimmed = original.trim();
+      if (!trimmed) return;
+      if (!originalTextMap.has(node)) {
+        originalTextMap.set(node, node.nodeValue);
+      }
+      if (!textToNodes.has(trimmed)) {
+        textToNodes.set(trimmed, []);
+      }
+      textToNodes.get(trimmed).push(node);
+    });
+
+    var tasks = [];
+    textToNodes.forEach(function (nodeList, text) {
+      tasks.push(
+        translateText(text, targetLang).then(function (translated) {
+          nodeList.forEach(function (node) {
+            node.nodeValue = node.nodeValue.replace(node.nodeValue.trim(), translated);
+          });
+        }).catch(function (err) {
+          console.warn('Translation failed:', err);
+        })
+      );
+    });
+    return Promise.all(tasks);
+  }
+
+  function setLanguageSelect(value) {
+    var select = document.getElementById('sidebar-language-select');
+    if (!select) return;
+    if (supportedLanguages.indexOf(value) < 0) value = 'en';
+    select.value = value;
+    currentTranslationLang = value;
+    if (typeof window.syncLanguagePickerUI === 'function') {
+      window.syncLanguagePickerUI();
+    }
+  }
+
+  function initLanguagePicker() {
+    var select = document.getElementById('sidebar-language-select');
+    var trigger = document.getElementById('sidebar-language-trigger');
+    var current = document.getElementById('sidebar-language-current');
+    var menu = document.getElementById('sidebar-language-menu');
+    var picker = document.getElementById('sidebar-language-picker');
+    if (!select || !trigger || !menu || !picker) return;
+
+    menu.innerHTML = '';
+    Array.prototype.forEach.call(select.options, function (opt) {
+      var item = document.createElement('li');
+      item.className = 'sidebar-language-option';
+      item.setAttribute('role', 'option');
+      item.setAttribute('data-value', opt.value);
+      item.textContent = opt.textContent;
+      item.tabIndex = -1;
+      item.addEventListener('click', function () {
+        if (select.value !== opt.value) {
+          select.value = opt.value;
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        closeMenu();
+      });
+      menu.appendChild(item);
+    });
+
+    function syncUI() {
+      var opt = select.options[select.selectedIndex];
+      if (current && opt) current.textContent = opt.textContent;
+      menu.querySelectorAll('.sidebar-language-option').forEach(function (item) {
+        var selected = item.getAttribute('data-value') === select.value;
+        item.classList.toggle('is-selected', selected);
+        item.setAttribute('aria-selected', selected ? 'true' : 'false');
+      });
+    }
+
+    function openMenu() {
+      menu.hidden = false;
+      trigger.setAttribute('aria-expanded', 'true');
+      picker.classList.add('open');
+    }
+
+    function closeMenu() {
+      menu.hidden = true;
+      trigger.setAttribute('aria-expanded', 'false');
+      picker.classList.remove('open');
+    }
+
+    trigger.addEventListener('click', function () {
+      if (picker.classList.contains('open')) closeMenu();
+      else openMenu();
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!picker.contains(e.target)) closeMenu();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeMenu();
+    });
+
+    window.syncLanguagePickerUI = syncUI;
+    syncUI();
+  }
+
+  window.retranslateTextNode = function (node, text) {
+    if (!node || !text || !shouldTranslate(currentTranslationLang)) return;
+    var trimmed = text.trim();
+    if (!trimmed) return;
+    if (!originalTextMap.has(node)) {
+      originalTextMap.set(node, text);
+    }
+    translateText(trimmed, currentTranslationLang).then(function (translated) {
+      node.nodeValue = translated;
+    }).catch(function (err) {
+      console.warn('Translation failed:', err);
+    });
+  };
+
+  function initTranslation() {
+    var preferred = getPreferredLanguage();
+    var target = supportedLanguages.indexOf(preferred) >= 0 ? preferred : 'en';
+    setLanguageSelect(target);
+    if (shouldTranslate(target)) {
+      translatePage(target);
+    }
+
+    var select = document.getElementById('sidebar-language-select');
+    if (select) {
+      select.addEventListener('change', function () {
+        var selected = select.value;
+        currentTranslationLang = selected;
+        try { localStorage.setItem('lang', selected); } catch (e) {}
+        if (typeof window.syncLanguagePickerUI === 'function') {
+          window.syncLanguagePickerUI();
+        }
+        if (selected === 'ja') {
+          restoreOriginalText();
+        } else {
+          translatePage(selected);
+        }
+      });
+    }
+    initLanguagePicker();
+  }
+
   // run after reveal
-  setTimeout(initScrollUI, 900);
+  setTimeout(function () {
+    initScrollUI();
+    initTranslation();
+  }, 900);
 })();
 </script>
 </body>
