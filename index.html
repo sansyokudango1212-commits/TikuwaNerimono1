@@ -21,6 +21,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ちくわ練り物の部屋</title>
   <meta name="description" content="ちくわ練り物">
+  <!-- OGP / Twitter Card: サイトを公開するURLが決まったら og:url も追加してください -->
+  <meta property="og:type" content="profile">
+  <meta property="og:site_name" content="ちくわ練り物の部屋">
+  <meta property="og:title" content="ちくわ練り物の部屋">
+  <meta property="og:description" content="ちくわ練り物">
+  <meta property="og:image" content="https://lh3.googleusercontent.com/pw/AP1GczPy4s7IugLYtOJ5CehNMaoCGc8rkrdsddH9Q09Kg0JKIwwvVbifouaVBIJF9XyVDkgD7NDrBf9s2ZKQT26fDIFi4XbCzXzOR7vCxYjTo-t13LoEFDNMCWRSjgopOxps2jrmzSezCLI1JCMFvgjho9du=w929-h929-s-no-gm?authuser=0">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ちくわ練り物の部屋">
+  <meta name="twitter:description" content="ちくわ練り物">
+  <meta name="twitter:image" content="https://lh3.googleusercontent.com/pw/AP1GczPy4s7IugLYtOJ5CehNMaoCGc8rkrdsddH9Q09Kg0JKIwwvVbifouaVBIJF9XyVDkgD7NDrBf9s2ZKQT26fDIFi4XbCzXzOR7vCxYjTo-t13LoEFDNMCWRSjgopOxps2jrmzSezCLI1JCMFvgjho9du=w929-h929-s-no-gm?authuser=0">
   <meta name="google-site-verification" content="Z5LCrw2wiWOC0bTQynoScEQ9LTvHoEucbmQwoReCLXE" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@100;300;400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -267,6 +277,62 @@
       display: block;
     }
     @keyframes prog { to { transform: scaleX(1); } }
+
+    /* ── 言語切り替え中の強ぼかしオーバーレイ ── */
+    #lang-switch-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10070;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(0px);
+      -webkit-backdrop-filter: blur(0px);
+      opacity: 0;
+      pointer-events: none;
+      transition:
+        opacity 0.45s ease,
+        background 0.45s ease,
+        backdrop-filter 0.45s ease,
+        -webkit-backdrop-filter 0.45s ease;
+    }
+    #lang-switch-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(80px) saturate(1.4);
+      -webkit-backdrop-filter: blur(80px) saturate(1.4);
+    }
+    #lang-switch-progress {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.92);
+      width: 220px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      overflow: hidden;
+      z-index: 10071;
+      opacity: 0;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    #lang-switch-overlay.active #lang-switch-progress {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    #lang-switch-progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: var(--accent);
+      transition: width 0.3s ease;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #lang-switch-overlay,
+      #lang-switch-progress,
+      #lang-switch-progress-fill {
+        transition: none;
+      }
+    }
 
     #scroll-hint {
       position: fixed;
@@ -628,7 +694,10 @@
       height: 52px;
       border: none;
       border-radius: 0 14px 14px 0;
-      background: rgba(0, 0, 0, 0.45);
+      border-top: 1px solid rgba(255, 255, 255, 0.16);
+      border-right: 1px solid rgba(255, 255, 255, 0.16);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(20, 20, 20, 0.32);
       color: #fff;
       cursor: pointer;
       opacity: 0;
@@ -638,8 +707,8 @@
       justify-content: center;
       padding: 0;
       box-shadow: 4px 0 16px rgba(0, 0, 0, 0.2);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(var(--edge-glass-blur)) saturate(var(--panel-saturate));
+      -webkit-backdrop-filter: blur(var(--edge-glass-blur)) saturate(var(--panel-saturate));
       transition:
         transform 0.36s cubic-bezier(0.25, 0.46, 0.45, 0.94),
         opacity 0.32s ease,
@@ -655,7 +724,7 @@
     #sidebar-arrow:hover,
     #sidebar-arrow:focus-visible {
       outline: none;
-      background: rgba(0, 0, 0, 0.62);
+      background: rgba(20, 20, 20, 0.46);
     }
     .sidebar-arrow-icon {
       font-size: 22px;
@@ -989,7 +1058,7 @@
         pointer-events: none;
       }
       #sidebar-arrow {
-        opacity: 0.75;
+        opacity: 0.9;
         position: fixed;
         top: 12px;
         left: 12px;
@@ -998,10 +1067,11 @@
         width: 44px;
         height: 44px;
         border-radius: 50%;
-        background: rgba(0, 0, 0, 0.48);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(20, 20, 20, 0.3);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(var(--edge-glass-blur)) saturate(var(--panel-saturate));
+        -webkit-backdrop-filter: blur(var(--edge-glass-blur)) saturate(var(--panel-saturate));
       }
       #sidebar-arrow .sidebar-arrow-icon {
         font-size: 26px;
@@ -1217,14 +1287,18 @@
       background: rgba(58, 143, 255, 0.2);
       border-color: var(--accent);
     }
-    body.sidebar-onboarding #sidebar {
+    body.sidebar-onboarding #sidebar,
+    body.onboarding-exit #sidebar {
       visibility: visible;
       pointer-events: none;
-      z-index: 9999;
+      z-index: 10005;
+    }
+    body.sidebar-onboarding #sidebar {
       animation: sidebar-onboard-peek 0.72s cubic-bezier(0.19, 1, 0.22, 1) forwards;
     }
-    body.sidebar-onboarding #sidebar-edge {
-      z-index: 10005;
+    body.sidebar-onboarding #sidebar-edge,
+    body.onboarding-exit #sidebar-edge {
+      z-index: 10006;
       pointer-events: none;
     }
     body.sidebar-onboarding #sidebar-arrow {
@@ -1236,9 +1310,7 @@
     #sidebar.onboard-dismiss {
       visibility: visible;
       pointer-events: none;
-      transition: transform 0.45s cubic-bezier(0.55, 0, 1, 0.45);
-      transform: translateX(-100%) !important;
-      animation: none !important;
+      z-index: 10005;
     }
     #sidebar-onboarding.onboard-layout-mobile .sb-onboard-panel {
       left: 16px;
@@ -1274,10 +1346,13 @@
       display: block;
     }
     .page-view.is-switching .reveal {
+      --reveal-x: 64px !important;
+      --reveal-y: -42px !important;
       opacity: 0 !important;
-      transform: translateX(40px) !important;
-      filter: blur(1.5px) !important;
+      transform: translate(64px, -42px) !important;
+      filter: blur(9px) !important;
       transition: none !important;
+      animation: none !important;
     }
     html[data-initial-view="home"] #view-home {
       display: block;
@@ -1320,19 +1395,34 @@
     }
 
     /* ── SCROLL REVEAL ── */
+    @property --reveal-x {
+      syntax: '<length>';
+      inherits: false;
+      initial-value: 0px;
+    }
+    @property --reveal-y {
+      syntax: '<length>';
+      inherits: false;
+      initial-value: 0px;
+    }
     .reveal {
+      --reveal-x: 64px;
+      --reveal-y: -42px;
       opacity: 0;
-      transform: translateX(36px);
-      filter: blur(1.5px);
+      filter: blur(9px);
+      transform: translate(var(--reveal-x), var(--reveal-y));
       transition:
-        opacity 0.52s cubic-bezier(0.25,0.46,0.45,0.94),
-        transform 0.52s cubic-bezier(0.25,0.46,0.45,0.94),
-        filter 0.52s cubic-bezier(0.25,0.46,0.45,0.94);
+        --reveal-x 0.72s cubic-bezier(0.16, 1, 0.3, 1),
+        --reveal-y 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+        filter 0.6s cubic-bezier(0.16, 1, 0.3, 1);
       transition-delay: var(--reveal-delay, 0ms);
+      will-change: opacity, transform, filter;
     }
     .reveal.visible {
+      --reveal-x: 0px;
+      --reveal-y: 0px;
       opacity: 1;
-      transform: translateX(0);
       filter: blur(0px);
     }
 
@@ -1397,7 +1487,14 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .reveal { transition: none; opacity: 1; transform: none; filter: none; }
+      .reveal,
+      .reveal.visible {
+        transition: none !important;
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+      }
 
       #sidebar.opening,
       #sidebar.closing {
@@ -1691,6 +1788,15 @@
 </head>
 <body class="loading">
 
+<div id="sr-announcer" aria-live="polite" aria-atomic="true"
+  style="position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;"></div>
+
+<div id="lang-switch-overlay" aria-hidden="true">
+  <div id="lang-switch-progress">
+    <div id="lang-switch-progress-fill"></div>
+  </div>
+</div>
+
 <!-- 背景固定レイヤー（スクロールしない） -->
 <div id="bg-stack" aria-hidden="true">
   <img id="bg-img"
@@ -1700,7 +1806,8 @@
     alt=""
     width="1474" height="921"
     decoding="async"
-    fetchpriority="high">
+    fetchpriority="high"
+    referrerpolicy="no-referrer">
   <div id="bg-scrim"></div>
 </div>
 
@@ -1782,7 +1889,7 @@
       </div>
     </div>
   </div>
-  <p class="sidebar-version" id="sidebar-version">Ver4 build260730<br><span id="sidebar-useragent"></span></p>
+  <p class="sidebar-version" id="sidebar-version">Ver4.1 build260801<br><span id="sidebar-useragent"></span></p>
 </nav>
 
 <div id="sidebar-onboarding" hidden aria-hidden="true">
@@ -1924,13 +2031,13 @@
     <div class="row">
       <img class="wish-img lb-trigger"
         src="https://wwwstatic.vivo.com.cn/vivoportal/files/image/detail/20221117/46567246dfbb931eed633910dd88806e.png"
-        alt="Vivo x90pro+" width="44" height="44" loading="lazy" decoding="async">
+        alt="Vivo x90pro+" width="44" height="44" loading="lazy" decoding="async" referrerpolicy="no-referrer">
       <div class="row-value"><span class="badge">Vivo x90pro+</span></div>
     </div>
     <div class="row">
       <img class="wish-img lb-trigger"
         src="https://img1.kakaku.k-img.com/images/productimage/fullscale/K0001470328.jpg"
-        alt="iPhone SE2" width="44" height="44" loading="lazy" decoding="async">
+        alt="iPhone SE2" width="44" height="44" loading="lazy" decoding="async" referrerpolicy="no-referrer">
       <div class="row-value"><span class="badge">Galaxy Z Fold 4</span></div>
     </div>
   </div>
@@ -1970,7 +2077,7 @@
       <span class="material-symbols-outlined link-chevron" aria-hidden="true">chevron_right</span>
     </a>
     <a class="link-row" href="https://karotter.com/profile/TikuwaNerimono1/share" target="_blank" rel="noopener">
-      <img class="link-icon" src="https://karotter.com/karotter-log.png" alt="karotter" width="32" height="32" loading="lazy" decoding="async">
+      <img class="link-icon" src="https://karotter.com/karotter-log.png" alt="karotter" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer">
       <div class="link-info">
         <div class="link-name">karotter</div>
         <div class="link-handle">@_Tikuwa1</div>
@@ -1980,7 +2087,7 @@
     <a class="link-row" href="https://www.instagram.com/tikuwa_nerimono0/" target="_blank" rel="noopener">
       <img class="link-icon"
         src="https://play-lh.googleusercontent.com/Mmi0m-ictXCZNWymXCMRAYKNzN3b9QHm8JWgiBeKK34i21seq2b62ffiGN5ueL-HsBv2=w480-h960-rw"
-        alt="Instagram" width="32" height="32" loading="lazy" decoding="async">
+        alt="Instagram" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer">
       <div class="link-info">
         <div class="link-name">Instagram</div>
         <div class="link-handle">@tikuwa_nerimono0</div>
@@ -1990,7 +2097,7 @@
     <a class="link-row" href="https://www.reddit.com/user/Tikuwa_Nerimono1/" target="_blank" rel="noopener">
       <img class="link-icon"
         src="https://www.redditstatic.com/shreddit/assets/favicon/128x128.png"
-        alt="Reddit" width="32" height="32" loading="lazy" decoding="async">
+        alt="Reddit" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer">
       <div class="link-info">
         <div class="link-name">Reddit</div>
         <div class="link-handle">u/Tikuwa_Nerimono1</div>
@@ -2000,7 +2107,7 @@
     <a class="link-row" href="https://steamcommunity.com/profiles/76561199813746238/" target="_blank" rel="noopener">
       <img class="link-icon"
         src="https://store.steampowered.com/favicon.ico"
-        alt="Steam" width="32" height="32" loading="lazy" decoding="async">
+        alt="Steam" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer">
       <div class="link-info">
         <div class="link-name">Steam</div>
         <div class="link-handle">Tikuwa_Nerimono1</div>
@@ -2067,6 +2174,14 @@
 </div><!-- /main-content -->
 
 <script>
+// ── スクリーンリーダー向け通知 ──
+function srAnnounce(text) {
+  var el = document.getElementById('sr-announcer');
+  if (!el) return;
+  el.textContent = '';
+  window.setTimeout(function () { el.textContent = text; }, 30);
+}
+
 // ── 画像読み込み失敗時のリトライ＆成功時のリセット ──
 (function () {
   document.querySelectorAll('img[src]').forEach(function (img) {
@@ -2263,7 +2378,40 @@ function startReveal() {
       onboarding.hidden = true;
     }
     sidebar.classList.remove('onboard-dismiss');
+    sidebar.style.transition = '';
+    sidebar.style.animation = '';
+    sidebar.style.transform = '';
     if (done) done();
+  }
+
+  var DISMISS_SLIDE_MS = 620;
+
+  function dismissSidebarPeek() {
+    if (isOpen) return;
+    sidebar.classList.add('onboard-dismiss');
+
+    if (reduceMotion) {
+      sidebar.style.transition = 'none';
+      sidebar.style.animation = 'none';
+      sidebar.style.transform = 'translateX(-100%)';
+      return;
+    }
+
+    // Freeze whatever position the peek-in animation is currently at (even
+    // mid-flight) as an inline style, then force a reflow, so the browser
+    // has a concrete "before" value to transition from. Handing off directly
+    // from a forwards-filled CSS animation to a CSS transition on the same
+    // property is unreliable across browsers, so we do it explicitly here.
+    var current = getComputedStyle(sidebar).transform;
+    sidebar.style.transition = 'none';
+    sidebar.style.animation = 'none';
+    sidebar.style.transform = current;
+    void sidebar.offsetHeight;
+
+    requestAnimationFrame(function () {
+      sidebar.style.transition = 'transform ' + DISMISS_SLIDE_MS + 'ms cubic-bezier(0.55, 0, 1, 0.45)';
+      sidebar.style.transform = 'translateX(-100%)';
+    });
   }
 
   function endOnboarding(openAfter, done) {
@@ -2286,6 +2434,7 @@ function startReveal() {
     requestAnimationFrame(function () {
       document.body.classList.add('onboarding-exit');
       if (onboarding) onboarding.classList.add('panel-out');
+      dismissSidebarPeek();
     });
 
     setTimeout(function () {
@@ -2293,10 +2442,6 @@ function startReveal() {
       document.body.classList.remove('sidebar-onboarding');
       if (onboarding) {
         onboarding.classList.add('blur-out');
-      }
-
-      if (!isOpen) {
-        sidebar.classList.add('onboard-dismiss');
       }
 
       setTimeout(function () {
@@ -2501,6 +2646,8 @@ function startReveal() {
     }
   }
 
+  var viewLabels = { home: 'ホーム', links: 'リンク集', changelog: '更新履歴' };
+
   function setView(name, animate) {
     if (!views[name] || name === currentView) return;
     var prev = views[currentView];
@@ -2518,6 +2665,7 @@ function startReveal() {
     });
     updateNavIndicator(name, false);
     window.scrollTo(0, 0);
+    srAnnounce((viewLabels[name] || name) + 'に切り替わりました');
 
     if (animate === false) {
       getRevealEls(next).forEach(function (el) {
@@ -2856,6 +3004,7 @@ function resetLbImgStyle() {
   lbImg.style.height = '';
   lbImg.style.maxWidth = '';
   lbImg.style.maxHeight = '';
+  lbImg.style.visibility = '';
 }
 
 function stopLbAnim(commit) {
@@ -2986,6 +3135,7 @@ function cleanupLb() {
 function openLB(thumb, src, alt) {
   stopLbAnim(true);
   resetLbImgStyle();
+  srAnnounce((alt || '画像') + 'を拡大表示しています');
 
   if (document.body.classList.contains('sidebar-open')) {
     var sidebarScrim = document.getElementById('sidebar-scrim');
@@ -3132,17 +3282,23 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); }
     bumpTarget(0.35);
   }, { once: true });
 
-  var imgCount = document.querySelectorAll('img[src]').length;
+  var imgCount = document.querySelectorAll('img[src]:not([src=""])').length;
   var imgLoaded = 0;
-  document.querySelectorAll('img[src]').forEach(function (img) {
+  document.querySelectorAll('img[src]:not([src=""])').forEach(function (img) {
     function onImg() {
       imgLoaded += 1;
       bumpTarget(0.35 + (imgLoaded / Math.max(imgCount, 1)) * 0.48);
     }
-    if (img.complete) onImg();
-    else {
+    function onImgError() {
+      onImg();
+      img.style.visibility = 'hidden'; // 外部画像が切れても壊れたアイコンを出さない
+    }
+    if (img.complete) {
+      if (img.naturalWidth === 0) onImgError();
+      else onImg();
+    } else {
       img.addEventListener('load', onImg, { once: true });
-      img.addEventListener('error', onImg, { once: true });
+      img.addEventListener('error', onImgError, { once: true });
     }
   });
 
@@ -3341,10 +3497,31 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); }
     });
   }
 
+  function setLangSwitchProgress(fraction) {
+    var fill = document.getElementById('lang-switch-progress-fill');
+    if (fill) fill.style.width = (Math.max(0, Math.min(1, fraction)) * 100) + '%';
+  }
+
+  function playInstantLangSwitch(fn) {
+    var overlay = document.getElementById('lang-switch-overlay');
+    setLangSwitchProgress(0);
+    if (overlay) overlay.classList.add('active');
+    return new Promise(function (resolve) {
+      // ぼかしが十分効いたところで、隠れている間に瞬時の切り替えを行う
+      window.setTimeout(function () {
+        fn();
+        setLangSwitchProgress(1);
+        window.setTimeout(function () {
+          if (overlay) overlay.classList.remove('active');
+          resolve();
+        }, 320);
+      }, 280);
+    });
+  }
+
   function translatePage(targetLang) {
     if (!targetLang || targetLang === 'ja') {
-      restoreOriginalText();
-      return Promise.resolve();
+      return playInstantLangSwitch(restoreOriginalText);
     }
 
     var nodes = collectTextNodes(document.body);
@@ -3363,6 +3540,12 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); }
       textToNodes.get(trimmed).push(node);
     });
 
+    var overlay = document.getElementById('lang-switch-overlay');
+    var total = textToNodes.size;
+    var completed = 0;
+    setLangSwitchProgress(0);
+    if (overlay) overlay.classList.add('active');
+
     var tasks = [];
     textToNodes.forEach(function (nodeList, text) {
       tasks.push(
@@ -3372,10 +3555,23 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); }
           });
         }).catch(function (err) {
           console.warn('Translation failed:', err);
+        }).then(function () {
+          completed += 1;
+          setLangSwitchProgress(completed / Math.max(total, 1));
         })
       );
     });
-    return Promise.all(tasks);
+    return Promise.all(tasks).then(function () {
+      // 完全に終了するまでぼかしを解かない：バーが100%まで埋まったのを
+      // 見せてから、少し間を置いて強いぼかしをフェードアウトさせる
+      setLangSwitchProgress(1);
+      return new Promise(function (resolve) {
+        window.setTimeout(function () {
+          if (overlay) overlay.classList.remove('active');
+          resolve();
+        }, 320);
+      });
+    });
   }
 
   function setLanguageSelect(value) {
@@ -3485,11 +3681,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); }
         if (typeof window.syncLanguagePickerUI === 'function') {
           window.syncLanguagePickerUI();
         }
-        if (selected === 'ja') {
-          restoreOriginalText();
-        } else {
-          translatePage(selected);
-        }
+        translatePage(selected);
       });
     }
     initLanguagePicker();
