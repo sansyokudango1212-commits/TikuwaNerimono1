@@ -21,7 +21,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ちくわ練り物の部屋</title>
   <meta name="description" content="ちくわ練り物">
-  <!-- OGP / Twitter Card: サイトを公開するURLが決まったら og:url も追加してください -->
   <meta property="og:type" content="profile">
   <meta property="og:site_name" content="ちくわ練り物の部屋">
   <meta property="og:title" content="ちくわ練り物の部屋">
@@ -566,6 +565,94 @@
       align-items: center;
       justify-content: center;
     }
+    .settings-control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--row-divider);
+      position: relative;
+      z-index: 0;
+    }
+    /* 言語メニュー展開時は行ごと最前面へ（下のテーマ行に隠れないように） */
+    .settings-control-row:has(#settings-language-picker) {
+      z-index: 1;
+    }
+    .settings-control-row:has(#settings-language-picker.open) {
+      z-index: 100;
+    }
+    .settings-control-row:last-child {
+      border-bottom: none;
+    }
+    #view-settings .panel {
+      overflow: visible;
+      content-visibility: visible;
+      contain: none;
+      transform: none;
+      will-change: auto;
+    }
+    .settings-control-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .settings-control-action {
+      flex-shrink: 0;
+      min-width: 148px;
+      max-width: 100%;
+    }
+    .settings-control-row .sidebar-language,
+    .settings-control-action .sidebar-language-picker,
+    .settings-control-action .sidebar-language-trigger {
+      width: 100%;
+    }
+    #settings-language-picker {
+      position: relative;
+      z-index: 20;
+    }
+    #settings-language-picker.open {
+      z-index: 40;
+    }
+    #settings-language-menu {
+      top: calc(100% + 6px);
+      bottom: auto;
+      z-index: 10050;
+    }
+    .settings-theme-toggle {
+      appearance: none;
+      border: 1px solid var(--theme-toggle-border);
+      background: var(--theme-toggle-bg);
+      min-width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      color: var(--text-strong);
+      transition: opacity 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+      font-family: inherit;
+    }
+    .settings-theme-toggle:hover,
+    .settings-theme-toggle:focus-visible {
+      outline: none;
+      background: rgba(58, 143, 255, 0.2);
+      border-color: var(--accent);
+    }
+    @media (max-width: 640px) {
+      .settings-control-row {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .settings-control-action {
+        width: 100%;
+      }
+      .settings-theme-toggle {
+        width: 100%;
+      }
+    }
 
     .theme-icon {
       font-size: 18px;
@@ -1092,6 +1179,10 @@
       0%, 100% { transform: translateY(-50%) translateX(0); opacity: 1; }
       50% { transform: translateY(-50%) translateX(4px); opacity: 0.88; }
     }
+    @keyframes onboard-arrow-hint-mobile {
+      0%, 100% { transform: translateX(0); opacity: 1; }
+      50% { transform: translateX(4px); opacity: 0.88; }
+    }
     @keyframes onboard-panel-in {
       from { opacity: 0; transform: translateY(calc(-50% + 14px)); filter: blur(8px); }
       to { opacity: 1; transform: translateY(-50%); filter: blur(0px); }
@@ -1109,18 +1200,15 @@
       to { opacity: 0; transform: translateY(calc(-50% + 14px)); filter: blur(8px); }
     }
     #sidebar-onboarding {
-      position: fixed;
-      inset: 0;
-      z-index: 10004;
       pointer-events: none;
     }
     #sidebar-onboarding.active {
       pointer-events: none;
     }
     .sb-onboard-scrim {
-      position: absolute;
+      position: fixed;
       inset: 0;
-      z-index: 0;
+      z-index: 10004;
       background: var(--bg-scrim);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
@@ -1147,7 +1235,7 @@
     }
     .sb-onboard-panel {
       position: fixed;
-      z-index: 2;
+      z-index: 10008;
       box-sizing: border-box;
       left: 108px;
       top: 50%;
@@ -1307,6 +1395,15 @@
       transform: translateY(-50%) translateX(0) !important;
       animation: onboard-arrow-hint 2.2s ease-in-out 0.8s infinite;
     }
+    /* モバイルの矢印ボタンは top:12px の固定配置(縦中央寄せではない)なので、
+       PC用の translateY(-50%) をそのまま当てると半分が画面上端からはみ出す。
+       モバイルレイアウトでは横方向のみのパルスに差し替える。 */
+    @media (max-width: 768px), (hover: none) and (pointer: coarse) {
+      body.sidebar-onboarding #sidebar-arrow {
+        transform: translateX(0) !important;
+        animation: onboard-arrow-hint-mobile 2.2s ease-in-out 0.8s infinite;
+      }
+    }
     #sidebar.onboard-dismiss {
       visibility: visible;
       pointer-events: none;
@@ -1392,6 +1489,54 @@
       font-weight: 300;
       color: var(--row-label);
       line-height: 1.5;
+    }
+
+    /* ── DEVELOPER ── */
+    .dev-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--row-divider);
+    }
+    .dev-row:last-child { border-bottom: none; }
+    .dev-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid var(--avatar-border);
+      flex-shrink: 0;
+      background: var(--badge-bg);
+      cursor: pointer;
+      transition: opacity 0.3s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+      will-change: transform;
+    }
+    .dev-avatar:hover { transform: scale(1.08); }
+    .dev-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .dev-name {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-strong);
+      font-family: "IBM Plex Mono", monospace;
+      letter-spacing: 0.02em;
+    }
+    .dev-divider {
+      display: block;
+      height: 1px;
+      width: 100%;
+      background: var(--panel-divider);
+    }
+    .dev-role {
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--row-label);
+      letter-spacing: 0.02em;
     }
 
     /* ── SCROLL REVEAL ── */
@@ -1822,10 +1967,8 @@
   </div>
 </div>
 
-<!-- 上下エッジブラー -->
-<div class="edge-glass top"></div>
+<!-- 下エッジブラー -->
 <div class="edge-glass bottom"></div>
-<div class="edge-blur top"></div>
 <div class="edge-blur bottom"></div>
 
 <!-- HyperOS blob -->
@@ -1852,6 +1995,7 @@
       <button class="sidebar-nav-btn" type="button" data-view="home">ホーム</button>
       <button class="sidebar-nav-btn" type="button" data-view="links">リンク集</button>
       <button class="sidebar-nav-btn" type="button" data-view="changelog">更新履歴</button>
+      <button class="sidebar-nav-btn" type="button" data-view="settings">設定</button>
     </div>
   </div>
   <div class="sidebar-section sidebar-theme-section">
@@ -1889,7 +2033,7 @@
       </div>
     </div>
   </div>
-  <p class="sidebar-version" id="sidebar-version">Ver4.1 build260801<br><span id="sidebar-useragent"></span></p>
+  <p class="sidebar-version" id="sidebar-version">Ver4.2 build260801<br><span id="sidebar-useragent"></span></p>
 </nav>
 
 <div id="sidebar-onboarding" hidden aria-hidden="true">
@@ -2142,6 +2286,10 @@
     </div>
     <!-- ▼ 更新履歴（このブロックをコピーして追加するだけ） ▼ -->
     <div class="changelog-row">
+      <span class="changelog-ver">Ver4.2</span>
+      <span class="changelog-text">設定ウィンドウの追加とページの上のブラーを削除</span>
+    </div>
+    <div class="changelog-row">
       <span class="changelog-ver">Ver4</span>
       <span class="changelog-text">日本語以外の他言語対応</span>
     </div>
@@ -2168,7 +2316,115 @@
     <!-- ▲ 更新履歴ここまで ▲ -->
   </div>
 
+  <div class="panel reveal">
+    <div class="panel-header">
+      <div class="panel-dot"></div>
+      <span class="panel-title">Developer</span>
+    </div>
+    <!-- ▼ デベロッパ（このブロックをコピーして追加するだけ） ▼ -->
+    <div class="dev-row">
+      <img class="dev-avatar lb-trigger" src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/%E3%81%A1%E3%81%8F%E3%82%8F.jpg?raw=true" alt="@_Tikwua1のアイコン" width="40" height="40" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+      <div class="dev-info">
+        <span class="dev-name">@_Tikwua1</span>
+        <span class="dev-divider"></span>
+        <span class="dev-role">Author / Committer</span>
+      </div>
+    </div>
+    <div class="dev-row">
+      <img class="dev-avatar lb-trigger" src="https://yt3.googleusercontent.com/PH3xYO8mOghRBN_-Dusaodpf4Sz4xuJGR4NbJvkF0mc8zBHaKUvP2T-jcYlylQuRkMg6DpdTNw=s160-c-k-c0x00ffffff-no-rj" alt="@Vocaloid_likeのアイコン" width="40" height="40" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+      <div class="dev-info">
+        <span class="dev-name">@Vocaloid_like</span>
+        <span class="dev-divider"></span>
+        <span class="dev-role">Feedback</span>
+      </div>
+    </div>
+    <div class="dev-row">
+      <img class="dev-avatar lb-trigger" src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/%E3%82%BD%E3%83%99%E3%82%AF%E3%82%BF.jpg?raw=true" alt="@S0arrayのアイコン" width="40" height="40" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+      <div class="dev-info">
+        <span class="dev-name">@S0array</span>
+        <span class="dev-divider"></span>
+        <span class="dev-role">Consensus</span>
+      </div>
+    </div>
+    <!-- ▲ デベロッパここまで ▲ -->
+  </div>
+
   </div><!-- /view-changelog -->
+
+  <!-- 設定 -->
+  <div id="view-settings" class="page-view">
+
+  <div class="hero reveal">
+    <img class="avatar"
+      src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/image.png?raw=true"
+      alt="アイコン"
+      width="52" height="52"
+      decoding="async"
+      loading="lazy"
+      referrerpolicy="no-referrer">
+    <div class="hero-text">
+      <h1>設定</h1>
+      <p class="hero-sub">Settings</p>
+    </div>
+  </div>
+
+  <div class="panel reveal">
+    <div class="panel-header">
+      <div class="panel-dot"></div>
+      <span class="panel-title">Settings</span>
+    </div>
+    <!-- ▼ 設定項目（このブロックをコピーして追加するだけ） ▼ -->
+    <div class="settings-control-row">
+      <div class="sidebar-language">
+        <label class="sidebar-language-label" id="settings-language-label" for="settings-language-trigger">Translate to</label>
+        <div class="sidebar-language-picker" id="settings-language-picker">
+          <select id="settings-language-select" class="sidebar-language-native" aria-label="翻訳言語を選択" tabindex="-1">
+            <option value="ja">日本語</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="zh">中文</option>
+            <option value="ko">한국어</option>
+            <option value="ru">Русский</option>
+            <option value="pt">Português</option>
+            <option value="it">Italiano</option>
+          </select>
+          <button type="button" class="sidebar-language-trigger" id="settings-language-trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="settings-language-label settings-language-current">
+            <span id="settings-language-current">日本語</span>
+            <span class="material-symbols-outlined sidebar-language-chevron" aria-hidden="true">expand_more</span>
+          </button>
+          <ul class="sidebar-language-menu" id="settings-language-menu" role="listbox" aria-labelledby="settings-language-label" hidden></ul>
+        </div>
+      </div>
+    </div>
+    <div class="settings-control-row">
+      <div class="settings-control-info">
+        <div class="link-name">テーマ</div>
+        <div class="link-handle">画面の表示テーマを切り替えます</div>
+      </div>
+      <div class="settings-control-action">
+        <button id="settings-theme-toggle" class="settings-theme-toggle" type="button" aria-label="ライトモードに切替">
+          <span class="material-symbols-outlined theme-icon theme-icon--sun" aria-hidden="true">light_mode</span>
+          <span class="material-symbols-outlined theme-icon theme-icon--moon" aria-hidden="true">dark_mode</span>
+          <span class="sidebar-theme-label" id="settings-theme-label">ダークモード</span>
+        </button>
+      </div>
+    </div>
+    <a class="link-row" href="https://x.com/_Tikuwa1/status/2083892787616121102?s=20" target="_blank" rel="noopener">
+      <div class="link-icon">
+        <span class="material-symbols-outlined" aria-hidden="true" style="font-size:20px; color:var(--text-strong);">poll</span>
+      </div>
+      <div class="link-info">
+        <div class="link-name">アンケート</div>
+        <div class="link-handle">広告の表示について</div>
+      </div>
+      <span class="material-symbols-outlined link-chevron" aria-hidden="true">chevron_right</span>
+    </a>
+    <!-- ▲ 設定項目ここまで ▲ -->
+  </div>
+
+  </div><!-- /view-settings -->
 
 </div>
 </div><!-- /main-content -->
@@ -2190,9 +2446,18 @@ function srAnnounce(text) {
     });
 
     img.addEventListener('error', function () {
-      // アバター画像（Twitter CDN等）はクエリパラメータを嫌うため、リトライ処理から完全に除外
-      if (this.classList.contains('avatar')) {
-        this.style.opacity = '';
+      // アバター画像（Twitter CDN等）はクエリパラメータを嫌うため、
+      // ?retry= を付けたリトライは行わず、直接プレースホルダーに差し替える
+      if (this.classList.contains('avatar') || this.classList.contains('dev-avatar')) {
+        if (this.dataset.retried) {
+          this.style.opacity = '';
+          return;
+        }
+        this.dataset.retried = '1';
+        var aw = this.getAttribute('width') || '48';
+        var ah = this.getAttribute('height') || '48';
+        var aAlt = this.getAttribute('alt') || 'No Image';
+        this.src = 'https://placehold.co/' + aw + 'x' + ah + '/1c1c1e/3a8fff?text=' + encodeURIComponent(aAlt);
         return;
       }
 
@@ -2298,7 +2563,8 @@ function startReveal() {
   var ONBOARD_KEY = 'sidebarOnboardingDone';
   var isOpen = false;
   var isAnimating = false;
-  var isCoarse = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  var hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
+  var isCoarse = window.matchMedia('(hover: none) and (pointer: coarse)').matches || (hasTouch && window.innerWidth <= 768);
 
   // Desktop: reveal sidebar-arrow when mouse is near left edge.
   // #sidebar-edge is pointer-events:none so it no longer blocks page scrolling.
@@ -2353,21 +2619,334 @@ function startReveal() {
     try { localStorage.setItem(ONBOARD_KEY, '1'); } catch (e) {}
   }
 
+  var ONBOARD_LANGS = ['ja','en','es','fr','de','zh','ko','ru','pt','it'];
+  var ONBOARD_I18N = {
+    ja: {
+      kicker: 'Guide',
+      title: 'サイドバーの開き方',
+      skip: 'OK',
+      arrowLabel: 'サイドバーを開く',
+      desktop: {
+        text: '左端にカーソルを置くと矢印が現れます。',
+        steps: [
+          '画面<strong>左端</strong>にマウスを置く',
+          '{arrow} をクリックしてサイドバーを開く',
+          'ホームやリンク集などに移動できます'
+        ]
+      },
+      touch: {
+        text: '左端からサイドバーを呼び出せます。',
+        steps: [
+          '画面<strong>左端</strong>から右へスワイプ',
+          'サイドバーが開いたら、ホームやリンク集などに移動できます'
+        ]
+      },
+      mobileBtn: {
+        text: '左上のボタンからサイドバーを開けます。',
+        steps: [
+          '画面<strong>左上</strong>の丸いボタンをクリック',
+          'サイドバーが開いたら、ホームやリンク集などに移動できます'
+        ]
+      }
+    },
+    en: {
+      kicker: 'Guide',
+      title: 'How to open the sidebar',
+      skip: 'OK',
+      arrowLabel: 'Open sidebar',
+      desktop: {
+        text: 'Move your cursor to the left edge to reveal the arrow.',
+        steps: [
+          'Move the mouse to the <strong>left edge</strong> of the screen',
+          'Click {arrow} to open the sidebar',
+          'You can then go to Home, Links, and more'
+        ]
+      },
+      touch: {
+        text: 'You can open the sidebar from the left edge.',
+        steps: [
+          'Swipe right from the <strong>left edge</strong> of the screen',
+          'Once open, you can go to Home, Links, and more'
+        ]
+      },
+      mobileBtn: {
+        text: 'Open the sidebar with the button at the top left.',
+        steps: [
+          'Tap the round button at the <strong>top left</strong>',
+          'Once open, you can go to Home, Links, and more'
+        ]
+      }
+    },
+    es: {
+      kicker: 'Guía',
+      title: 'Cómo abrir la barra lateral',
+      skip: 'OK',
+      arrowLabel: 'Abrir barra lateral',
+      desktop: {
+        text: 'Coloca el cursor en el borde izquierdo para mostrar la flecha.',
+        steps: [
+          'Mueve el ratón al <strong>borde izquierdo</strong> de la pantalla',
+          'Haz clic en {arrow} para abrir la barra lateral',
+          'Luego puedes ir a Inicio, Enlaces y más'
+        ]
+      },
+      touch: {
+        text: 'Puedes abrir la barra lateral desde el borde izquierdo.',
+        steps: [
+          'Desliza hacia la derecha desde el <strong>borde izquierdo</strong>',
+          'Al abrirse, puedes ir a Inicio, Enlaces y más'
+        ]
+      },
+      mobileBtn: {
+        text: 'Abre la barra lateral con el botón de la esquina superior izquierda.',
+        steps: [
+          'Toca el botón redondo de la <strong>esquina superior izquierda</strong>',
+          'Al abrirse, puedes ir a Inicio, Enlaces y más'
+        ]
+      }
+    },
+    fr: {
+      kicker: 'Guide',
+      title: 'Comment ouvrir la barre latérale',
+      skip: 'OK',
+      arrowLabel: 'Ouvrir la barre latérale',
+      desktop: {
+        text: 'Placez le curseur sur le bord gauche pour afficher la flèche.',
+        steps: [
+          'Placez la souris sur le <strong>bord gauche</strong> de l’écran',
+          'Cliquez sur {arrow} pour ouvrir la barre latérale',
+          'Vous pourrez ensuite aller à Accueil, Liens, etc.'
+        ]
+      },
+      touch: {
+        text: 'Vous pouvez ouvrir la barre latérale depuis le bord gauche.',
+        steps: [
+          'Balayez vers la droite depuis le <strong>bord gauche</strong>',
+          'Une fois ouverte, allez à Accueil, Liens, etc.'
+        ]
+      },
+      mobileBtn: {
+        text: 'Ouvrez la barre latérale avec le bouton en haut à gauche.',
+        steps: [
+          'Appuyez sur le bouton rond en <strong>haut à gauche</strong>',
+          'Une fois ouverte, allez à Accueil, Liens, etc.'
+        ]
+      }
+    },
+    de: {
+      kicker: 'Anleitung',
+      title: 'So öffnest du die Seitenleiste',
+      skip: 'OK',
+      arrowLabel: 'Seitenleiste öffnen',
+      desktop: {
+        text: 'Bewege den Cursor an den linken Rand, um den Pfeil anzuzeigen.',
+        steps: [
+          'Bewege die Maus an den <strong>linken Rand</strong> des Bildschirms',
+          'Klicke auf {arrow}, um die Seitenleiste zu öffnen',
+          'Dann kannst du zu Start, Links und mehr wechseln'
+        ]
+      },
+      touch: {
+        text: 'Du kannst die Seitenleiste vom linken Rand aus öffnen.',
+        steps: [
+          'Wische vom <strong>linken Rand</strong> nach rechts',
+          'Nach dem Öffnen kannst du zu Start, Links und mehr wechseln'
+        ]
+      },
+      mobileBtn: {
+        text: 'Öffne die Seitenleiste mit dem Button oben links.',
+        steps: [
+          'Tippe auf den runden Button <strong>oben links</strong>',
+          'Nach dem Öffnen kannst du zu Start, Links und mehr wechseln'
+        ]
+      }
+    },
+    zh: {
+      kicker: '指南',
+      title: '如何打开侧边栏',
+      skip: '好的',
+      arrowLabel: '打开侧边栏',
+      desktop: {
+        text: '将光标移到左边缘即可显示箭头。',
+        steps: [
+          '将鼠标移到屏幕<strong>左边缘</strong>',
+          '点击 {arrow} 打开侧边栏',
+          '打开后可前往主页、链接等页面'
+        ]
+      },
+      touch: {
+        text: '可以从左边缘打开侧边栏。',
+        steps: [
+          '从屏幕<strong>左边缘</strong>向右滑动',
+          '打开后可前往主页、链接等页面'
+        ]
+      },
+      mobileBtn: {
+        text: '可通过左上角按钮打开侧边栏。',
+        steps: [
+          '点击<strong>左上角</strong>的圆形按钮',
+          '打开后可前往主页、链接等页面'
+        ]
+      }
+    },
+    ko: {
+      kicker: '가이드',
+      title: '사이드바 여는 방법',
+      skip: '확인',
+      arrowLabel: '사이드바 열기',
+      desktop: {
+        text: '왼쪽 가장자리에 커서를 올리면 화살표가 나타납니다.',
+        steps: [
+          '화면 <strong>왼쪽 가장자리</strong>에 마우스를 올리세요',
+          '{arrow} 을(를) 클릭해 사이드바를 여세요',
+          '열린 뒤 홈, 링크 등으로 이동할 수 있습니다'
+        ]
+      },
+      touch: {
+        text: '왼쪽 가장자리에서 사이드바를 열 수 있습니다.',
+        steps: [
+          '화면 <strong>왼쪽 가장자리</strong>에서 오른쪽으로 스와이프',
+          '열리면 홈, 링크 등으로 이동할 수 있습니다'
+        ]
+      },
+      mobileBtn: {
+        text: '왼쪽 위 버튼으로 사이드바를 열 수 있습니다.',
+        steps: [
+          '화면 <strong>왼쪽 위</strong>의 둥근 버튼을 탭하세요',
+          '열리면 홈, 링크 등으로 이동할 수 있습니다'
+        ]
+      }
+    },
+    ru: {
+      kicker: 'Подсказка',
+      title: 'Как открыть боковую панель',
+      skip: 'OK',
+      arrowLabel: 'Открыть боковую панель',
+      desktop: {
+        text: 'Наведите курсор на левый край, чтобы показать стрелку.',
+        steps: [
+          'Наведите мышь на <strong>левый край</strong> экрана',
+          'Нажмите {arrow}, чтобы открыть боковую панель',
+          'Затем можно перейти на Главную, Ссылки и другое'
+        ]
+      },
+      touch: {
+        text: 'Боковую панель можно открыть с левого края.',
+        steps: [
+          'Проведите вправо от <strong>левого края</strong> экрана',
+          'После открытия можно перейти на Главную, Ссылки и другое'
+        ]
+      },
+      mobileBtn: {
+        text: 'Откройте боковую панель кнопкой вверху слева.',
+        steps: [
+          'Нажмите круглую кнопку в <strong>верхнем левом</strong> углу',
+          'После открытия можно перейти на Главную, Ссылки и другое'
+        ]
+      }
+    },
+    pt: {
+      kicker: 'Guia',
+      title: 'Como abrir a barra lateral',
+      skip: 'OK',
+      arrowLabel: 'Abrir barra lateral',
+      desktop: {
+        text: 'Mova o cursor para a borda esquerda para revelar a seta.',
+        steps: [
+          'Mova o mouse para a <strong>borda esquerda</strong> da tela',
+          'Clique em {arrow} para abrir a barra lateral',
+          'Depois você pode ir para Início, Links e mais'
+        ]
+      },
+      touch: {
+        text: 'Você pode abrir a barra lateral pela borda esquerda.',
+        steps: [
+          'Deslize para a direita a partir da <strong>borda esquerda</strong>',
+          'Ao abrir, você pode ir para Início, Links e mais'
+        ]
+      },
+      mobileBtn: {
+        text: 'Abra a barra lateral com o botão no canto superior esquerdo.',
+        steps: [
+          'Toque no botão redondo no <strong>canto superior esquerdo</strong>',
+          'Ao abrir, você pode ir para Início, Links e mais'
+        ]
+      }
+    },
+    it: {
+      kicker: 'Guida',
+      title: 'Come aprire la barra laterale',
+      skip: 'OK',
+      arrowLabel: 'Apri barra laterale',
+      desktop: {
+        text: 'Sposta il cursore sul bordo sinistro per mostrare la freccia.',
+        steps: [
+          'Sposta il mouse sul <strong>bordo sinistro</strong> dello schermo',
+          'Clicca su {arrow} per aprire la barra laterale',
+          'Poi puoi andare a Home, Link e altro'
+        ]
+      },
+      touch: {
+        text: 'Puoi aprire la barra laterale dal bordo sinistro.',
+        steps: [
+          'Scorri a destra dal <strong>bordo sinistro</strong> dello schermo',
+          'Una volta aperta, puoi andare a Home, Link e altro'
+        ]
+      },
+      mobileBtn: {
+        text: 'Apri la barra laterale con il pulsante in alto a sinistra.',
+        steps: [
+          'Tocca il pulsante rotondo in <strong>alto a sinistra</strong>',
+          'Una volta aperta, puoi andare a Home, Link e altro'
+        ]
+      }
+    }
+  };
+
+  function getOnboardLang() {
+    try {
+      var saved = localStorage.getItem('lang');
+      if (saved && ONBOARD_LANGS.indexOf(saved) >= 0) return saved;
+    } catch (e) {}
+    var langs = navigator.languages || [];
+    if (!langs.length) {
+      langs = [navigator.language || navigator.userLanguage || 'ja'];
+    }
+    var lang = String(langs[0] || 'ja').toLowerCase().split('-')[0];
+    if (ONBOARD_LANGS.indexOf(lang) >= 0) return lang;
+    return 'en';
+  }
+
+  function onboardStepHtml(num, inner) {
+    return '<div class="sb-onboard-step"><span class="sb-onboard-step-num">' + num +
+      '</span><span>' + inner + '</span></div>';
+  }
+
   function renderOnboardingCopy() {
     if (!onboardText || !onboardSteps) return;
-    if (isCoarse) {
-      onboardText.textContent = '左端からサイドバーを呼び出せます。';
-      onboardSteps.innerHTML =
-        '<div class="sb-onboard-step"><span class="sb-onboard-step-num">1</span><span>画面<strong>左端</strong>から右へスワイプ</span></div>' +
-        '<div class="sb-onboard-step"><span class="sb-onboard-step-num">2</span><span>サイドバーが開いたら、ホームやリンク集などに移動できます</span></div>';
-      return;
+    var pack = ONBOARD_I18N[getOnboardLang()] || ONBOARD_I18N.en;
+    var arrowIcon = '<span class="material-symbols-outlined sb-onboard-step-arrow" aria-hidden="true" style="font-size:14px;">chevron_right</span>';
+    var mode;
+    if (isOnboardMobileLayout()) {
+      mode = isCoarse ? pack.touch : pack.mobileBtn;
+    } else {
+      mode = pack.desktop;
     }
-    onboardText.textContent = '左端にカーソルを置くと矢印が現れます。';
-    onboardSteps.innerHTML =
-      '<div class="sb-onboard-step"><span class="sb-onboard-step-num">1</span><span>画面<strong>左端</strong>にマウスを置く</span></div>' +
-      '<div class="sb-onboard-step"><span class="sb-onboard-step-num">2</span><span><span class="material-symbols-outlined sb-onboard-step-arrow" aria-hidden="true" style="font-size:14px;">chevron_right</span> をクリックしてサイドバーを開く</span></div>' +
-      '<div class="sb-onboard-step"><span class="sb-onboard-step-num">3</span><span>ホームやリンク集などに移動できます</span></div>';
+
+    var titleEl = document.getElementById('sb-onboard-title');
+    var kickerEl = onboarding && onboarding.querySelector('.sb-onboard-kicker');
+    if (titleEl) titleEl.textContent = pack.title;
+    if (kickerEl) kickerEl.textContent = pack.kicker;
+    if (onboardSkip) onboardSkip.textContent = pack.skip;
+    if (arrow) arrow.setAttribute('aria-label', pack.arrowLabel);
+
+    onboardText.textContent = mode.text;
+    onboardSteps.innerHTML = mode.steps.map(function (step, i) {
+      return onboardStepHtml(String(i + 1), String(step).replace('{arrow}', arrowIcon));
+    }).join('');
   }
+
+  window.renderOnboardingCopy = renderOnboardingCopy;
 
   function finishOnboardingCleanup(done) {
     onboardingExiting = false;
@@ -2625,7 +3204,8 @@ function startReveal() {
   var views = {
     home: document.getElementById('view-home'),
     links: document.getElementById('view-links'),
-    changelog: document.getElementById('view-changelog')
+    changelog: document.getElementById('view-changelog'),
+    settings: document.getElementById('view-settings')
   };
   var currentView = 'home';
 
@@ -2646,7 +3226,7 @@ function startReveal() {
     }
   }
 
-  var viewLabels = { home: 'ホーム', links: 'リンク集', changelog: '更新履歴' };
+  var viewLabels = { home: 'ホーム', links: 'リンク集', changelog: '更新履歴', settings: '設定' };
 
   function setView(name, animate) {
     if (!views[name] || name === currentView) return;
@@ -2685,6 +3265,7 @@ function startReveal() {
 
   resetRevealIn(views.links);
   resetRevealIn(views.changelog);
+  resetRevealIn(views.settings);
   navBtns.forEach(function (btn) {
     btn.classList.toggle('active', btn.getAttribute('data-view') === 'home');
   });
@@ -2732,8 +3313,8 @@ function startReveal() {
 
 // ── テーマ切替 ──
 (function () {
-  var toggle = document.getElementById('sidebar-theme-toggle');
-  var themeLabel = document.getElementById('sidebar-theme-label');
+  var toggles = Array.prototype.slice.call(document.querySelectorAll('#sidebar-theme-toggle, #settings-theme-toggle'));
+  var themeLabels = Array.prototype.slice.call(document.querySelectorAll('#sidebar-theme-label, #settings-theme-label'));
   var overlay = document.getElementById('theme-overlay');
   var bgImg = document.getElementById('bg-img');
   var busy = false;
@@ -2758,51 +3339,55 @@ function startReveal() {
     }
     applyBackgroundImage(theme);
     try { localStorage.setItem('theme', theme); } catch (e) {}
-    toggle.setAttribute('aria-label', theme === 'light' ? 'ダークモードに切替' : 'ライトモードに切替');
-    if (themeLabel) {
-      var label = theme === 'light' ? 'ライトモード' : 'ダークモード';
+    toggles.forEach(function (toggle) {
+      toggle.setAttribute('aria-label', theme === 'light' ? 'ダークモードに切替' : 'ライトモードに切替');
+    });
+    var label = theme === 'light' ? 'ライトモード' : 'ダークモード';
+    themeLabels.forEach(function (themeLabel) {
       themeLabel.textContent = label;
       if (typeof window.retranslateTextNode === 'function' && themeLabel.firstChild) {
         window.retranslateTextNode(themeLabel.firstChild, label);
       }
-    }
+    });
   }
 
   applyTheme(currentTheme());
 
-  toggle.addEventListener('click', function () {
-    if (busy) return;
-    busy = true;
-    var from = currentTheme();
-    var to = from === 'light' ? 'dark' : 'light';
+  toggles.forEach(function (toggle) {
+    toggle.addEventListener('click', function () {
+      if (busy) return;
+      busy = true;
+      var from = currentTheme();
+      var to = from === 'light' ? 'dark' : 'light';
 
-    overlay.className = 'animating active';
-    overlay.setAttribute('aria-hidden', 'false');
+      overlay.className = 'animating active';
+      overlay.setAttribute('aria-hidden', 'false');
 
-    if (from === 'light') {
-      overlay.classList.add('shift-light');
-    }
+      if (from === 'light') {
+        overlay.classList.add('shift-light');
+      }
 
-    requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        if (from === 'dark') {
-          overlay.classList.add('shift-light');
-        } else {
-          overlay.classList.remove('shift-light');
-          overlay.classList.add('shift-dark');
-        }
+        requestAnimationFrame(function () {
+          if (from === 'dark') {
+            overlay.classList.add('shift-light');
+          } else {
+            overlay.classList.remove('shift-light');
+            overlay.classList.add('shift-dark');
+          }
 
-        setTimeout(function () { applyTheme(to); }, 600);
+          setTimeout(function () { applyTheme(to); }, 600);
 
-        setTimeout(function () {
-          overlay.classList.add('release');
-        }, 950);
+          setTimeout(function () {
+            overlay.classList.add('release');
+          }, 950);
 
-        setTimeout(function () {
-          overlay.className = '';
-          overlay.setAttribute('aria-hidden', 'true');
-          busy = false;
-        }, 2500);
+          setTimeout(function () {
+            overlay.className = '';
+            overlay.setAttribute('aria-hidden', 'true');
+            busy = false;
+          }, 2500);
+        });
       });
     });
   });
@@ -3467,7 +4052,10 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); }
         if (parent.closest) {
           if (parent.closest('.material-symbols-outlined')) return NodeFilter.FILTER_REJECT;
           if (parent.closest('#sidebar-language-picker')) return NodeFilter.FILTER_REJECT;
+          if (parent.closest('#settings-language-picker')) return NodeFilter.FILTER_REJECT;
           if (parent.closest('.sidebar-version')) return NodeFilter.FILTER_REJECT;
+          // オンボーディング案内は専用 i18n で多言語化（機械翻訳の二重適用を避ける）
+          if (parent.closest('#sidebar-onboarding')) return NodeFilter.FILTER_REJECT;
         }
         return NodeFilter.FILTER_ACCEPT;
       }
@@ -3575,22 +4163,22 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); }
   }
 
   function setLanguageSelect(value) {
-    var select = document.getElementById('sidebar-language-select');
-    if (!select) return;
     if (supportedLanguages.indexOf(value) < 0) value = 'en';
-    select.value = value;
+    Array.prototype.forEach.call(document.querySelectorAll('#sidebar-language-select, #settings-language-select'), function (select) {
+      select.value = value;
+    });
     currentTranslationLang = value;
     if (typeof window.syncLanguagePickerUI === 'function') {
       window.syncLanguagePickerUI();
     }
   }
 
-  function initLanguagePicker() {
-    var select = document.getElementById('sidebar-language-select');
-    var trigger = document.getElementById('sidebar-language-trigger');
-    var current = document.getElementById('sidebar-language-current');
-    var menu = document.getElementById('sidebar-language-menu');
-    var picker = document.getElementById('sidebar-language-picker');
+  function initLanguagePicker(config) {
+    var select = document.getElementById(config.selectId);
+    var trigger = document.getElementById(config.triggerId);
+    var current = document.getElementById(config.currentId);
+    var menu = document.getElementById(config.menuId);
+    var picker = document.getElementById(config.pickerId);
     if (!select || !trigger || !menu || !picker) return;
 
     menu.innerHTML = '';
@@ -3646,8 +4234,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); }
       if (e.key === 'Escape') closeMenu();
     });
 
-    window.syncLanguagePickerUI = syncUI;
     syncUI();
+    return syncUI;
   }
 
   window.retranslateTextNode = function (node, text) {
@@ -3668,23 +4256,59 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); }
     var preferred = getPreferredLanguage();
     var target = supportedLanguages.indexOf(preferred) >= 0 ? preferred : 'en';
     setLanguageSelect(target);
+    // 言語確定後にオンボーディング文言も同期（初回表示前でも aria-label 等を揃える）
+    if (typeof window.renderOnboardingCopy === 'function') {
+      window.renderOnboardingCopy();
+    }
     if (shouldTranslate(target)) {
       translatePage(target);
     }
 
-    var select = document.getElementById('sidebar-language-select');
-    if (select) {
-      select.addEventListener('change', function () {
-        var selected = select.value;
-        currentTranslationLang = selected;
-        try { localStorage.setItem('lang', selected); } catch (e) {}
-        if (typeof window.syncLanguagePickerUI === 'function') {
-          window.syncLanguagePickerUI();
-        }
-        translatePage(selected);
-      });
+    var sidebarSelect = document.getElementById('sidebar-language-select');
+    var settingsSelect = document.getElementById('settings-language-select');
+    var syncFns = [
+      initLanguagePicker({
+        selectId: 'sidebar-language-select',
+        triggerId: 'sidebar-language-trigger',
+        currentId: 'sidebar-language-current',
+        menuId: 'sidebar-language-menu',
+        pickerId: 'sidebar-language-picker'
+      }),
+      initLanguagePicker({
+        selectId: 'settings-language-select',
+        triggerId: 'settings-language-trigger',
+        currentId: 'settings-language-current',
+        menuId: 'settings-language-menu',
+        pickerId: 'settings-language-picker'
+      })
+    ].filter(Boolean);
+    window.syncLanguagePickerUI = function () {
+      syncFns.forEach(function (fn) { fn(); });
+    };
+
+    function handleLanguageChange(e) {
+      var selected = e.target.value;
+      currentTranslationLang = selected;
+      try { localStorage.setItem('lang', selected); } catch (e) {}
+      setLanguageSelect(selected);
+      if (typeof window.renderOnboardingCopy === 'function') {
+        window.renderOnboardingCopy();
+      }
+      translatePage(selected);
     }
-    initLanguagePicker();
+
+    if (sidebarSelect) {
+      sidebarSelect.addEventListener('change', handleLanguageChange);
+    }
+    if (settingsSelect) {
+      settingsSelect.addEventListener('change', handleLanguageChange);
+    }
+    if (!sidebarSelect && !settingsSelect) {
+      return;
+    }
+    if (typeof window.syncLanguagePickerUI === 'function') {
+      window.syncLanguagePickerUI();
+    }
   }
 
   // run after reveal
