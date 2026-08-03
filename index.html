@@ -41,7 +41,7 @@
     :root {
       --bg-scrim: rgba(0,0,0,0.52);
       --text-strong: #fff;
-      --text-muted: rgba(255,255,255,0.4);
+      --text-muted: rgba(255,255,255,0.62);
 
       --text-faint: rgba(255,255,255,0.18);
       --text-base: #f0f0f0;
@@ -65,9 +65,9 @@
       --tag-border: rgba(255,255,255,0.10);
       --tag-text: rgba(255,255,255,0.7);
       --device-grid-bg: rgba(255,255,255,0.05);
-      --device-name: rgba(255,255,255,0.45);
+      --device-name: rgba(255,255,255,0.65);
       --link-icon-bg: rgba(255,255,255,0.08);
-      --link-handle: rgba(255,255,255,0.35);
+      --link-handle: rgba(255,255,255,0.58);
       --link-chevron: rgba(255,255,255,0.25);
       --panel-dot: rgba(255,255,255,0.18);
       --panel-title: rgba(255,255,255,0.35);
@@ -88,7 +88,7 @@
       --bg-scrim: rgba(255,255,255,0.52);
       --text-base: #2a2a2c;
       --text-strong: #111;
-      --text-muted: rgba(0,0,0,0.45);
+      --text-muted: rgba(0,0,0,0.62);
 
       --text-faint: rgba(0,0,0,0.22);
       --panel-bg: rgba(255,255,255,0.36);
@@ -110,9 +110,9 @@
       --tag-border: rgba(0,0,0,0.08);
       --tag-text: rgba(0,0,0,0.62);
       --device-grid-bg: rgba(0,0,0,0.04);
-      --device-name: rgba(0,0,0,0.42);
+      --device-name: rgba(0,0,0,0.62);
       --link-icon-bg: rgba(0,0,0,0.05);
-      --link-handle: rgba(0,0,0,0.38);
+      --link-handle: rgba(0,0,0,0.6);
       --link-chevron: rgba(0,0,0,0.22);
       --panel-dot: rgba(0,0,0,0.14);
       --panel-title: rgba(0,0,0,0.32);
@@ -136,6 +136,31 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    .skip-link {
+      position: fixed;
+      top: -60px;
+      left: 12px;
+      z-index: 100000;
+      background: #1c1c1e;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 400;
+      text-decoration: none;
+      border: 2px solid var(--accent);
+      transition: top 0.2s ease;
+    }
+    .skip-link:focus {
+      top: 12px;
+      outline: none;
+    }
+    .lb-trigger-focusable:focus-visible,
+    .device-cell:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
     .material-symbols-outlined {
       font-family: 'Material Symbols Outlined';
       font-weight: normal;
@@ -492,6 +517,7 @@
       background: var(--panel-bg);
       padding: 14px 12px; text-align: center;
       transition: background 0.18s;
+      cursor: pointer;
     }
     .device-cell:hover { background: rgba(58,143,255,0.08); }
     .device-img {
@@ -1577,9 +1603,10 @@
       z-index: 10050;
       display: flex; align-items: center; justify-content: center;
       pointer-events: none; opacity: 0;
+      visibility: hidden;
     }
     #lightbox.open,
-    #lightbox.closing { pointer-events: all; }
+    #lightbox.closing { pointer-events: all; visibility: visible; }
     #lb-scrim {
       position: absolute; inset: 0;
       background: rgba(0,0,0,0);
@@ -1933,6 +1960,8 @@
 </head>
 <body class="loading">
 
+<a href="#main-content" class="skip-link">メインコンテンツへスキップ</a>
+
 <div id="sr-announcer" aria-live="polite" aria-atomic="true"
   style="position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;"></div>
 
@@ -1987,7 +2016,7 @@
     <span class="material-symbols-outlined sidebar-arrow-icon" aria-hidden="true">chevron_right</span>
   </button>
 </div>
-<nav id="sidebar" aria-label="サイトメニュー">
+<nav id="sidebar" aria-label="サイトメニュー" inert>
   <div class="sidebar-section">
     <p class="sidebar-section-title"><span class="material-symbols-outlined nav-menu-icon" aria-hidden="true">menu</span>Navigation</p>
     <div class="sidebar-nav" id="sidebar-nav">
@@ -1995,6 +2024,7 @@
       <button class="sidebar-nav-btn" type="button" data-view="home">ホーム</button>
       <button class="sidebar-nav-btn" type="button" data-view="links">リンク集</button>
       <button class="sidebar-nav-btn" type="button" data-view="changelog">更新履歴</button>
+      <button class="sidebar-nav-btn" type="button" data-view="developer">開発者情報</button>
       <button class="sidebar-nav-btn" type="button" data-view="settings">設定</button>
     </div>
   </div>
@@ -2033,7 +2063,7 @@
       </div>
     </div>
   </div>
-  <p class="sidebar-version" id="sidebar-version">Ver4.2.1 build260803<br><span id="sidebar-useragent"></span></p>
+  <p class="sidebar-version" id="sidebar-version">Ver4.2.2 build260803<br><span id="sidebar-useragent"></span></p>
 </nav>
 
 <div id="sidebar-onboarding" hidden aria-hidden="true">
@@ -2072,7 +2102,7 @@
   </button>
 </div>
 
-<div id="main-content">
+<main id="main-content" tabindex="-1">
 <div class="container">
 
   <!-- ホーム -->
@@ -2316,6 +2346,25 @@
     <!-- ▲ 更新履歴ここまで ▲ -->
   </div>
 
+  </div><!-- /view-changelog -->
+
+  <!-- 開発者情報 -->
+  <div id="view-developer" class="page-view">
+
+  <div class="hero reveal">
+    <img class="avatar"
+      src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/image.png?raw=true"
+      alt="アイコン"
+      width="52" height="52"
+      decoding="async"
+      loading="lazy"
+      referrerpolicy="no-referrer">
+    <div class="hero-text">
+      <h1>心優しい人たち</h1>
+      <p class="hero-sub">Developer</p>
+    </div>
+  </div>
+
   <div class="panel reveal">
     <div class="panel-header">
       <div class="panel-dot"></div>
@@ -2357,7 +2406,34 @@
     <!-- ▲ デベロッパここまで ▲ -->
   </div>
 
-  </div><!-- /view-changelog -->
+  <!-- ▼ このパネルは公開URLが https://bt-ch.jp/Tikuwa/ の場合のみ表示（JSで判定） ▼ -->
+  <div class="panel reveal" id="panel-server-domain" hidden>
+    <div class="panel-header">
+      <div class="panel-dot"></div>
+      <span class="panel-title">Server / Domain</span>
+    </div>
+    <div class="row">
+      <span class="row-label">提供</span>
+      <span class="row-value">公開スペース提供</span>
+    </div>
+    <div class="row">
+      <span class="row-label">提供者</span>
+      <span class="row-value"><a href="https://x.com/TV05095416" target="_blank" rel="noopener">@TV05095416</a></span>
+    </div>
+    <div class="row">
+      <span class="row-label">メインサイト</span>
+      <span class="row-value"><a href="https://bt-ch.jp/" target="_blank" rel="noopener">https://bt-ch.jp/</a></span>
+    </div>
+    <div class="row">
+      <span class="row-label">公開URL</span>
+      <span class="row-value"><a href="https://bt-ch.jp/Tikuwa/" target="_blank" rel="noopener">https://bt-ch.jp/Tikuwa/</a></span>
+    </div>
+    <div class="row">
+      <span class="row-value" style="color: var(--text-muted); font-size: 13px; line-height: 1.6;">このサイトは <a href="https://x.com/TV05095416" target="_blank" rel="noopener">@TV05095416</a> 様のご厚意により、<a href="https://bt-ch.jp/Tikuwa/" target="_blank" rel="noopener">https://bt-ch.jp/Tikuwa/</a> で公開されています。</span>
+    </div>
+  </div>
+
+  </div><!-- /view-developer -->
 
   <!-- 設定 -->
   <div id="view-settings" class="page-view">
@@ -2435,9 +2511,26 @@
   </div><!-- /view-settings -->
 
 </div>
-</div><!-- /main-content -->
+</main><!-- /main-content -->
 
 <script>
+// ── 公開URLが https://bt-ch.jp/Tikuwa/ のときだけ Server / Domain パネルを表示 ──
+// （それ以外のドメインで確認したいときは、コンソールで btch() と打つと手動で表示できる）
+(function () {
+  var panel = document.getElementById('panel-server-domain');
+  if (!panel) return;
+
+  var host = window.location.hostname;
+  var path = window.location.pathname;
+  var isBtCh = host === 'bt-ch.jp' && path.replace(/^\//, '').indexOf('Tikuwa') === 0;
+  if (isBtCh) panel.hidden = false;
+
+  window.btch = function () {
+    panel.hidden = false;
+    console.log('%cServer / Domain パネルを表示しました', 'color:#3a8fff;font-weight:bold;font-size:13px;');
+  };
+})();
+
 // ── スクリーンリーダー向け通知 ──
 function srAnnounce(text) {
   var el = document.getElementById('sr-announcer');
@@ -3068,6 +3161,11 @@ function startReveal() {
     waitForReady();
   }
 
+  function focusFirstSidebarItem() {
+    var first = sidebar.querySelector('.sidebar-nav-btn, button, [href], select');
+    if (first) first.focus();
+  }
+
   function openSidebar() {
     if (isOpen || isAnimating || onboardingExiting) return;
     if (onboardingActive) endOnboarding(true);
@@ -3077,12 +3175,14 @@ function startReveal() {
     document.body.classList.add('sidebar-open', 'sidebar-opening');
     sidebar.classList.remove('open', 'closing');
     scrim.setAttribute('aria-hidden', 'false');
+    sidebar.inert = false;
 
     if (reduceMotion) {
       sidebar.classList.add('open');
       document.body.classList.remove('sidebar-opening');
       isOpen = true;
       isAnimating = false;
+      focusFirstSidebarItem();
       return;
     }
 
@@ -3095,6 +3195,7 @@ function startReveal() {
       document.body.classList.remove('sidebar-opening');
       isOpen = true;
       isAnimating = false;
+      focusFirstSidebarItem();
     });
   }
 
@@ -3104,6 +3205,8 @@ function startReveal() {
     setEdgeArrow(false);
     document.body.classList.add('sidebar-closing');
     sidebar.classList.remove('open', 'opening');
+    if (sidebar.contains(document.activeElement)) arrow.focus();
+    sidebar.inert = true;
 
     if (reduceMotion) {
       sidebar.classList.remove('closing');
@@ -3213,6 +3316,7 @@ function startReveal() {
     home: document.getElementById('view-home'),
     links: document.getElementById('view-links'),
     changelog: document.getElementById('view-changelog'),
+    developer: document.getElementById('view-developer'),
     settings: document.getElementById('view-settings')
   };
   var currentView = 'home';
@@ -3234,7 +3338,7 @@ function startReveal() {
     }
   }
 
-  var viewLabels = { home: 'ホーム', links: 'リンク集', changelog: '更新履歴', settings: '設定' };
+  var viewLabels = { home: 'ホーム', links: 'リンク集', changelog: '更新履歴', developer: '開発者情報', settings: '設定' };
 
   function setView(name, animate) {
     if (!views[name] || name === currentView) return;
@@ -3273,6 +3377,7 @@ function startReveal() {
 
   resetRevealIn(views.links);
   resetRevealIn(views.changelog);
+  resetRevealIn(views.developer);
   resetRevealIn(views.settings);
   navBtns.forEach(function (btn) {
     btn.classList.toggle('active', btn.getAttribute('data-view') === 'home');
@@ -3836,10 +3941,33 @@ document.querySelectorAll('.device-img, .lb-trigger').forEach(function (img) {
     openLB(img, img.src, img.alt);
   });
 });
+// キーボードでも画像を拡大表示できるようにする
 document.querySelectorAll('.device-cell').forEach(function (cell) {
+  var img = cell.querySelector('.device-img');
   cell.addEventListener('click', function () {
-    var img = cell.querySelector('.device-img');
     if (img) openLB(img, img.src, img.alt);
+  });
+  cell.setAttribute('role', 'button');
+  cell.tabIndex = 0;
+  if (img) cell.setAttribute('aria-label', (img.alt || '画像') + 'を拡大表示');
+  cell.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+      e.preventDefault();
+      if (img) openLB(img, img.src, img.alt);
+    }
+  });
+});
+document.querySelectorAll('.lb-trigger').forEach(function (img) {
+  if (img.closest('.device-cell')) return;
+  img.tabIndex = 0;
+  img.setAttribute('role', 'button');
+  img.classList.add('lb-trigger-focusable');
+  img.setAttribute('aria-label', (img.alt || '画像') + 'を拡大表示');
+  img.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+      e.preventDefault();
+      openLB(img, img.src, img.alt);
+    }
   });
 });
 lbClose.addEventListener('click', closeLB);
@@ -4176,6 +4304,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); }
       select.value = value;
     });
     currentTranslationLang = value;
+    // 表示言語が変わったらhtmlのlang属性も合わせる（スクリーンリーダーが正しい言語で読み上げるため）
+    document.documentElement.lang = value;
     if (typeof window.syncLanguagePickerUI === 'function') {
       window.syncLanguagePickerUI();
     }
@@ -4328,4 +4458,3 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); }
 </script>
 </body>
 </html>
-
