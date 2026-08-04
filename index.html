@@ -12,9 +12,64 @@
       document.documentElement.classList.add('theme-static');
     })();
   </script>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%233a8fff'/%3E%3C/svg%3E" type="image/svg+xml">
-  <link rel="icon" type="image/png" sizes="32x32" href="32.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="https://pbs.twimg.com/profile_images/2062297964425650176/3nn1RyIm_400x400.jpg">
+  <script>
+    (function () {
+      try {
+        var ua = navigator.userAgent || '';
+
+        function extract(re) {
+          var m = ua.match(re);
+          return m ? parseFloat(m[1]) : null;
+        }
+
+        function isSupported() {
+          var isIOS = /iPhone|iPad|iPod/i.test(ua);
+          var isMac = /Macintosh/i.test(ua);
+
+          if (/DuckDuckGo/i.test(ua)) {
+            if (isIOS || isMac) {
+              var wv = extract(/Version\/([\d.]+)/);
+              return wv !== null && wv >= 16.4;
+            }
+            var cv1 = extract(/Chrome\/([\d.]+)/);
+            return cv1 !== null && cv1 >= 115;
+          }
+
+          var edgeV = extract(/Edg\/([\d.]+)/);
+          if (edgeV !== null) return edgeV >= 115;
+
+          var operaV = extract(/OPR\/([\d.]+)/);
+          if (operaV !== null) return operaV >= 101;
+
+          var vivaldiV = extract(/Vivaldi\/([\d.]+)/);
+          if (vivaldiV !== null) return vivaldiV >= 6.2;
+
+          var ffV = extract(/Firefox\/([\d.]+)/);
+          if (ffV !== null) return ffV >= 128;
+
+          var chromeV = extract(/Chrome\/([\d.]+)/);
+          if (chromeV !== null) return chromeV >= 115;
+
+          if (/Safari\//.test(ua) && !/Chrome\//.test(ua)) {
+            var safariV = extract(/Version\/([\d.]+)/);
+            return safariV !== null && safariV >= 16.4;
+          }
+
+          // 未知のブラウザ / IE 等は非対応として扱う
+          return false;
+        }
+
+        if (!isSupported()) {
+          window.location.replace('https://x.com/_Tikuwa1');
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="icon" type="image/png" sizes="32x32" href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/32.png?raw=true">
+  <link rel="icon" type="image/png" sizes="48x48" href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/48.png?raw=true">
+  <link rel="icon" type="image/png" sizes="64x64" href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/64.png?raw=true">
+  <link rel="icon" type="image/png" sizes="192x192" href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/192.png?raw=true">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/180.png?raw=true">
   <link rel="preconnect" href="https://pbs.twimg.com" crossorigin>
   <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
   <link rel="dns-prefetch" href="https://lh3.googleusercontent.com">
@@ -863,6 +918,7 @@
       left: 0;
       width: calc(260px + var(--sidebar-overflow));
       height: 100vh;
+      height: 100dvh;
       z-index: 10000;
       background: var(--panel-bg);
       backdrop-filter: blur(40px) saturate(var(--panel-saturate));
@@ -876,6 +932,41 @@
       visibility: hidden;
       pointer-events: none;
       box-shadow: 8px 0 32px rgba(0, 0, 0, 0.18);
+    }
+    .sidebar-nav-section {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-nav-section .sidebar-section-title {
+      flex: 0 0 auto;
+    }
+    .sidebar-scroll {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: var(--panel-border) transparent;
+      margin: -4px -8px;
+      padding: 4px 8px;
+      --fade-top: 0px;
+      --fade-bottom: 0px;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+      mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+      transition: -webkit-mask-image 0.22s ease, mask-image 0.22s ease;
+    }
+    .sidebar-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+    .sidebar-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .sidebar-scroll::-webkit-scrollbar-thumb {
+      background: var(--panel-border);
+      border-radius: 3px;
     }
     #sidebar.opening,
     #sidebar.open,
@@ -2017,15 +2108,17 @@
   </button>
 </div>
 <nav id="sidebar" aria-label="サイトメニュー" inert>
-  <div class="sidebar-section">
+  <div class="sidebar-section sidebar-nav-section">
     <p class="sidebar-section-title"><span class="material-symbols-outlined nav-menu-icon" aria-hidden="true">menu</span>Navigation</p>
-    <div class="sidebar-nav" id="sidebar-nav">
-      <span class="sidebar-nav-indicator" id="sidebar-nav-indicator" aria-hidden="true"></span>
-      <button class="sidebar-nav-btn" type="button" data-view="home">ホーム</button>
-      <button class="sidebar-nav-btn" type="button" data-view="links">リンク集</button>
-      <button class="sidebar-nav-btn" type="button" data-view="changelog">更新履歴</button>
-      <button class="sidebar-nav-btn" type="button" data-view="developer">開発者情報</button>
-      <button class="sidebar-nav-btn" type="button" data-view="settings">設定</button>
+    <div class="sidebar-scroll" id="sidebar-scroll">
+      <div class="sidebar-nav" id="sidebar-nav">
+        <span class="sidebar-nav-indicator" id="sidebar-nav-indicator" aria-hidden="true"></span>
+        <button class="sidebar-nav-btn" type="button" data-view="home">ホーム</button>
+        <button class="sidebar-nav-btn" type="button" data-view="links">リンク集</button>
+        <button class="sidebar-nav-btn" type="button" data-view="changelog">更新履歴</button>
+        <button class="sidebar-nav-btn" type="button" data-view="developer">開発者情報</button>
+        <button class="sidebar-nav-btn" type="button" data-view="settings">設定</button>
+      </div>
     </div>
   </div>
   <div class="sidebar-section sidebar-theme-section">
@@ -2063,7 +2156,7 @@
       </div>
     </div>
   </div>
-  <p class="sidebar-version" id="sidebar-version">Ver4.2.2 build260803<br><span id="sidebar-useragent"></span></p>
+  <p class="sidebar-version" id="sidebar-version">Ver4.3 build260803<br><span id="sidebar-useragent"></span></p>
 </nav>
 
 <div id="sidebar-onboarding" hidden aria-hidden="true">
@@ -2406,30 +2499,61 @@
     <!-- ▲ デベロッパここまで ▲ -->
   </div>
 
-  <!-- ▼ このパネルは公開URLが https://bt-ch.jp/Tikuwa/ の場合のみ表示（JSで判定） ▼ -->
-  <div class="panel reveal" id="panel-server-domain" hidden>
+  <!-- ▼ このパネルは公開ドメインが Tikuwa.me の場合のみ表示（JSで判定） ▼ -->
+  <div class="panel reveal" id="panel-domain-thanks" hidden>
     <div class="panel-header">
       <div class="panel-dot"></div>
-      <span class="panel-title">Server / Domain</span>
+      <span class="panel-title">Domain</span>
     </div>
     <div class="row">
-      <span class="row-label">提供</span>
-      <span class="row-value">公開スペース提供</span>
+      <span class="row-value" style="color: var(--text-muted); font-size: 13px; line-height: 1.6;">このサイトのドメイン取得および管理にご協力いただいている <a href="https://x.com/TV05095416" target="_blank" rel="noopener">@TV05095416</a> 様に、心より感謝申し上げます。<br>ドメインの取得・維持管理など、サイト運営に欠かせない環境を支えていただいているおかげで、安心してサイトを公開・運営することができています。<br>この場をお借りして、深く御礼申し上げます。</span>
+    </div>
+  </div>
+
+  <div class="panel reveal">
+    <div class="panel-header">
+      <div class="panel-dot"></div>
+      <span class="panel-title">対応ブラウザ</span>
     </div>
     <div class="row">
-      <span class="row-label">提供者</span>
-      <span class="row-value"><a href="https://x.com/TV05095416" target="_blank" rel="noopener">@TV05095416</a></span>
+      <span class="row-label">Google Chrome</span>
+      <span class="row-value">115以上</span>
     </div>
     <div class="row">
-      <span class="row-label">メインサイト</span>
-      <span class="row-value"><a href="https://bt-ch.jp/" target="_blank" rel="noopener">https://bt-ch.jp/</a></span>
+      <span class="row-label">Safari</span>
+      <span class="row-value">16.4以上</span>
     </div>
     <div class="row">
-      <span class="row-label">公開URL</span>
-      <span class="row-value"><a href="https://bt-ch.jp/Tikuwa/" target="_blank" rel="noopener">https://bt-ch.jp/Tikuwa/</a></span>
+      <span class="row-label">Mozilla Firefox</span>
+      <span class="row-value">128以上</span>
     </div>
     <div class="row">
-      <span class="row-value" style="color: var(--text-muted); font-size: 13px; line-height: 1.6;">このサイトは <a href="https://x.com/TV05095416" target="_blank" rel="noopener">@TV05095416</a> 様のご厚意により、<a href="https://bt-ch.jp/Tikuwa/" target="_blank" rel="noopener">https://bt-ch.jp/Tikuwa/</a> で公開されています。</span>
+      <span class="row-label">Microsoft Edge</span>
+      <span class="row-value">115以上</span>
+    </div>
+    <div class="row">
+      <span class="row-label">Opera</span>
+      <span class="row-value">101以上</span>
+    </div>
+    <div class="row">
+      <span class="row-label">Vivaldi</span>
+      <span class="row-value">6.2以上</span>
+    </div>
+    <div class="row">
+      <span class="row-label">DuckDuckGo (Windows)</span>
+      <span class="row-value">WebView2（115以上）</span>
+    </div>
+    <div class="row">
+      <span class="row-label">DuckDuckGo (Mac / iOS)</span>
+      <span class="row-value">WebKit（16.4以上）</span>
+    </div>
+    <div class="row">
+      <span class="row-label">DuckDuckGo (Android)</span>
+      <span class="row-value">Android System WebView（115以上）</span>
+    </div>
+    <div class="row">
+      <span class="row-label">Internet Explorer</span>
+      <span class="row-value">非対応</span>
     </div>
   </div>
 
@@ -2514,20 +2638,19 @@
 </main><!-- /main-content -->
 
 <script>
-// ── 公開URLが https://bt-ch.jp/Tikuwa/ のときだけ Server / Domain パネルを表示 ──
-// （それ以外のドメインで確認したいときは、コンソールで btch() と打つと手動で表示できる）
+// ── 公開ドメインが Tikuwa.me のときだけ Domain 感謝パネルを表示 ──
+// （それ以外のドメインで確認したいときは、コンソールで tikuwame() と打つと手動で表示できる）
 (function () {
-  var panel = document.getElementById('panel-server-domain');
+  var panel = document.getElementById('panel-domain-thanks');
   if (!panel) return;
 
-  var host = window.location.hostname;
-  var path = window.location.pathname;
-  var isBtCh = host === 'bt-ch.jp' && path.replace(/^\//, '').indexOf('Tikuwa') === 0;
-  if (isBtCh) panel.hidden = false;
+  var host = window.location.hostname.toLowerCase();
+  var isTikuwaMe = host === 'tikuwa.me' || host === 'www.tikuwa.me';
+  if (isTikuwaMe) panel.hidden = false;
 
-  window.btch = function () {
+  window.tikuwame = function () {
     panel.hidden = false;
-    console.log('%cServer / Domain パネルを表示しました', 'color:#3a8fff;font-weight:bold;font-size:13px;');
+    console.log('%cDomain パネルを表示しました', 'color:#3a8fff;font-weight:bold;font-size:13px;');
   };
 })();
 
@@ -3305,6 +3428,33 @@ function startReveal() {
     }
   }, { passive: true });
 
+})();
+
+// ── サイドバーNavigationリスト：スクロールで隠れる項目を上下フェード ──
+(function () {
+  var scrollEl = document.getElementById('sidebar-scroll');
+  if (!scrollEl) return;
+  var FADE_SIZE = 28; // px
+
+  function updateFade() {
+    var atTop = scrollEl.scrollTop <= 1;
+    var atBottom = scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 1;
+    var canScroll = scrollEl.scrollHeight > scrollEl.clientHeight + 1;
+    scrollEl.style.setProperty('--fade-top', (canScroll && !atTop) ? FADE_SIZE + 'px' : '0px');
+    scrollEl.style.setProperty('--fade-bottom', (canScroll && !atBottom) ? FADE_SIZE + 'px' : '0px');
+  }
+
+  scrollEl.addEventListener('scroll', updateFade, { passive: true });
+  window.addEventListener('resize', updateFade, { passive: true });
+
+  if (typeof ResizeObserver === 'function') {
+    new ResizeObserver(updateFade).observe(scrollEl);
+  }
+
+  updateFade();
+  // サイドバーが開かれた直後にも高さが確定するので再計算
+  window.addEventListener('load', updateFade);
+  setTimeout(updateFade, 300);
 })();
 
 // ── ビュー切替 ──
