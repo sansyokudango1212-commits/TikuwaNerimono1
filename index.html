@@ -29,34 +29,38 @@
           if (/DuckDuckGo/i.test(ua)) {
             if (isIOS || isMac) {
               var wv = extract(/Version\/([\d.]+)/);
-              return wv !== null && wv >= 16.4;
+              // バージョン番号が取れない（アプリ内WebView等で情報が
+              // 省略されている）場合は誤ブロックを避けて対応扱いにする
+              return wv === null || wv >= 15;
             }
             var cv1 = extract(/Chrome\/([\d.]+)/);
-            return cv1 !== null && cv1 >= 115;
+            return cv1 === null || cv1 >= 90;
           }
 
           var edgeV = extract(/Edg\/([\d.]+)/);
-          if (edgeV !== null) return edgeV >= 115;
+          if (edgeV !== null) return edgeV >= 90;
 
           var operaV = extract(/OPR\/([\d.]+)/);
-          if (operaV !== null) return operaV >= 101;
+          if (operaV !== null) return operaV >= 76;
 
           var vivaldiV = extract(/Vivaldi\/([\d.]+)/);
-          if (vivaldiV !== null) return vivaldiV >= 6.2;
+          if (vivaldiV !== null) return vivaldiV >= 5.0;
 
           var ffV = extract(/Firefox\/([\d.]+)/);
-          if (ffV !== null) return ffV >= 128;
+          if (ffV !== null) return ffV >= 100;
 
           var chromeV = extract(/Chrome\/([\d.]+)/);
-          if (chromeV !== null) return chromeV >= 115;
+          if (chromeV !== null) return chromeV >= 90;
 
           if (/Safari\//.test(ua) && !/Chrome\//.test(ua)) {
             var safariV = extract(/Version\/([\d.]+)/);
-            return safariV !== null && safariV >= 16.4;
+            // バージョン番号が取れない場合（アプリ内WebViewなど）も
+            // 誤ブロックを避けて対応扱いにする
+            return safariV === null || safariV >= 15;
           }
 
-          // 未知のブラウザ / IE 等は非対応として扱う
-          return false;
+          // 未知のブラウザも誤ブロックを避けて対応扱いにする
+          return true;
         }
 
         // ここではリダイレクトはせず、判定結果だけをグローバルに保存する。
@@ -418,55 +422,6 @@
       }
     }
 
-    /* ── 非対応ブラウザ警告オーバーレイ ── */
-    #browser-unsupported-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 20000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      /* backdrop-filter は非対応ブラウザで機能しない可能性があるため、
-         ぼかしに頼らず完全に不透明なグレーで背後を隠す */
-      background: #1e1e20;
-    }
-    #browser-unsupported-overlay.active {
-      display: flex;
-    }
-    #browser-unsupported-box {
-      width: 100%;
-      max-width: 460px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      text-align: left;
-      /* ぼかしに頼らず単色のグレーで表示（非対応ブラウザでも見た目が崩れない） */
-      background: #3a3a3c;
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      border-radius: 20px;
-      padding: 28px 28px;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-    }
-    #browser-unsupported-box .material-icons-round {
-      font-size: 38px;
-      color: #ff3b30;
-      display: block;
-      margin-bottom: 14px;
-      line-height: 1;
-    }
-    #browser-unsupported-box h2 {
-      font-size: 17px;
-      font-weight: 400;
-      color: #fff;
-      white-space: nowrap;
-      margin-bottom: 8px;
-    }
-    #browser-unsupported-box p {
-      font-size: 13px;
-      line-height: 1.7;
-      color: rgba(255, 255, 255, 0.62);
-    }
 
     #scroll-hint {
       position: fixed;
@@ -2106,20 +2061,15 @@
 </head>
 <body class="loading">
 
-<div id="browser-unsupported-overlay" role="alertdialog" aria-modal="true" aria-labelledby="browser-unsupported-title" aria-hidden="true">
-  <div id="browser-unsupported-box">
-    <span class="material-icons-round" aria-hidden="true">warning</span>
-    <h2 id="browser-unsupported-title">対応ブラウザ以外のブラウザを使用しています</h2>
-    <p>ブラウザを更新するか、別のデバイスを使用してください。</p>
-  </div>
-</div>
-
 <script>
+  // カスタムHTML/CSSのモーダルはブラウザの描画バグの影響を受けうるため、
+  // ページのCSSやレイアウトに一切依存しないブラウザ標準の alert() を使う。
   window.browsernotsupported = function () {
-    var overlay = document.getElementById('browser-unsupported-overlay');
-    if (!overlay) return;
-    overlay.classList.add('active');
-    overlay.setAttribute('aria-hidden', 'false');
+    window.alert('対応ブラウザ以外のブラウザを使用しています。\nブラウザを更新するか、別のデバイスを使用してください。');
+    // window.close() はスクリプト自身が開いたタブでないと無視される
+    // ブラウザが多く、閉じない可能性が高い。閉じられなかった場合は
+    // 何も起きないだけで実害はない。
+    window.close();
   };
   document.addEventListener('DOMContentLoaded', function () {
     if (window.__browserSupported === false) {
@@ -2192,7 +2142,7 @@
         <span class="sidebar-nav-indicator" id="sidebar-nav-indicator" aria-hidden="true"></span>
         <button class="sidebar-nav-btn" type="button" data-view="home">ホーム</button>
         <button class="sidebar-nav-btn" type="button" data-view="links">リンク集</button>
-        <button class="sidebar-nav-btn" type="button" data-view="changelog">更新履歴</button>
+        <button class="sidebar-nav-btn" type="button" data-view="changelog">リリースノート</button>
         <button class="sidebar-nav-btn" type="button" data-view="developer">開発者情報</button>
         <button class="sidebar-nav-btn" type="button" data-view="settings">設定</button>
       </div>
@@ -2233,7 +2183,8 @@
       </div>
     </div>
   </div>
-  <p class="sidebar-version" id="sidebar-version">Ver4.3 build260803<br><span id="sidebar-useragent"></span></p>
+  <!-- Tikuwame向けのファイルの場合はbuild番号の後ろにTMをつける-->
+  <p class="sidebar-version" id="sidebar-version">Ver4.4 build260806<br><span id="sidebar-useragent"></span></p>
 </nav>
 
 <div id="sidebar-onboarding" hidden aria-hidden="true">
@@ -2354,13 +2305,13 @@
       <div class="device-cell">
         <img class="device-img"
           src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/IMG_5234.jpeg?raw=true"
-          alt="Xiaomi 11T Pro" width="48" height="48" loading="lazy" decoding="async">
+          alt="Google Pixel 8" width="48" height="48" loading="lazy" decoding="async">
         <p class="device-name">Google Pixel 8</p>
       </div>
       <div class="device-cell">
         <img class="device-img"
           src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/PC-TE-410-JAW.JPG?raw=true"
-          alt="iPod touch 6th" width="48" height="48" loading="lazy" decoding="async">
+          alt="PC-TE-410-JWA" width="48" height="48" loading="lazy" decoding="async">
         <p class="device-name">PC-TE-410-JWA</p>
       </div>
     </div>
@@ -2381,7 +2332,7 @@
     <div class="row">
       <img class="wish-img lb-trigger"
         src="https://img1.kakaku.k-img.com/images/productimage/fullscale/K0001470328.jpg"
-        alt="iPhone SE2" width="44" height="44" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+        alt="Galaxy Z Fold 4" width="44" height="44" loading="lazy" decoding="async" referrerpolicy="no-referrer">
       <div class="row-value"><span class="badge">Galaxy Z Fold 4</span></div>
     </div>
   </div>
@@ -2474,7 +2425,7 @@
       loading="lazy"
       referrerpolicy="no-referrer">
     <div class="hero-text">
-      <h1>更新履歴</h1>
+      <h1>リリースノート</h1>
       <p class="hero-sub">Changelog</p>
     </div>
   </div>
@@ -2485,6 +2436,14 @@
       <span class="panel-title">Changelog</span>
     </div>
     <!-- ▼ 更新履歴（このブロックをコピーして追加するだけ） ▼ -->
+    <div class="changelog-row">
+      <span class="changelog-ver">Ver4.4</span>
+      <span class="changelog-text">バグ修正とコードの改変</span>
+    </div>
+    <div class="changelog-row">
+      <span class="changelog-ver">Ver4.3</span>
+      <span class="changelog-text">サイドバー・設定まわりの改善</span>
+    </div>
     <div class="changelog-row">
       <span class="changelog-ver">Ver4.2</span>
       <span class="changelog-text">設定ウィンドウの追加とページの上のブラーを削除</span>
@@ -2542,9 +2501,9 @@
     </div>
     <!-- ▼ デベロッパ（このブロックをコピーして追加するだけ） ▼ -->
     <div class="dev-row">
-      <img class="dev-avatar lb-trigger" src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/%E3%81%A1%E3%81%8F%E3%82%8F.jpg?raw=true" alt="@_Tikwua1のアイコン" width="40" height="40" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+      <img class="dev-avatar lb-trigger" src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/%E3%81%A1%E3%81%8F%E3%82%8F.jpg?raw=true" alt="@_Tikuwa1のアイコン" width="40" height="40" loading="lazy" decoding="async" referrerpolicy="no-referrer">
       <div class="dev-info">
-        <span class="dev-name">@_Tikwua1</span>
+        <span class="dev-name">@_Tikuwa1</span>
         <span class="dev-divider"></span>
         <span class="dev-role">Author / Committer</span>
       </div>
@@ -3419,6 +3378,11 @@ function startReveal() {
 
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
+    // ライトボックス / 外部リンク確認が前面のときはサイドバーを閉じない
+    var lbEl = document.getElementById('lightbox');
+    var extEl = document.getElementById('external-confirm');
+    if (lbEl && (lbEl.classList.contains('open') || lbEl.classList.contains('closing'))) return;
+    if (extEl && extEl.classList.contains('open')) return;
     if (onboardingActive) {
       endOnboarding(false);
       return;
@@ -3756,7 +3720,9 @@ function startReveal() {
   requestAnimationFrame(draw);
 })();
 
-// ── スクロールロック ──
+// ── スクロールロック（多重ロック対応） ──
+// lightbox / 外部リンク確認など複数オーバーレイが同時にロックしても
+// 参照カウントで正しく解除できるようにする
 var scrollLockCount = 0;
 function lockPageScroll() {
   scrollLockCount += 1;
@@ -3765,6 +3731,13 @@ function lockPageScroll() {
 function unlockPageScroll() {
   scrollLockCount = Math.max(0, scrollLockCount - 1);
   if (scrollLockCount === 0) document.body.style.overflow = '';
+}
+function forceUnlockPageScroll() {
+  scrollLockCount = 0;
+  document.body.style.overflow = '';
+}
+function isPageScrollLocked() {
+  return scrollLockCount > 0;
 }
 
 // ── 外部リンク確認 ──
@@ -3849,25 +3822,28 @@ function unlockPageScroll() {
   scrim.addEventListener('click', closeConfirm);
   document.addEventListener('keydown', function (e) {
     if (!modal.classList.contains('open')) return;
-    if (e.key === 'Escape') closeConfirm();
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeConfirm();
+    }
   });
 })();
 
 // ── ライトボックス（iOS Photos 風・transform FLIP）──
-const lb      = document.getElementById('lightbox');
-const lbImg   = document.getElementById('lb-img');
-const lbClose = document.getElementById('lb-close');
-const lbScrim = document.getElementById('lb-scrim');
-const LB_OPEN_MS = 720;
-const LB_CLOSE_MS = 680;
-const LB_EASE_OPEN = 'cubic-bezier(0.19, 1, 0.22, 1)';
-const LB_EASE_CLOSE = 'cubic-bezier(0.22, 1, 0.36, 1)';
-const LB_RADIUS_FINAL = '14px';
-const LB_OPEN_TRANSFORM = 'translate3d(0, 0, 0) scale(1)';
-let lbAnim = null;
-let lbLastFocus = null;
-let lbThumb = null;
-let lbFinal = null;
+var lb      = document.getElementById('lightbox');
+var lbImg   = document.getElementById('lb-img');
+var lbClose = document.getElementById('lb-close');
+var lbScrim = document.getElementById('lb-scrim');
+var LB_OPEN_MS = 720;
+var LB_CLOSE_MS = 680;
+var LB_EASE_OPEN = 'cubic-bezier(0.19, 1, 0.22, 1)';
+var LB_EASE_CLOSE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+var LB_RADIUS_FINAL = '14px';
+var LB_OPEN_TRANSFORM = 'translate3d(0, 0, 0) scale(1)';
+var lbAnim = null;
+var lbLastFocus = null;
+var lbThumb = null;
+var lbFinal = null;
 
 function clearLbAnimProps() {
   lbImg.style.transform = '';
@@ -3893,16 +3869,14 @@ function stopLbAnim(commit) {
 }
 
 function calcLbFinalSize(nw, nh) {
-  const maxW = window.innerWidth * 0.88;
-  const maxH = window.innerHeight * 0.82;
-  const ratio = Math.min(maxW / nw, maxH / nh, 1);
-  const w = nw * ratio;
-  const h = nh * ratio;
-  return { w: w, h: h };
+  var maxW = window.innerWidth * 0.88;
+  var maxH = window.innerHeight * 0.82;
+  var ratio = Math.min(maxW / nw, maxH / nh, 1);
+  return { w: nw * ratio, h: nh * ratio };
 }
 
 function getThumbRadius(thumb) {
-  const radius = parseFloat(getComputedStyle(thumb).borderRadius);
+  var radius = parseFloat(getComputedStyle(thumb).borderRadius);
   return Number.isFinite(radius) && radius > 0 ? radius + 'px' : '8px';
 }
 
@@ -3910,79 +3884,78 @@ function getThumbMotion(thumbRect, imgW) {
   return {
     dx: (thumbRect.left + thumbRect.width / 2) - (window.innerWidth / 2),
     dy: (thumbRect.top + thumbRect.height / 2) - (window.innerHeight / 2),
-    scale: thumbRect.width / imgW,
+    scale: thumbRect.width / imgW
   };
 }
 
 function buildOpenTransform(motion, progress) {
-  const t = Math.max(0, Math.min(1, progress));
-  const dx = motion.dx * (1 - t);
-  const dy = motion.dy * (1 - t);
-  const scale = motion.scale + (1 - motion.scale) * t;
+  var t = Math.max(0, Math.min(1, progress));
+  var dx = motion.dx * (1 - t);
+  var dy = motion.dy * (1 - t);
+  var scale = motion.scale + (1 - motion.scale) * t;
   return 'translate3d(' + dx + 'px, ' + dy + 'px, 0) scale(' + scale + ')';
 }
 
 function buildCloseTransform(motion, progress) {
-  const t = Math.max(0, Math.min(1, progress));
-  const dx = motion.dx * t;
-  const dy = motion.dy * t;
-  const scale = 1 - (1 - motion.scale) * t;
+  var t = Math.max(0, Math.min(1, progress));
+  var dx = motion.dx * t;
+  var dy = motion.dy * t;
+  var scale = 1 - (1 - motion.scale) * t;
   return 'translate3d(' + dx + 'px, ' + dy + 'px, 0) scale(' + scale + ')';
 }
 
 function buildOpenKeyframes(thumbRect, imgW, fromRadius) {
-  const motion = getThumbMotion(thumbRect, imgW);
+  var motion = getThumbMotion(thumbRect, imgW);
   return [
     {
       offset: 0,
       transform: buildOpenTransform(motion, 0),
       borderRadius: fromRadius,
       filter: 'blur(12px)',
-      opacity: 0.82,
+      opacity: 0.82
     },
     {
       offset: 0.62,
       transform: buildOpenTransform(motion, 0.62),
       borderRadius: fromRadius,
       filter: 'blur(2px)',
-      opacity: 0.97,
+      opacity: 0.97
     },
     {
       offset: 1,
       transform: LB_OPEN_TRANSFORM,
       borderRadius: LB_RADIUS_FINAL,
       filter: 'blur(0px)',
-      opacity: 1,
-    },
+      opacity: 1
+    }
   ];
 }
 
 function buildCloseKeyframes(thumbRect, imgW, fromRadius) {
-  const motion = getThumbMotion(thumbRect, imgW);
-  const endTransform = buildCloseTransform(motion, 1);
-
+  var motion = getThumbMotion(thumbRect, imgW);
+  var endTransform = buildCloseTransform(motion, 1);
   return [
     {
       offset: 0,
       transform: LB_OPEN_TRANSFORM,
       borderRadius: LB_RADIUS_FINAL,
       filter: 'blur(0px)',
-      opacity: 1,
+      opacity: 1
     },
     {
       offset: 0.45,
       transform: buildCloseTransform(motion, 0.45),
       borderRadius: fromRadius,
       filter: 'blur(4px)',
-      opacity: 0.55,
+      opacity: 0.55
     },
     {
       offset: 1,
       transform: endTransform,
       borderRadius: fromRadius,
       filter: 'blur(10px)',
-      opacity: 0,
-    },
+      opacity: 0
+    }
   ];
 }
 
@@ -4022,19 +3995,19 @@ function openLB(thumb, src, alt) {
 
   lbLastFocus = document.activeElement;
   lbThumb = thumb;
-  let opened = false;
+  var opened = false;
 
   function runOpen() {
     if (opened) return;
     opened = true;
 
-    const thumbRect = thumb.getBoundingClientRect();
-    const nw = lbImg.naturalWidth || thumbRect.width;
-    const nh = lbImg.naturalHeight || thumbRect.height;
-    const final = calcLbFinalSize(nw, nh);
-    const fromRadius = getThumbRadius(thumb);
-    const fromTransform = buildOpenTransform(getThumbMotion(thumbRect, final.w), 0);
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var thumbRect = thumb.getBoundingClientRect();
+    var nw = lbImg.naturalWidth || thumbRect.width;
+    var nh = lbImg.naturalHeight || thumbRect.height;
+    var final = calcLbFinalSize(nw, nh);
+    var fromRadius = getThumbRadius(thumb);
+    var fromTransform = buildOpenTransform(getThumbMotion(thumbRect, final.w), 0);
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     lbFinal = final;
     prepareLbLayout(final);
@@ -4085,7 +4058,7 @@ function openLB(thumb, src, alt) {
 function closeLB() {
   if (!lb.classList.contains('open')) return;
 
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduceMotion || !lbThumb || !lbFinal) {
     cleanupLb();
     return;
@@ -4094,18 +4067,18 @@ function closeLB() {
   stopLbAnim(true);
   prepareLbLayout(lbFinal);
 
-  const thumbRect = lbThumb.getBoundingClientRect();
-  const fromRadius = getThumbRadius(lbThumb);
+  var thumbRect = lbThumb.getBoundingClientRect();
+  var fromRadius = getThumbRadius(lbThumb);
   lb.classList.remove('open');
   lb.classList.add('closing');
 
   lbAnim = lbImg.animate(buildCloseKeyframes(thumbRect, lbFinal.w, fromRadius), {
     duration: LB_CLOSE_MS,
     easing: LB_EASE_CLOSE,
-    fill: 'forwards',
+    fill: 'forwards'
   });
 
-  let closed = false;
+  var closed = false;
   function finishClose() {
     if (closed) return;
     closed = true;
@@ -4152,7 +4125,15 @@ document.querySelectorAll('.lb-trigger').forEach(function (img) {
 });
 lbClose.addEventListener('click', closeLB);
 lbScrim.addEventListener('click', closeLB);
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); });
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Escape') return;
+  // 外部リンク確認が開いているときはそちらを優先
+  var extEl = document.getElementById('external-confirm');
+  if (extEl && extEl.classList.contains('open')) return;
+  if (!lb.classList.contains('open')) return;
+  e.preventDefault();
+  closeLB();
+});
 
 // ── ローダー ──
 (function () {
@@ -4192,7 +4173,9 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); }
     }
     function onImgError() {
       onImg();
-      img.style.visibility = 'hidden'; // 外部画像が切れても壊れたアイコンを出さない
+      // 壊れたアイコンを目立たせない（リトライ／プレースホルダー処理は別ハンドラが担当）
+      // visibility:hidden にするとリトライ成功後も消えたままになるため、透明度のみ下げる
+      if (!img.dataset.retried) img.style.opacity = '0.4';
     }
     if (img.complete) {
       if (img.naturalWidth === 0) onImgError();
@@ -4211,7 +4194,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); }
     loader.classList.add('exiting');
     document.body.classList.remove('loading');
     document.documentElement.classList.remove('theme-static');
-    document.body.style.overflow = '';  // safety: ensure scroll not locked from loader
+    // ローダー終了時は意図的なオーバーレイロックが無ければスクロールを戻す
+    if (!isPageScrollLocked()) document.body.style.overflow = '';
     setTimeout(startReveal, EXIT_MS + 100);
 
     setTimeout(function () {
