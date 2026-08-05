@@ -59,10 +59,13 @@
           return false;
         }
 
-        if (!isSupported()) {
-          window.location.replace('https://x.com/_Tikuwa1');
-        }
-      } catch (e) {}
+        // ここではリダイレクトはせず、判定結果だけをグローバルに保存する。
+        // 実際の警告表示は body 側のスクリプトで行う（DOM が必要なため）。
+        window.__browserSupported = isSupported();
+      } catch (e) {
+        // 判定自体に失敗した場合は誤ブロックを避けるため「対応」扱いにする
+        window.__browserSupported = true;
+      }
     })();
   </script>
   <link rel="icon" type="image/png" sizes="32x32" href="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/32.png?raw=true">
@@ -92,6 +95,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0" rel="stylesheet"></noscript>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"></noscript>
   <style>
     :root {
       --bg-scrim: rgba(0,0,0,0.52);
@@ -411,6 +416,56 @@
       #lang-switch-progress-fill {
         transition: none;
       }
+    }
+
+    /* ── 非対応ブラウザ警告オーバーレイ ── */
+    #browser-unsupported-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 20000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      /* backdrop-filter は非対応ブラウザで機能しない可能性があるため、
+         ぼかしに頼らず完全に不透明なグレーで背後を隠す */
+      background: #1e1e20;
+    }
+    #browser-unsupported-overlay.active {
+      display: flex;
+    }
+    #browser-unsupported-box {
+      width: 100%;
+      max-width: 460px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+      /* ぼかしに頼らず単色のグレーで表示（非対応ブラウザでも見た目が崩れない） */
+      background: #3a3a3c;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 20px;
+      padding: 28px 28px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+    #browser-unsupported-box .material-icons-round {
+      font-size: 38px;
+      color: #ff3b30;
+      display: block;
+      margin-bottom: 14px;
+      line-height: 1;
+    }
+    #browser-unsupported-box h2 {
+      font-size: 17px;
+      font-weight: 400;
+      color: #fff;
+      white-space: nowrap;
+      margin-bottom: 8px;
+    }
+    #browser-unsupported-box p {
+      font-size: 13px;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.62);
     }
 
     #scroll-hint {
@@ -2051,6 +2106,28 @@
 </head>
 <body class="loading">
 
+<div id="browser-unsupported-overlay" role="alertdialog" aria-modal="true" aria-labelledby="browser-unsupported-title" aria-hidden="true">
+  <div id="browser-unsupported-box">
+    <span class="material-icons-round" aria-hidden="true">warning</span>
+    <h2 id="browser-unsupported-title">対応ブラウザ以外のブラウザを使用しています</h2>
+    <p>ブラウザを更新するか、別のデバイスを使用してください。</p>
+  </div>
+</div>
+
+<script>
+  window.browsernotsupported = function () {
+    var overlay = document.getElementById('browser-unsupported-overlay');
+    if (!overlay) return;
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+  };
+  document.addEventListener('DOMContentLoaded', function () {
+    if (window.__browserSupported === false) {
+      window.browsernotsupported();
+    }
+  });
+</script>
+
 <a href="#main-content" class="skip-link">メインコンテンツへスキップ</a>
 
 <div id="sr-announcer" aria-live="polite" aria-atomic="true"
@@ -2507,53 +2584,6 @@
     </div>
     <div class="row">
       <span class="row-value" style="color: var(--text-muted); font-size: 13px; line-height: 1.6;">このサイトのドメイン取得および管理にご協力いただいている <a href="https://x.com/TV05095416" target="_blank" rel="noopener">@TV05095416</a> 様に、心より感謝申し上げます。<br>ドメインの取得・維持管理など、サイト運営に欠かせない環境を支えていただいているおかげで、安心してサイトを公開・運営することができています。<br>この場をお借りして、深く御礼申し上げます。</span>
-    </div>
-  </div>
-
-  <div class="panel reveal">
-    <div class="panel-header">
-      <div class="panel-dot"></div>
-      <span class="panel-title">対応ブラウザ</span>
-    </div>
-    <div class="row">
-      <span class="row-label">Google Chrome</span>
-      <span class="row-value">115以上</span>
-    </div>
-    <div class="row">
-      <span class="row-label">Safari</span>
-      <span class="row-value">16.4以上</span>
-    </div>
-    <div class="row">
-      <span class="row-label">Mozilla Firefox</span>
-      <span class="row-value">128以上</span>
-    </div>
-    <div class="row">
-      <span class="row-label">Microsoft Edge</span>
-      <span class="row-value">115以上</span>
-    </div>
-    <div class="row">
-      <span class="row-label">Opera</span>
-      <span class="row-value">101以上</span>
-    </div>
-    <div class="row">
-      <span class="row-label">Vivaldi</span>
-      <span class="row-value">6.2以上</span>
-    </div>
-    <div class="row">
-      <span class="row-label">DuckDuckGo (Windows)</span>
-      <span class="row-value">WebView2（115以上）</span>
-    </div>
-    <div class="row">
-      <span class="row-label">DuckDuckGo (Mac / iOS)</span>
-      <span class="row-value">WebKit（16.4以上）</span>
-    </div>
-    <div class="row">
-      <span class="row-label">DuckDuckGo (Android)</span>
-      <span class="row-value">Android System WebView（115以上）</span>
-    </div>
-    <div class="row">
-      <span class="row-label">Internet Explorer</span>
-      <span class="row-value">非対応</span>
     </div>
   </div>
 
