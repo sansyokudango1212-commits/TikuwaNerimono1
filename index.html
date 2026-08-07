@@ -2189,7 +2189,7 @@
     </div>
   </div>
   <!-- Tikuwame向けのファイルの場合はbuild番号の後ろにTMをつける-->
-  <p class="sidebar-version" id="sidebar-version">Ver4.5 build260808<br><span id="sidebar-useragent"></span></p>
+  <p class="sidebar-version" id="sidebar-version">Ver4.5.1K build260808<br><span id="sidebar-useragent"></span></p>
 </nav>
 
 <div id="sidebar-onboarding" hidden aria-hidden="true">
@@ -2685,11 +2685,11 @@
   var isTikuwaMe = host === 'tikuwa.me' || host === 'www.tikuwa.me';
 
   if (isGithubPage) {
-    githubHandle.textContent = 'このサイトはGitHub Pages版です';
+    githubLink.hidden = true;
     tikuwaHandle.textContent = 'Tikuwa.me版へ移動';
   } else if (isTikuwaMe) {
+    tikuwaLink.hidden = true;
     githubHandle.textContent = 'GitHub Pages版へ移動';
-    tikuwaHandle.textContent = 'このサイトはTikuwa.me版です';
   } else {
     githubHandle.textContent = 'GitHub Pages版へ移動';
     tikuwaHandle.textContent = 'Tikuwa.me版へ移動';
