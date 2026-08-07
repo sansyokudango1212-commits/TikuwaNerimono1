@@ -1871,6 +1871,11 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+    .ext-confirm-url-wrapper {
+      text-align: center;
+      margin-top: 8px;
+      margin-bottom: 16px;
+    }
     .ext-confirm-actions {
       display: flex;
       gap: 10px;
@@ -2184,7 +2189,7 @@
     </div>
   </div>
   <!-- Tikuwame向けのファイルの場合はbuild番号の後ろにTMをつける-->
-  <p class="sidebar-version" id="sidebar-version">Ver4.4 build260806<br><span id="sidebar-useragent"></span></p>
+  <p class="sidebar-version" id="sidebar-version">Ver4.5 build260808<br><span id="sidebar-useragent"></span></p>
 </nav>
 
 <div id="sidebar-onboarding" hidden aria-hidden="true">
@@ -2204,8 +2209,10 @@
   <div class="ext-confirm-dialog">
     <p class="ext-confirm-message" id="ext-confirm-title">
       外部サイトに移動します。<br>よろしいですか？
-      <span class="ext-confirm-url" id="ext-confirm-url"></span>
     </p>
+    <div class="ext-confirm-url-wrapper">
+      <span class="ext-confirm-url" id="ext-confirm-url"></span>
+    </div>
     <div class="ext-confirm-actions">
       <button type="button" class="ext-confirm-btn ext-confirm-no">いいえ</button>
       <button type="button" class="ext-confirm-btn ext-confirm-yes">はい</button>
@@ -2406,6 +2413,26 @@
       <div class="link-info">
         <div class="link-name">Steam</div>
         <div class="link-handle">Tikuwa_Nerimono1</div>
+      </div>
+      <span class="material-symbols-outlined link-chevron" aria-hidden="true">chevron_right</span>
+    </a>
+    <a id="site-github-link" class="link-row" href="https://sansyokudango1212-commits.github.io/TikuwaNerimono1/" target="_blank" rel="noopener">
+      <div class="link-icon">
+        <span class="material-symbols-outlined" aria-hidden="true" style="font-size:20px; color:var(--text-strong);">swap_horiz</span>
+      </div>
+      <div class="link-info">
+        <div id="site-github-name" class="link-name">GitHub Pages版</div>
+        <div id="site-github-handle" class="link-handle">このサイトはGitHub Pages版です</div>
+      </div>
+      <span class="material-symbols-outlined link-chevron" aria-hidden="true">chevron_right</span>
+    </a>
+    <a id="site-tikuwa-link" class="link-row" href="https://tikuwa.me/" target="_blank" rel="noopener">
+      <div class="link-icon">
+        <span class="material-symbols-outlined" aria-hidden="true" style="font-size:20px; color:var(--text-strong);">swap_horiz</span>
+      </div>
+      <div class="link-info">
+        <div id="site-tikuwa-name" class="link-name">Tikuwa.me版</div>
+        <div id="site-tikuwa-handle" class="link-handle">Tikuwa.meへ移動できます</div>
       </div>
       <span class="material-symbols-outlined link-chevron" aria-hidden="true">chevron_right</span>
     </a>
@@ -2641,6 +2668,32 @@
     panel.hidden = false;
     console.log('%cDomain パネルを表示しました', 'color:#3a8fff;font-weight:bold;font-size:13px;');
   };
+})();
+
+(function () {
+  var githubLink = document.getElementById('site-github-link');
+  var githubName = document.getElementById('site-github-name');
+  var githubHandle = document.getElementById('site-github-handle');
+  var tikuwaLink = document.getElementById('site-tikuwa-link');
+  var tikuwaName = document.getElementById('site-tikuwa-name');
+  var tikuwaHandle = document.getElementById('site-tikuwa-handle');
+
+  if (!githubLink || !tikuwaLink) return;
+
+  var host = window.location.hostname.toLowerCase();
+  var isGithubPage = host.indexOf('github.io') !== -1;
+  var isTikuwaMe = host === 'tikuwa.me' || host === 'www.tikuwa.me';
+
+  if (isGithubPage) {
+    githubHandle.textContent = 'このサイトはGitHub Pages版です';
+    tikuwaHandle.textContent = 'Tikuwa.me版へ移動';
+  } else if (isTikuwaMe) {
+    githubHandle.textContent = 'GitHub Pages版へ移動';
+    tikuwaHandle.textContent = 'このサイトはTikuwa.me版です';
+  } else {
+    githubHandle.textContent = 'GitHub Pages版へ移動';
+    tikuwaHandle.textContent = 'Tikuwa.me版へ移動';
+  }
 })();
 
 // ── スクリーンリーダー向け通知 ──
@@ -3762,10 +3815,49 @@ function isPageScrollLocked() {
     }
   }
 
+  function extractSiteName(href) {
+    try {
+      var url = new URL(href);
+      var hostname = url.hostname.toLowerCase();
+      hostname = hostname.replace(/^www\./, '');
+      
+      var siteNameMap = {
+        'tikuwa.me': 'Tikuwa.me',
+        'sansyokudango1212-commits.github.io': 'GitHub Pages版',
+        'x.com': 'X (Twitter)',
+        'twitter.com': 'Twitter',
+        'reddit.com': 'Reddit',
+        'steamcommunity.com': 'Steam',
+        'github.com': 'GitHub',
+        'discord.com': 'Discord',
+        'instagram.com': 'Instagram',
+      };
+      
+      if (siteNameMap[hostname]) {
+        return siteNameMap[hostname];
+      }
+      
+      var parts = hostname.split('.');
+      if (parts.length >= 2) {
+        return parts[parts.length - 2].charAt(0).toUpperCase() + parts[parts.length - 2].slice(1);
+      }
+      return hostname.charAt(0).toUpperCase() + hostname.slice(1);
+    } catch (e) {
+      return '';
+    }
+  }
+
   function openConfirm(href, target) {
     clearTimeout(closeTimer);
     pendingUrl = href;
     pendingTarget = target || '_blank';
+
+    var siteName = extractSiteName(href);
+    var titleText = siteName
+      ? siteName + 'に移動します。<br>よろしいですか？'
+      : '外部サイトに移動します。<br>よろしいですか？';
+
+    modal.querySelector('#ext-confirm-title').innerHTML = titleText;
     urlEl.textContent = href;
     modal.classList.remove('closing', 'active');
     modal.classList.add('open');
