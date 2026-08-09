@@ -543,6 +543,16 @@
       font-size: 14px; font-weight: 300;
       color: var(--text-strong); flex: 1;
     }
+    .apple-symbol-image {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      object-fit: contain;
+      vertical-align: -0.12em;
+    }
+    html:not([data-theme="light"]) .apple-symbol-image {
+      filter: invert(1);
+    }
     .row-value a { color: var(--accent); text-decoration: none; }
     .row-value a:hover { text-decoration: underline; }
 
@@ -2083,6 +2093,55 @@
     }
   });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var symbol = document.querySelector('.apple-symbol');
+  if (!symbol) return;
+
+  function renderGlyph(ctx, glyph) {
+    ctx.clearRect(0, 0, 48, 48);
+    ctx.fillText(glyph, 8, 36);
+    return ctx.getImageData(0, 0, 48, 48).data;
+  }
+
+  function isMissingGlyph() {
+    var canvas = document.createElement('canvas');
+    canvas.width = 48;
+    canvas.height = 48;
+    var ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return false;
+
+    var style = getComputedStyle(symbol);
+    ctx.font = style.fontWeight + ' ' + style.fontSize + ' ' + style.fontFamily;
+    ctx.textBaseline = 'alphabetic';
+    var apple = renderGlyph(ctx, '');
+    var replacement = renderGlyph(ctx, '\uE000');
+    for (var i = 0; i < apple.length; i++) {
+      if (apple[i] !== replacement[i]) return false;
+    }
+    return true;
+  }
+
+  function useImageFallback() {
+    if (!isMissingGlyph()) return;
+    var image = document.createElement('img');
+    image.className = 'apple-symbol-image';
+    image.src = 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg';
+    image.alt = '';
+    image.width = 14;
+    image.height = 14;
+    image.decoding = 'async';
+    image.referrerPolicy = 'no-referrer';
+    symbol.replaceWith(image);
+  }
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(useImageFallback);
+  } else {
+    useImageFallback();
+  }
+});
+</script>
 
 <a href="#main-content" class="skip-link">メインコンテンツへスキップ</a>
 
@@ -2190,7 +2249,7 @@
     </div>
   </div>
   <!-- Tikuwame向けのファイルの場合はbuild番号の後ろにTMをつける-->
-  <p class="sidebar-version" id="sidebar-version">Ver4.5.2K build260808<br><span id="sidebar-useragent"></span></p>
+  <p class="sidebar-version" id="sidebar-version">Ver4.6 build260808<br><span id="sidebar-useragent"></span></p>
 </nav>
 
 <div id="sidebar-onboarding" hidden aria-hidden="true">
@@ -2260,18 +2319,18 @@
     </div>
     <div class="row">
       <span class="row-label">属性</span>
-      <span class="row-value">圧倒的ガジェオタ</span>
+      <span class="row-value">中途半端にりんご<span class="apple-symbol" aria-label=""></span>に染まっていないガジェオタ</span>
     </div>
     <div class="row">
       <span class="row-label">独り言</span>
-      <span class="row-value">Xiaomi REDMI K70 至尊版が着弾しそうだなぁ</span>
+      <span class="row-value">Xiaomi REDMI K70 至尊版着弾うれしい!!!!!!</span>
     </div>
     <div class="row">
       <span class="row-label">趣味</span>
       <div class="row-value">
         <div class="tag-list">
           <span class="tag"><a href="https://x.com/bsakisakirinrin" target="_blank">のんと話すこと</a></span>
-          <span class="tag">タオバオ</span>
+          <span class="tag">アリエク巡回</span>
           <span class="tag">メルカス徘徊</span>
           <span class="tag">写真撮る</span>
         </div>
@@ -2312,9 +2371,9 @@
       </div>
       <div class="device-cell">
         <img class="device-img"
-          src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/IMG_5234.jpeg?raw=true"
-          alt="Google Pixel 8" width="48" height="48" loading="lazy" decoding="async">
-        <p class="device-name">Google Pixel 8</p>
+          src="https://github.com/sansyokudango1212-commits/TikuwaNerimono1/blob/main/4b69d5fd-dcd2-4c45-ae3a-60123177fec8.jpg?raw=true"
+          alt="Xiaomi Redmi K70 Ultra" width="48" height="48" loading="lazy" decoding="async">
+        <p class="device-name">Xiaomi Redmi K70 Ultra</p>
       </div>
       <div class="device-cell">
         <img class="device-img"
@@ -3297,7 +3356,7 @@ function startReveal() {
   }
 
   function startOnboarding() {
-    if (hasSeenOnboarding() || onboardingActive || isOpen || !onboarding) return;
+    if (hasSeenOnboarding() || onboardingActive || isOpen || isAnimating || !onboarding) return;
     renderOnboardingCopy();
     onboardingActive = true;
     onboarding.classList.remove('animate-in', 'panel-out', 'blur-out');
