@@ -513,9 +513,48 @@
     }
     .panel-dot {
       width: 10px; height: 10px;
-      border-radius: 50%;
       background: var(--panel-dot);
       flex-shrink: 0;
+      /* 円も含めて全形状をpolygon()（頂点20個）で統一し、かつ各頂点の角を
+         ベジェで丸めてあるので、モーフィング中も角が立たずブロブっぽく変形する */
+      clip-path: polygon(50.0% 4.0%, 64.2% 6.3%, 77.0% 12.8%, 87.2% 23.0%, 93.7% 35.8%, 96.0% 50.0%, 93.7% 64.2%, 87.2% 77.0%, 77.0% 87.2%, 64.2% 93.7%, 50.0% 96.0%, 35.8% 93.7%, 23.0% 87.2%, 12.8% 77.0%, 6.3% 64.2%, 4.0% 50.0%, 6.3% 35.8%, 12.8% 23.0%, 23.0% 12.8%, 35.8% 6.3%);
+      /* ホバー解除時（変形→円）の戻りアニメ用。ホバー中は animation が優先される */
+      transition: clip-path 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    /* :hoverだけだとタッチ端末では発火しない（またはタップ後に張り付く）ため、
+       JS側でpointerenter/pointerleaveを見てこのクラスを付け外しする。
+       マウスでもタッチでもペンでも同じ挙動になる。 */
+    .panel-header.dot-touching .panel-dot {
+      animation: panel-dot-morph 3.2s ease-in-out infinite;
+      /* モーフィング中は transition を切ってキーフレームだけにする */
+      transition: none;
+    }
+    /* カーソルが外れた直後：いまの形から円へスムーズに戻す */
+    .panel-header.dot-returning .panel-dot {
+      animation: none;
+      transition: clip-path 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes panel-dot-morph {
+      0%, 100% {
+        clip-path: polygon(50.0% 4.0%, 64.2% 6.3%, 77.0% 12.8%, 87.2% 23.0%, 93.7% 35.8%, 96.0% 50.0%, 93.7% 64.2%, 87.2% 77.0%, 77.0% 87.2%, 64.2% 93.7%, 50.0% 96.0%, 35.8% 93.7%, 23.0% 87.2%, 12.8% 77.0%, 6.3% 64.2%, 4.0% 50.0%, 6.3% 35.8%, 12.8% 23.0%, 23.0% 12.8%, 35.8% 6.3%);
+      }
+      18% {
+        clip-path: polygon(49.7% 16.0%, 61.1% 16.4%, 72.0% 19.7%, 80.0% 27.6%, 83.5% 38.3%, 84.0% 49.7%, 83.6% 61.1%, 80.3% 72.0%, 72.4% 80.0%, 61.7% 83.5%, 50.3% 84.0%, 38.9% 83.6%, 28.0% 80.3%, 20.0% 72.4%, 16.5% 61.7%, 16.0% 50.3%, 16.4% 38.9%, 19.7% 28.0%, 27.6% 20.0%, 38.3% 16.5%);
+      }
+      38% {
+        clip-path: polygon(49.9% 21.5%, 58.5% 26.3%, 64.4% 34.7%, 69.3% 43.8%, 74.2% 52.9%, 79.0% 62.1%, 82.4% 71.8%, 80.1% 81.4%, 70.8% 85.5%, 60.5% 86.0%, 50.1% 86.0%, 39.8% 86.0%, 29.5% 85.5%, 20.1% 81.6%, 17.5% 72.0%, 20.9% 62.3%, 25.7% 53.2%, 30.6% 44.1%, 35.5% 35.0%, 41.3% 26.5%);
+      }
+      58% {
+        clip-path: polygon(50.0% 6.4%, 56.7% 18.8%, 63.8% 31.0%, 77.7% 34.0%, 91.5% 36.5%, 81.8% 46.7%, 72.3% 57.3%, 73.8% 71.4%, 75.6% 85.3%, 63.0% 79.2%, 50.0% 73.5%, 37.0% 79.2%, 24.3% 85.3%, 26.2% 71.4%, 27.6% 57.2%, 18.2% 46.7%, 8.5% 36.5%, 22.4% 34.0%, 36.2% 31.0%, 43.4% 18.7%);
+      }
+      78% {
+        clip-path: polygon(50.2% 12.0%, 60.7% 15.6%, 69.1% 23.1%, 77.2% 31.2%, 84.6% 39.6%, 88.0% 50.2%, 84.4% 60.7%, 76.9% 69.1%, 68.8% 77.2%, 60.4% 84.6%, 49.8% 88.0%, 39.3% 84.4%, 30.9% 76.9%, 22.8% 68.8%, 15.4% 60.4%, 12.0% 49.8%, 15.6% 39.3%, 23.1% 30.9%, 31.2% 22.8%, 39.6% 15.4%);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .panel-header.dot-touching .panel-dot { animation: none; }
+      .panel-header.dot-returning .panel-dot { transition: none; }
+      .panel-dot { transition: none; }
     }
     .panel-title {
       font-size: 12px; color: var(--panel-title);
@@ -2044,8 +2083,10 @@
       /* background-attachment: scroll; は不要になったため削除 */
       :root {
         --overlay-blur: 10px;
-        --panel-blur: 24px;
-        --edge-glass-blur: 12px;
+        /* 以前は24pxでPC版(22px)より重くなっていた。backdrop-filterのコストは
+           半径のほぼ2乗で効いてくるためモバイルでは大きく下げる。 */
+        --panel-blur: 14px;
+        --edge-glass-blur: 10px;
       }
       .edge-glass.top,
       .edge-glass.bottom {
@@ -2249,7 +2290,7 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
   </div>
   <!-- Tikuwame向けのファイルの場合はbuild番号の後ろにTMをつける-->
-  <p class="sidebar-version" id="sidebar-version">Ver4.6 build260808<br><span id="sidebar-useragent"></span></p>
+  <p class="sidebar-version" id="sidebar-version">Ver4.7 build260809<br><span id="sidebar-useragent"></span></p>
 </nav>
 
 <div id="sidebar-onboarding" hidden aria-hidden="true">
@@ -2333,6 +2374,54 @@ document.addEventListener('DOMContentLoaded', function () {
           <span class="tag">アリエク巡回</span>
           <span class="tag">メルカス徘徊</span>
           <span class="tag">写真撮る</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARACTERISTICS (2.5枚目) -->
+  <div class="panel reveal">
+    <div class="panel-header">
+      <div class="panel-dot"></div>
+      <span class="panel-title">特徴</span>
+    </div>
+    <div class="row">
+      <span class="row-label">ガジェット</span>
+      <div class="row-value">
+        <div class="tag-list">
+          <span class="tag">Xiaomi/Oppo/Vivoが好き</span>
+          <span class="tag">ハイエンド端末ほしい</span>
+          <span class="tag">ちょっと珍しい仕様のスマホ大好き</span>
+          <span class="tag">ハイエンドのスペックを調べるのが好き</span>
+          <span class="tag">古いApple製品も好き(iPod系)</span>
+          <span class="tag">有線イヤホンに最近興味ある</span>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-label">PC</span>
+      <div class="row-value">
+        <div class="tag-list">
+          <span class="tag">WinをMacみたいにするの楽しい</span>
+          <span class="tag">OSカスタム楽しい</span>
+          <span class="tag">Pythonでなんか作るの好き</span>
+          <span class="tag">DNSサーバーに最近興味ある</span>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-label">開発</span>
+      <div class="row-value">
+        <div class="tag-list">
+          <span class="tag">バイブコーディングが好き</span>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-label">資金</span>
+      <div class="row-value">
+        <div class="tag-list">
+          <span class="tag">リセールの良いもの大好き</span>
         </div>
       </div>
     </div>
@@ -2523,6 +2612,10 @@ document.addEventListener('DOMContentLoaded', function () {
       <span class="panel-title">Changelog</span>
     </div>
     <!-- ▼ 更新履歴（このブロックをコピーして追加するだけ） ▼ -->
+  <div class="changelog-row">
+      <span class="changelog-ver">Ver4.7</span>
+      <span class="changelog-text">ホームの本文の追加とバグを修正</span>
+    </div>
     <div class="changelog-row">
       <span class="changelog-ver">Ver4.4</span>
       <span class="changelog-text">バグ修正とコードの改変</span>
@@ -3763,32 +3856,91 @@ function startReveal() {
   });
 })();
 
-// ── HyperOS blob ──
+// ── パネルタイトル横のドット：タップ／ホバーでブロブアニメーション ──
+// :hoverだけだとタッチ端末で発火しない（またはタップ後に張り付いたままになる）ため、
+// Pointer Eventsでマウス・タッチ・ペンを問わず「触れている間だけ」動くようにする。
+// カーソルが外れたときは、いまの変形形状をフリーズしてから円へ transition で戻す
+// （animation を消すだけだと途中フレームから即スナップしてしまうため）。
+(function () {
+  var CIRCLE_CLIP =
+    'polygon(50.0% 4.0%, 64.2% 6.3%, 77.0% 12.8%, 87.2% 23.0%, 93.7% 35.8%, 96.0% 50.0%, 93.7% 64.2%, 87.2% 77.0%, 77.0% 87.2%, 64.2% 93.7%, 50.0% 96.0%, 35.8% 93.7%, 23.0% 87.2%, 12.8% 77.0%, 6.3% 64.2%, 4.0% 50.0%, 6.3% 35.8%, 12.8% 23.0%, 23.0% 12.8%, 35.8% 6.3%)';
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll('.panel-header').forEach(function (header) {
+    var dot = header.querySelector('.panel-dot');
+    if (!dot) return;
+
+    var returnTimer = null;
+
+    function clearReturnState() {
+      if (returnTimer) {
+        clearTimeout(returnTimer);
+        returnTimer = null;
+      }
+      header.classList.remove('dot-returning');
+      dot.style.clipPath = '';
+      dot.style.transition = '';
+    }
+
+    header.addEventListener('pointerenter', function () {
+      clearReturnState();
+      header.classList.add('dot-touching');
+    }, { passive: true });
+
+    function returnToCircle() {
+      if (!header.classList.contains('dot-touching') && !header.classList.contains('dot-returning')) {
+        return;
+      }
+
+      if (reduceMotion) {
+        header.classList.remove('dot-touching', 'dot-returning');
+        clearReturnState();
+        return;
+      }
+
+      // アニメ中の現在形状を取得してから animation を止める
+      var current = getComputedStyle(dot).clipPath;
+      header.classList.remove('dot-touching');
+      header.classList.add('dot-returning');
+
+      // いまの形でフリーズ（transition なし）
+      dot.style.transition = 'none';
+      dot.style.clipPath = current || CIRCLE_CLIP;
+      void dot.offsetWidth; // reflow
+
+      // 円へスムーズに戻す
+      dot.style.transition = 'clip-path 0.55s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      dot.style.clipPath = CIRCLE_CLIP;
+
+      function finish() {
+        if (!header.classList.contains('dot-returning')) return;
+        clearReturnState();
+      }
+
+      // transitionend が来ない環境向けにタイムアウトも併用
+      if (returnTimer) clearTimeout(returnTimer);
+      returnTimer = setTimeout(finish, 600);
+
+      function onEnd(e) {
+        if (e.propertyName && e.propertyName !== 'clip-path') return;
+        dot.removeEventListener('transitionend', onEnd);
+        finish();
+      }
+      dot.addEventListener('transitionend', onEnd);
+    }
+
+    header.addEventListener('pointerleave', returnToCircle, { passive: true });
+    header.addEventListener('pointercancel', returnToCircle, { passive: true });
+  });
+})();
+
+// ── HyperOS blob（起動時ベンチマークで品質を自動調整） ──
 (function () {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   var canvas = document.getElementById('blob-canvas');
   var ctx = canvas.getContext('2d', { alpha: true });
-  var isMobile = window.matchMedia('(max-width: 768px), (hover: none) and (pointer: coarse)').matches;
-  var dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 2);
-  var running = true;
-  var frameMod = isMobile ? 2 : 1;
-  var frameTick = 0;
-
-  function resize() {
-    canvas.width = Math.round(window.innerWidth * dpr);
-    canvas.height = Math.round(window.innerHeight * dpr);
-    canvas.style.width = window.innerWidth + 'px';
-    canvas.style.height = window.innerHeight + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-  resize();
-  window.addEventListener('resize', resize, { passive: true });
-
-  document.addEventListener('visibilitychange', function () {
-    running = !document.hidden;
-    if (running) requestAnimationFrame(draw);
-  });
+  if (!ctx) return;
 
   var blobs = [
     { cx: 0.20, cy: 0.20, r: 0.40, rgb: [20,  90, 255], ax: 0.22, ay: 0.18, fx: 0.00022, fy: 0.00017, ph: 0.0 },
@@ -3798,20 +3950,21 @@ function startReveal() {
     { cx: 0.88, cy: 0.58, r: 0.31, rgb: [10,  50, 200], ax: 0.21, ay: 0.19, fx: 0.00019, fy: 0.00021, ph: 4.1 },
   ];
 
-  function draw(ts) {
-    if (!running) return;
-    frameTick++;
-    if (frameTick % frameMod !== 0) {
-      requestAnimationFrame(draw);
-      return;
-    }
+  var running = true;
+  var dpr = 1, minFrameInterval = 66, freeze = false, lastDrawTime = 0;
 
+  function resize() {
+    canvas.width = Math.round(window.innerWidth * dpr);
+    canvas.height = Math.round(window.innerHeight * dpr);
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function paintBlobs(ts) {
     var t = ts * 0.001;
-    var W = window.innerWidth;
-    var H = window.innerHeight;
-
+    var W = window.innerWidth, H = window.innerHeight;
     ctx.clearRect(0, 0, W, H);
-
     blobs.forEach(function (b) {
       var px = (b.cx + Math.sin(t * b.fx * 1000 + b.ph) * b.ax) * W;
       var py = (b.cy + Math.cos(t * b.fy * 1000 + b.ph) * b.ay) * H;
@@ -3826,11 +3979,109 @@ function startReveal() {
       ctx.fillStyle = g;
       ctx.fill();
     });
-
-    requestAnimationFrame(draw);
   }
 
-  requestAnimationFrame(draw);
+  function draw(ts) {
+    if (!running) return;
+    if (ts - lastDrawTime < minFrameInterval) {
+      if (!freeze) requestAnimationFrame(draw);
+      return;
+    }
+    lastDrawTime = ts;
+    paintBlobs(ts);
+    if (!freeze) requestAnimationFrame(draw);
+  }
+
+  document.addEventListener('visibilitychange', function () {
+    running = !document.hidden;
+    if (running && !freeze) requestAnimationFrame(draw);
+  });
+  window.addEventListener('resize', function () {
+    resize();
+    if (freeze) requestAnimationFrame(draw);
+  }, { passive: true });
+
+  function applyTier(tier) {
+    var root = document.documentElement.style;
+    if (tier === 'low') {
+      root.setProperty('--panel-blur', '8px');
+      root.setProperty('--edge-glass-blur', '6px');
+      root.setProperty('--overlay-blur', '6px');
+      dpr = 1; minFrameInterval = 100; freeze = true;   // アニメーションは初回1回描画で静止させる
+    } else if (tier === 'mid') {
+      root.setProperty('--panel-blur', '14px');
+      root.setProperty('--edge-glass-blur', '10px');
+      dpr = 1; minFrameInterval = 66; freeze = false;   // ≈15fps上限
+    } else {
+      // 'high' はCSS側のデフォルト値をそのまま使う
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      minFrameInterval = 33; freeze = false;            // ≈30fps上限
+    }
+  }
+
+  // ── 起動時ベンチマーク ──
+  // 「読み込み中」の一瞬（画面はローダーの裏でまだ見えていない）だけ、
+  // 本番と同じ負荷（canvas描画 + backdrop-filter）を実際にかけて実測する。
+  // 画面サイズや推定スペックから当てずっぽうで決めるより、実機で今まさに
+  // 出ているフレーム時間を見たほうが確実（サーマルスロットリング中の
+  // ハイエンド機なども正しく「重い」と判定できる）。
+  function benchmarkAndStart() {
+    var probe = document.createElement('div');
+    probe.setAttribute('aria-hidden', 'true');
+    probe.style.cssText =
+      'position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:0.01;' +
+      'backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);';
+    document.body.appendChild(probe);
+
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    resize();
+
+    var samples = [];
+    var last = null;
+    var frames = 0;
+    var TOTAL_FRAMES = 12;
+
+    function bench(ts) {
+      if (last !== null) samples.push(ts - last);
+      last = ts;
+      paintBlobs(ts);
+      frames++;
+      if (frames < TOTAL_FRAMES) {
+        requestAnimationFrame(bench);
+      } else {
+        finishBenchmark();
+      }
+    }
+
+    function finishBenchmark() {
+      if (probe.parentNode) probe.parentNode.removeChild(probe);
+      // 最初の数フレームは計測ノイズが乗りやすいので除外
+      var valid = samples.slice(3);
+      var avgFrame = valid.length
+        ? valid.reduce(function (a, c) { return a + c; }, 0) / valid.length
+        : 40;
+
+      var tier = 'high';
+      if (avgFrame > 30) tier = 'low';
+      else if (avgFrame > 18) tier = 'mid';
+
+      applyTier(tier);
+      resize();
+      lastDrawTime = 0;
+      requestAnimationFrame(draw);
+    }
+
+    requestAnimationFrame(function (ts) { last = ts; requestAnimationFrame(bench); });
+  }
+
+  try {
+    benchmarkAndStart();
+  } catch (e) {
+    // 計測自体に失敗した場合は安全側（mid相当）で動かす
+    applyTier('mid');
+    resize();
+    requestAnimationFrame(draw);
+  }
 })();
 
 // ── スクロールロック（多重ロック対応） ──
@@ -4199,10 +4450,27 @@ function openLB(thumb, src, alt) {
   lbImg.src = src;
   lbImg.alt = alt;
 
+  // ここが重要: ブラウザは新しい<img>要素に画像を初めて描画する際、
+  // src代入や'load'イベントの時点ではまだピクセルのデコードが済んで
+  // いないことがある。そのままCSS transitionやWeb Animations APIの
+  // アニメーションを開始すると、初回ペイントの瞬間にメインスレッド上で
+  // 同期的にデコードが走り、その1フレームだけ処理が詰まって「ガクッ」と
+  // なる（開くアニメーションの一部がコマ落ちする）。
+  // decode()でアニメーション開始前に明示的にデコードを完了させておくと、
+  // 実際に画面に挿入する時点ではもうビットマップが用意できているため、
+  // このコマ落ちが起きなくなる。
+  function whenDecoded(cb) {
+    if (typeof lbImg.decode === 'function') {
+      lbImg.decode().then(cb).catch(cb);
+    } else {
+      cb();
+    }
+  }
+
   if (lbImg.complete && lbImg.naturalWidth > 0) {
-    runOpen();
+    whenDecoded(runOpen);
   } else {
-    lbImg.addEventListener('load', runOpen, { once: true });
+    lbImg.addEventListener('load', function () { whenDecoded(runOpen); }, { once: true });
     lbImg.addEventListener('error', runOpen, { once: true });
   }
 }
